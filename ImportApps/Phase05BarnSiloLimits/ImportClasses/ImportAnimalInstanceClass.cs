@@ -18,12 +18,12 @@ public static class ImportAnimalInstanceClass
         }
 
         BasicList<AnimalInstanceDocument> list = [];
-
-        // Production farms for MVP1
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Tropical));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Tropical));
+        var firsts = FarmHelperClass.GetAllFarms();
+        foreach (var item in firsts)
+        {
+            list.Add(CreateProduction(item.PlayerName, item.Theme));
+        }
+        
 
         // Future:
         // list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Test, animalsPerRecipe: 2));
@@ -33,7 +33,7 @@ public static class ImportAnimalInstanceClass
     }
 
     private static AnimalInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Production, _productionAnimalsPerRecipe);
+        => CreateFarm(playerName, theme, ProfileIdList.Test, _productionAnimalsPerRecipe);
 
     private static AnimalInstanceDocument CreateFarm(string playerName, string theme, string profileId, int animalsPerRecipe)
     {

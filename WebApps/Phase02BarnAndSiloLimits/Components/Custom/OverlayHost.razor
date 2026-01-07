@@ -1,0 +1,52 @@
+﻿
+<PopupViewport
+    Visible="questOverlay.ShowWorkshops"
+    VisibleChanged="questOverlay.SetWorkshopVisible"
+    TapToClose="true"
+>
+    <StopClickPropagation>
+        <WorkshopsComponent SpecificWorkshop="@questOverlay.CurrentWorkshop" />
+    </StopClickPropagation>
+</PopupViewport>
+
+<ShowWorksiteModal LocationChanged="questOverlay.OpenPossibleWorksiteAsync"
+    Location="@questOverlay.CurrentWorksite"
+    Visible="questOverlay.ShowWorksites"
+    VisibleChanged="questOverlay.SetWorksiteVisible"
+ />
+
+<PopupViewport Visible="questOverlay.ShowQuestBook"
+               HeaderTitle="Orders"
+               CloseButtonClick="questOverlay.CloseQuestBook">
+    <StopClickPropagation>
+        <QuestBookComponent />
+    </StopClickPropagation>
+    
+</PopupViewport>
+
+<PopupViewport Visible="questOverlay.ShowAnimals"
+                     VisibleChanged="questOverlay.SetAnimalsVisible"
+                     TapToClose="true">
+    <StopClickPropagation>
+        <AnimalsComponent />
+    </StopClickPropagation>
+    
+</PopupViewport>
+
+<PopupViewport Visible="questOverlay.ShowCrops"
+                     VisibleChanged="questOverlay.SetCropsVisible"
+                     TapToClose="true">
+    <StopClickPropagation>
+        <CropsComponent />
+    </StopClickPropagation>
+    
+</PopupViewport>
+
+<PopupViewport Visible="questOverlay.ShowTrees"
+               VisibleChanged="questOverlay.SetTreesVisible"
+               TapToClose="true">
+    <StopClickPropagation>
+        <TreesComponent />
+    </StopClickPropagation>
+
+</PopupViewport>

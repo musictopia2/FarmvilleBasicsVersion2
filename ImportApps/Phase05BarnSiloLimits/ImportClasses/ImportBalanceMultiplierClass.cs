@@ -7,36 +7,21 @@ public static class ImportBalanceMultiplierClass
 
         // MVP1 Production:
         // - All activities take 50% of their base recipe time
-        list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Production, 0.5, treeOverride: 0.25, worksiteOverride: 0.3333));
-        list.Add(CreateFarm(PlayerList.Cristina, FarmThemeList.Country, ProfileIdList.Production, 0.5, treeOverride: 0.25,  worksiteOverride: 0.3333));
-        list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Tropical, ProfileIdList.Production, 0.5, treeOverride: 0.25, worksiteOverride: 0.33333));
-        list.Add(CreateFarm(PlayerList.Cristina, FarmThemeList.Tropical, ProfileIdList.Production, 0.5, treeOverride: 0.25, worksiteOverride: 0.33333));
 
-        //this shows an example of how to override the workshop.   means the workshop won't be as fast as the rest.
-        //list.Add(CreateFarm(
-        //    PlayerList.Andy,
-        //    FarmThemeList.Country,
-        //    ProfileIdList.Production,
-        //    baseMultiplier: 0.5,
-        //    workshopOverride: 0.75
-        //));
+        BasicList<FarmKey> firsts = FarmHelperClass.GetAllFarms();
+
+        foreach (FarmKey key in firsts)
+        {
+            list.Add(CreateFarm(key.PlayerName, key.Theme, key.ProfileId, 0.05)); //takes 5 percent of the required time.
+        }
+
 
         list.ForEach(Validate);
         BalanceProfileDatabase db = new();
         await db.ImportAsync(list);
     }
 
-    // MVP1 default: half the published recipe time
-    // Example:
-    //  - 1 hour recipe -> 30 minutes
-    //  - 10 seconds recipe -> 5 seconds
-    private static BalanceProfileDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(
-            playerName,
-            theme,
-            ProfileIdList.Production,
-            baseMultiplier: 0.5
-        );
+    
 
     private static void Validate(BalanceProfileDocument b)
     {

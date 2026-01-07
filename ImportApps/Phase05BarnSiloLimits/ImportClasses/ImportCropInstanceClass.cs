@@ -10,10 +10,10 @@ public static class ImportCropInstanceClass
         BasicList<CropInstanceDocument> list = [];
 
         // Production farms for MVP1 (same slot count for both players and both themes)
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Tropical));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Tropical));
 
         // Future: add other profiles/modes here
         // list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Test, slots: 50));
@@ -24,7 +24,7 @@ public static class ImportCropInstanceClass
     }
 
     private static CropInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Production, _productionSlots);
+        => CreateFarm(playerName, theme, ProfileIdList.Test, _productionSlots);
 
     private static CropInstanceDocument CreateFarm(string playerName, string theme, string profileId, int slots)
     {

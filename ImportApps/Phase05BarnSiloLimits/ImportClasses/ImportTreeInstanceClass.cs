@@ -21,10 +21,10 @@ public static class ImportTreeInstanceClass
         BasicList<TreeInstanceDocument> list = [];
 
         // Production farms for MVP1
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Tropical));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Tropical));
 
         // Future: other profiles/modes
         // list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Test, treesPerRecipe: 3));
@@ -34,7 +34,7 @@ public static class ImportTreeInstanceClass
     }
 
     private static TreeInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Production, _productionTreesPerRecipe);
+        => CreateFarm(playerName, theme, ProfileIdList.Test, _productionTreesPerRecipe);
 
     private static TreeInstanceDocument CreateFarm(string playerName, string theme, string profileId, int treesPerRecipe)
     {

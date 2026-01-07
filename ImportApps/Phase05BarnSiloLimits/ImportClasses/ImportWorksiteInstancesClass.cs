@@ -16,10 +16,10 @@ public static class ImportWorksiteInstancesClass
         BasicList<WorksiteInstanceDocument> list = [];
 
         // MVP1 Production farms
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Andy, FarmThemeList.Tropical));
-        list.Add(CreateProduction(PlayerList.Cristina, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Country));
+        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Tropical));
+        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Tropical));
 
         // Future:
         // list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Test));
@@ -29,7 +29,7 @@ public static class ImportWorksiteInstancesClass
     }
 
     private static WorksiteInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Production);
+        => CreateFarm(playerName, theme, ProfileIdList.Test);
 
     private static WorksiteInstanceDocument CreateFarm(string playerName, string theme, string profileId)
     {

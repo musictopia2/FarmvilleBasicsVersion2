@@ -1,30 +1,30 @@
 ﻿namespace Phase05BarnSiloLimits.ImportClasses;
-public static class ImportInventoryClass
+public static class ImportInventoryStockClass
 {
     public static async Task ImportBeginningInventoryAmountsAsync()
     {
-        BasicList<InventoryDocument> list = [];
+        BasicList<InventoryStockDocument> list = [];
 
         // Production (same amounts for both players)
-        list.Add(Create(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Production, GetCountryProduction()));
-        list.Add(Create(PlayerList.Cristina, FarmThemeList.Country, ProfileIdList.Production, GetCountryProduction()));
-        list.Add(Create(PlayerList.Andy, FarmThemeList.Tropical, ProfileIdList.Production, GetTropicalProduction()));
-        list.Add(Create(PlayerList.Cristina, FarmThemeList.Tropical, ProfileIdList.Production, GetTropicalProduction()));
+        list.Add(Create(PlayerList.Player1, FarmThemeList.Country, ProfileIdList.Test, GetCountryProduction()));
+        list.Add(Create(PlayerList.Player2, FarmThemeList.Country, ProfileIdList.Test, GetCountryProduction()));
+        list.Add(Create(PlayerList.Player1, FarmThemeList.Tropical, ProfileIdList.Test, GetTropicalProduction()));
+        list.Add(Create(PlayerList.Player2, FarmThemeList.Tropical, ProfileIdList.Test, GetTropicalProduction()));
 
         // Optional: Test profile (if you keep it around internally)
         // list.Add(Create(PlayerList.Andy, FarmThemeList.Country,  ProfileIdList.Test, GetCountryTest()));
         // list.Add(Create(PlayerList.Andy, FarmThemeList.Tropical, ProfileIdList.Test, GetTropicalTest()));
 
-        InventoryDatabase db = new();
+        InventoryStockDatabase db = new();
         await db.ImportAsync(list);
     }
 
-    private static InventoryDocument Create(string playerName, string theme, string profileId, Dictionary<string, int> amounts)
+    private static InventoryStockDocument Create(string playerName, string theme, string profileId, Dictionary<string, int> amounts)
     {
         // If FarmKey is positional record struct:
         var farm = new FarmKey(playerName, theme, profileId);
 
-        return new InventoryDocument
+        return new InventoryStockDocument
         {
             Farm = farm,
             List = amounts

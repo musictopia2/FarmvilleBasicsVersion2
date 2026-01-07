@@ -2,7 +2,7 @@
 
 public static class RepoDatabasePath
 {
-    public static string Get(string dbFileName = "FarmvilleV4.db")
+    public static string Get(string dbFileName)
     {
         // Start from the running app folder (bin/Debug/netX.Y/...)
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

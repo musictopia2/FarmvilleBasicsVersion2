@@ -6,7 +6,7 @@ public static class ImportQuestInstancesClass
         QuestInstanceDatabase db = new();
         BasicList<QuestDocument> list = [];
         // MVP needs quests for BOTH players across BOTH themes
-        var players = new[] { PlayerList.Andy, PlayerList.Cristina };
+        var players = new[] { PlayerList.Player1, PlayerList.Player2 };
         var themes = new[] { FarmThemeList.Country, FarmThemeList.Tropical };
         foreach (var player in players)
         {
@@ -32,7 +32,7 @@ public static class ImportQuestInstancesClass
         {
             Theme = theme,
             PlayerName = playerName,
-            ProfileId = ProfileIdList.Production
+            ProfileId = ProfileIdList.Test
         };
     }
 

@@ -13,8 +13,5 @@
 		<PackageReference Include="DocumentDbLibrary" Version="10.0.7" />
 		<PackageReference Include="SQLiteHelperLibraries" Version="10.0.7" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="DataAccess\General\" />
-	</ItemGroup>
 
 </Project>

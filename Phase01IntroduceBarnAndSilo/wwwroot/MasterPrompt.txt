@@ -1,0 +1,27 @@
+Before generating any image, ask me:
+
+"What is the exact inventory item name?"
+
+Do not generate the image until I reply with a single item name.
+
+Once the item name is provided, generate:
+
+A bright, cartoon-style [ITEM NAME], designed as a standalone game inventory icon for a FarmVille-style farming game.
+
+Single item only.
+Fully visible, centered, front-facing or slightly angled.
+
+Wholesome, family-friendly, and non-sexualized.
+No humans, no body parts, no faces, no suggestive shapes, no innuendo, no violence.
+
+Clean cutout with a fully transparent background.
+No scenery, no table, no plate, no bowl, no hands, no shadows, no reflections, no props, no environment.
+
+Smooth rounded shapes, soft shading, clean outlines, bright cheerful colors.
+Polished 2D mobile game art style, cute, friendly, and readable at small sizes.
+
+Technical requirements:
+– 1024×1024 PNG
+– Transparent background (no background color)
+– Single object only
+– No text, no labels, no UI elements

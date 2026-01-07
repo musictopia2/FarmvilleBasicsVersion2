@@ -1,0 +1,70 @@
+Here is what is proposed for the early phases:
+
+1.  Introduce Silo And Barn.
+
+for this, will be completed when i create a project where it shows all the items.
+the only 2 choices i have is to look in the barn or look into the silo.
+this means when importing from a database, must include enough items that i can see them.
+and make sure they have the proper categories.
+involves redoing the inventory system.
+
+2.  Introduce Coin
+this is the first time we will have something that does not go into the barn or silo.
+
+will give myself some coin at this stage.
+will work when i go into the game and can see i actually have coin.
+can't do anything with it.
+just prove i actually have coin
+
+3.  allow a person to get more coin.
+this means you can persist it
+the beginnings of getting rewards.
+this time, you get more coins just by clicking the button.
+to prove it works.
+
+4.  growing crops go into the silo successfully.
+only crops alone this time.
+
+5.  make sure that animal items goes into the barn successfully.
+
+6.  this is the first cross cutting phase.
+this time, needs to show me allowing to do anything in the game.
+but make sure that that silo items goes into the silo and barn items goes into the barn
+
+7.  show limits.
+this time, don't enforce them.  just via ui.
+
+8.  increase limits.
+this time, whatever coin i give myself, i am able to increase the limits.
+once the coins are gone, can't do anymore.
+
+9.  allowing to throw away items.
+should be able to do at any tie.
+at this point, won't quite enforce the limits.
+but allow a person to throw away items.
+for this phase, i propose a person starting out with enough that i can easily test with.
+
+
+10.  enforce silo limits. (no increases this time) (well see)
+this time, can only do crops (so if i cannot pick up from crops, decide what to do).
+try trees too here
+
+11.  enforce barn limits. (no incrases this time) (well see).
+start with animals.
+this time, can only do with animals.
+may do mini phases then.
+
+12.  bring back quests (has to be simple quests).
+completing a quest will earn you coin (don't worry about balance yet)
+
+13.  allow upgrades of barns and silos from completing the simple quests
+
+14.  complete the early stages.
+no balance needed.
+what would happen is i have to complete some quests (can have fast timers).
+must obey the silo and barn limits.
+i earn coin from completing quests.
+i use the coin to upgrade the barn and silos.
+
+
+once this is completed, then everything having to do with barns and silos are completed.

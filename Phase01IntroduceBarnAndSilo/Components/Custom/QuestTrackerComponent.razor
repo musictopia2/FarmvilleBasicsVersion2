@@ -1,0 +1,53 @@
+﻿@inherits InventoryAwareComponentBase
+
+@if (_incompleteQuests.Count == 0)
+{
+    <div class="quest-title">You completed all the quests</div>
+    return;
+}
+
+
+
+<StackLayout ItemSpacing="20px">
+    <StackItem>
+        <ImageButtonComponent Name="Orders" Height="69" MarginLeft="0px" OnClick="ShowAllQuestsAsync" />
+        
+    </StackItem>
+    @foreach (var quest in _incompleteQuests)
+    {
+        var itemKey = quest.Item;
+        var need = quest.Required;
+        var have = InventoryAmount(itemKey); // you likely already have something like this
+        var canComplete = have >= need;
+
+        <StackItem Length="260px">
+            <div class="quest-card" @onclick="() => CompleteQuestAsync(quest)">
+
+                <!-- Requirement row (like workshop requirements) -->
+
+                <ItemRequirementDisplay 
+                    Name="@itemKey"
+                    Have="@have"
+                    Required="@need"
+                    />
+
+
+                @* <div class="req-row">
+                    <img class="req-img"
+                         src="@GetItemImageSrc(itemKey)"
+                         alt="@itemKey" />
+
+                    <div class="req-text">
+                        <div class="req-name">@itemKey.GetWords</div>
+
+                        <div class="req-detail @(canComplete ? "req-ok" : "req-bad")">
+                            Have @have / Need @need
+                        </div>
+                    </div>
+                </div> *@
+
+
+            </div>
+        </StackItem>
+    }
+</StackLayout>

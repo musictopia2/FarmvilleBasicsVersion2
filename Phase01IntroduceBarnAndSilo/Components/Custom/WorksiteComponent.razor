@@ -1,0 +1,275 @@
+﻿@inherits TimedOnlyComponent
+@* @if (_currentWorker is null)
+{
+    return;
+} *@
+@if (string.IsNullOrWhiteSpace(Location))
+{
+    return;
+}
+@if (Status == EnumWorksiteState.Processing)
+{
+    <div class="busy-wrap" style="height: @_height;">
+
+        
+
+        <div class="busy busy-processing"
+             style="background-image:url('@WorksiteImageUrl');">
+            
+            <div class="busy-hero-top">
+                @Location.GetWords
+            </div>
+
+            <div class="busy-hero-pill">
+                @GetProgressText
+            </div>
+
+            @if (CanResetToFocused)
+            {
+                
+                <div class="busy-focused-action">
+                    <PrimaryButton FontSize="1.1rem" OnClick="ResetToFocused">
+                        Switch to Focused (resets timer)
+                    </PrimaryButton>
+                </div>
+            }
+
+            <div class="busy-workers-wrap">
+                @foreach (var w in _shownList)
+                {
+                    <div class="busy-worker-tile">
+                        <img class="busy-worker-img"
+                             src="@Image(w.WorkerName)"
+                             alt="@w.WorkerName" />
+                    </div>
+                }
+            </div>
+
+            @{
+                var preview = GetPreview();
+            }
+
+            <div class="processing-rewards">
+                @foreach (var r in preview)
+                {
+                    <div class="processing-reward-tile">
+                        <ChanceRing PercentChance="@r.Chance"
+                                    OnClick="() => GetPreviewDetail(r)"
+                                    FillColor="@cc1.SaddleBrown.ToWebColor"
+                                    Size="140px"
+                                    StrokeWidth="10px">
+                            <div class="reward-ring-content">
+                                <img class="reward-ring-img"
+                                     src="@GetItemImage(r.Item)"
+                                     alt="@r.Item" />
+                                <div class="reward-ring-amount">@r.Amount</div>
+                            </div>
+                        </ChanceRing>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    return;
+}
+@if (Status == EnumWorksiteState.Collecting)
+{
+    <div class="busy-wrap" style="height: @_height;">
+        <div class="busy busy-collecting"
+             style="background-image:url('@WorksiteImageUrl');">
+
+            @if (WorksiteManager.CanCollectRewards(Location) == false)
+            {
+                <PrimaryButton OnClick="OnCloseManually">
+                    Close Out Since you cannot collect rewards
+                </PrimaryButton>
+            }
+            else
+            {
+                <!-- rewards panel -->
+                <div class="collect-rewards-panel">
+
+                    <div class="collect-rewards-header">
+                        <div class="collect-title">@Location.GetWords</div>
+                        <div class="collect-sub">Rewards Ready</div>
+                    </div>
+
+                    <!-- individual rewards -->
+                    <div class="collect-rewards-wrap">
+                        @foreach (var r in _rewards)
+                        {
+                            <button type="button"
+                                    class="collect-reward-tile"
+                                    @onclick="() => OnRewardClicked(r)">
+                                <img class="collect-reward-img"
+                                     src="@GetItemImage(r.Item)"
+                                     alt="@r.Item" />
+                                <div class="collect-amount-badge">
+                                    @r.Amount
+                                </div>
+                            </button>
+                        }
+                    </div>
+
+                    <!-- COLLECT ALL — BELOW the grid -->
+                    <div class="collect-rewards-footer">
+                        <SuccessButton OnClick="CollectAllRewards">
+                            Collect All Rewards
+                        </SuccessButton>
+                    </div>
+
+                </div>
+
+                <!-- workers pinned at bottom -->
+                <div class="collect-workers-wrap">
+                    @foreach (var w in _shownList)
+                    {
+                        <div class="busy-worker-tile">
+                            <img class="busy-worker-img"
+                                 src="@Image(w.WorkerName)"
+                                 alt="@w.WorkerName" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    
+    return;
+}
+@* <PopupViewport @bind-Visible="_showWorkshops"
+    TapToClose="true"
+>
+    <WorkshopsComponent SpecificWorkshop="_currentWorkshop" />
+</PopupViewport>
+ *@
+
+<StackLayout ItemSpacing="20px">
+
+    <StackItem StopClickPropagation>
+        <div style="height: 80px; visibility:@(CanGoUp ? "visible" : "hidden");">
+            <ArrowUpComponent TargetHeight="100%" Clicked="GoUp" />
+        </div>
+        <div style="height: 80px; margin-top: 5px; visibility:@(CanGoDown ? "visible" : "hidden");">
+            <ArrowDownComponent TargetHeight="100%"
+                                Clicked="GoDown" />
+        </div>
+    </StackItem>
+    <StackItem Length="300px" StopClickPropagation>
+        <div class="worksite-hero" @onclick="ProcessWorker">
+            <img class="worksite-hero-img"
+                 src="@WorksiteImageUrl"
+                 alt="@Location" />
+
+            
+            @if (_currentWorker is not null)
+            {
+                <!-- Centered worker -->
+                <div class="worksite-worker-center">
+                    <img class="worksite-worker-img"
+                         src="@Image(_currentWorker.WorkerName)"
+                         alt="@_currentWorker.WorkerName" />
+                </div>
+            }
+            
+
+            <!-- Top scrim -->
+            <div class="worksite-hero-top">
+                <div class="worksite-title">@Location.GetWords</div>
+            </div>
+
+            <!-- Bottom action area -->
+            <div class="worksite-hero-bottom">
+
+                <SuccessButton IsEnabled="CanStartJob" OnClick="StartJob">
+                    @GetDurationText
+                </SuccessButton>
+            </div>
+
+        </div>
+        
+        <div>@_currentWorker?.Details</div>
+    </StackItem>
+    <StackItem>
+        <div class="supplies-title">
+            Supplies Needed
+        </div>
+        <div class="supplies-grid">
+            @foreach (var item in SuppliesNeeded)
+            {
+                <ItemRequirementDisplay 
+                    Variant="EnumRequirementVariant.Tile"
+                    Name="@item.Item"
+                    OnClicked="AttemptWorkshopAsync"
+                    Required="item.Amount"
+                    Have="Inventory.Get(item.Item)"
+                    />
+                @* <div class="supply-tile">
+                    <img class="supply-img"
+                         src="@GetItemImage(item.Item)"
+                         alt="@item.Item" />
+
+                    <div class="req-detail @GetRequirementClass(item.Item, item.Amount)">
+                        @GetRequirementDetails(item.Item, item.Amount)
+                    </div>
+                </div> *@
+            }
+        </div>
+        
+       
+        <div class="worksite-grid">
+            <SimpleRepeater HowMany="_shownList.Count" Context="i">
+                @{
+                    var worker = _shownList[i - 1]; // 1-based -> 0-based
+                }
+
+                <div class="worker-slot">
+                    <img class="worker-img" src="@Image(worker.WorkerName)" alt="@worker.WorkerName" />
+                </div>
+            </SimpleRepeater>
+
+            @* If you still want extra empty slots to show capacity *@
+            @if (_shownList.Count < _totalPossibleWorkers)
+            {
+                <SimpleRepeater HowMany="@(_totalPossibleWorkers - _shownList.Count)" Context="x">
+                    <div class="worker-slot empty"></div>
+                </SimpleRepeater>
+            }
+        </div>
+    </StackItem>
+    
+
+    <StackItem>
+        <div>
+            Rewards
+        </div>
+        @{
+            var list = GetPreview();
+        }
+        <WrapLayout
+           RenderList="list"
+           Context="item"
+           ColumnWidth="100px"
+        >
+            <ChanceRing PercentChance="@item.Chance"
+                        OnClick="() => GetPreviewDetail(item)"
+                        ContentOffsetYPx="-2"
+                        FillColor="@cc1.SaddleBrown.ToWebColor"
+                        Size="90px"
+                        StrokeWidth="10px">
+                <div class="reward-ring-content">
+                    <img class="reward-ring-img"
+                         src="@GetItemImage(item.Item)"
+                         alt="@item.Item" />
+
+                    <div class="reward-ring-amount">
+                        @item.Amount
+                    </div>
+                </div>
+            </ChanceRing>
+        </WrapLayout>
+
+        
+    </StackItem>
+</StackLayout>

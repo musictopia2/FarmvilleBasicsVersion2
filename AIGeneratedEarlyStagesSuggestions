@@ -1,0 +1,259 @@
+﻿Phase 1 — Introduce Barn and Silo (Inventory Rewrite)
+
+Goal: Prove storage exists and everything is categorized correctly.
+
+Done when:
+
+Game loads from DB
+
+You can click:
+
+Barn → see barn items
+
+Silo → see silo items
+
+All items appear in exactly one place
+
+No crafting, no collection, no limits
+
+Key work:
+
+Redo inventory system
+
+All items must have a category
+
+DB import seeds enough items to visually verify correctness
+
+This is a pure visibility + correctness phase.
+
+Phase 2 — Introduce Coin (Virtual Storage)
+
+Goal: First non-inventory resource.
+
+Done when:
+
+Coin value is loaded from DB
+
+Coin is visible in UI
+
+Coin is not part of barn/silo
+
+Nothing spends it yet
+
+This proves you can support non-storage state.
+
+Phase 3 — Earning Coin (Persistence Proof)
+
+Goal: Prove coin can increase and persist.
+
+Done when:
+
+Clicking a button grants coin
+
+Reloading the game keeps the coin value
+
+This is the foundation for rewards, nothing more.
+
+Phase 4 — Crops → Silo
+
+Goal: First production system routed correctly.
+
+Done when:
+
+Growing and harvesting crops
+
+Harvested crops always go to Silo
+
+No limits yet
+
+Crops only. Nothing else touches inventory.
+
+Phase 5 — Animals → Barn
+
+Goal: Second production system routed correctly.
+
+Done when:
+
+Collecting animal products
+
+Animal items always go to Barn
+
+No limits yet
+
+Still isolated.
+
+Phase 6 — First Cross-Cutting Phase (Routing Enforcement)
+
+Goal: Turn routing into a rule, not a coincidence.
+
+Done when:
+
+All enabled systems can run:
+
+crops
+
+animals
+
+any existing crafting/trees/worksites you already have
+
+Every output respects:
+
+silo items → silo
+
+barn items → barn
+
+This is where you:
+
+identify leaks
+
+unify add/consume paths
+
+remove “special cases”
+
+This phase may take time—and that’s expected.
+
+Phase 7 — Show Limits (UI Only)
+
+Goal: Visibility without consequences.
+
+Done when:
+
+Barn shows Used / Capacity
+
+Silo shows Used / Capacity
+
+Numbers are correct
+
+Nothing is blocked yet
+
+This is a debugging phase, not gameplay.
+
+Phase 8 — Increase Limits Using Coin
+
+Goal: Prove upgrades work without enforcement.
+
+Done when:
+
+Spend coin to increase barn/silo capacity
+
+Coin decreases
+
+Capacity increases and persists
+
+UI updates immediately
+
+No blocking yet. This is still “happy path”.
+
+Phase 9 — Throw Away Items
+
+Goal: Give the player an escape valve before enforcement.
+
+Done when:
+
+Any item in barn or silo can be discarded
+
+Discard frees space
+
+UI updates correctly
+
+Works at any time
+
+You were right to put this before enforcement.
+
+Phase 10 — Enforce Silo Limits (Crops + Trees)
+
+Goal: First real restriction.
+
+Scope (intentionally limited):
+
+Crops (definitely)
+
+Trees (optional but good)
+
+Done when:
+
+If silo is full:
+
+crops cannot be collected (or must resolve in a defined way)
+
+Discarding items allows collection again
+
+No barn enforcement yet
+
+This is where behavior decisions happen.
+
+Phase 11 — Enforce Barn Limits (Animals first)
+
+Goal: Second restriction, different system.
+
+Scope:
+
+Animals
+
+Possibly mini-phases if needed (good instinct)
+
+Done when:
+
+If barn is full:
+
+animal collection is blocked
+
+Discarding resolves it
+
+By the end of this phase, limits are real.
+
+Phase 12 — Simple Quests (Return)
+
+Goal: Reintroduce quests safely.
+
+Done when:
+
+Simple, non-RNG quests exist
+
+Completing a quest:
+
+consumes items
+
+grants coin
+
+Limits are obeyed during turn-in
+
+No balance yet.
+
+Phase 13 — Upgrade Barn/Silo via Quests
+
+Goal: Close the loop.
+
+Done when:
+
+Completing quests grants coin
+
+Coin can upgrade barn/silo
+
+Upgrades affect enforcement behavior
+
+This proves the full economy loop.
+
+Phase 14 — Early Stages Complete (Storage Loop Finished)
+
+Goal: Declare victory on storage.
+
+Done when:
+
+You can:
+
+collect items
+
+hit limits
+
+discard
+
+earn coin
+
+upgrade storage
+
+All systems obey barn/silo rules
+
+Timers can be fast; balance irrelevant
+
+At this point, barns & silos are solved.

@@ -24,9 +24,12 @@ public static class TimeExtensions
 
             // preserve precision
             var ticks = (long)Math.Round(time.Ticks * multiplier, MidpointRounding.AwayFromZero);
-            if (ticks < 1)
+            
+            var minTicks = TimeSpan.FromSeconds(2).Ticks;
+
+            if (ticks < minTicks)
             {
-                ticks = 1; // optional: never 0 duration
+                ticks = minTicks;
             }
 
             return TimeSpan.FromTicks(ticks);

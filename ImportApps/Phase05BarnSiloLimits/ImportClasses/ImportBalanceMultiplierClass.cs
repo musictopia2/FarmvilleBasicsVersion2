@@ -12,7 +12,7 @@ public static class ImportBalanceMultiplierClass
 
         foreach (FarmKey key in firsts)
         {
-            list.Add(CreateFarm(key.PlayerName, key.Theme, key.ProfileId, 0.05)); //takes 5 percent of the required time.
+            list.Add(CreateFarm(key.PlayerName, key.Theme, key.ProfileId, 0.01)); //takes 1 percent of the required time.
         }
 
 

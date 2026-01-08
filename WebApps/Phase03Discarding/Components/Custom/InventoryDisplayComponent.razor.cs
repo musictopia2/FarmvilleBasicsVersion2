@@ -10,6 +10,7 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
 
     private bool _showDiscard;
     private string _item = "";
+    private int _currentSize;
 
     private void DiscardInventoryItem(ItemAmount item)
     {
@@ -18,8 +19,12 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
             return; //can't do anyways.
         }
         //for now, just a toast to prove everything works.
-        toast.ShowInfoToast($"So far, discarding {item.Item} with the amount of {item.Amount}");
+        //toast.ShowInfoToast($"So far, discarding {item.Item} with the amount of {item.Amount}");
         _showDiscard = false;
+
+        Inventory.Consume(item);
+        //hopefully is notified naturally anyways.
+
     }
 
     private void CancelDiscard()
@@ -27,25 +32,13 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
         _showDiscard = false;
         _item = "";
     }
-
+    private int _limit;
     private string GetStatus
     {
         get
         {
-            int limit;
-            if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
-            {
-                limit = Inventory.BarnSize;
-            }
-            else if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
-            {
-                limit = Inventory.SiloSize;
-            }
-            else
-            {
-                limit = 0;
-            }
-            return $"{_list.Sum(x => x.Amount)}/{limit}"; //at least something.
+
+            return $"Have {_currentSize} Limit {_limit}"; //at least something.
         }
     }
 
@@ -68,6 +61,21 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
         {
             _errorMessage = "Can only show barn or silo items";
         }
+        //figure out how to make limit changes show up (well see).
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
+        {
+            _limit = Inventory.BarnSize;
+        }
+        else if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
+        {
+            _limit = Inventory.SiloSize;
+        }
+        else
+        {
+            _limit = 0;
+        }
+        _currentSize = _list.Sum(x => x.Amount);
+
     }
     private void DisplayInventoryItem(string itemName)
     {
@@ -81,8 +89,8 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
     }
     protected override async Task OnInventoryChangedAsync()
     {
-        await base.OnInventoryChangedAsync();
         PopulateList();
+        await base.OnInventoryChangedAsync();
     }
     // itemName is the image file name in wwwroot (root folder).
     // If itemName already includes an extension (e.g. "barn.png"), it will use it as-is.

@@ -2,7 +2,8 @@ using BasicBlazorLibrary.Components.Layouts;
 using BasicBlazorLibrary.Components.NavigationMenus;
 
 namespace Phase03Discarding.Components.Custom;
-public partial class MainComponent(NavigationManager nav, OverlayService service, IToast toast) 
+public partial class MainComponent(NavigationManager nav, OverlayService service,
+    IToast toast, IntegerQuantityPickerService quantityPickerService) : IDisposable
 {
 
     [Parameter]
@@ -17,6 +18,24 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
     private NavigationBarContainer? _nav;
 
     private OverlayInsets _overlays = new();
+
+    private void VisibleChanged(bool visible)
+    {
+        quantityPickerService.UpdateVisibleStatus(visible);
+    }
+
+    private async Task OnValueChanged(int value)
+    {
+        quantityPickerService.Submit(value);
+
+        await Task.CompletedTask;
+    }
+
+
+    private void PickerChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
     protected override void OnAfterRender(bool firstRender)
     {
         if (_nav is not null)
@@ -30,6 +49,7 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
     }
     protected override void OnInitialized()
     {
+        quantityPickerService.StateChanged = PickerChanged;
         service.Toast = toast;
         base.OnInitialized();
     }
@@ -67,8 +87,13 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
     {
         _showBarn = false;
     }
-    
-   
+
+    public void Dispose()
+    {
+        quantityPickerService.StateChanged = null;
+        GC.SuppressFinalize(this);
+    }
+
     private string Title
     {
         get

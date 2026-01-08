@@ -41,6 +41,10 @@ public class InventoryManager(FarmKey farm, IInventoryRepository persist,
         await persist.SaveAsync(farm, _items);
         InventoryChanged?.Invoke();
     }
+    public void Consume(ItemAmount item)
+    {
+        Consume(item.Item, item.Amount);
+    }
     public void Consume(string item, int amount)
     {
         if (Has(item, amount) == false)

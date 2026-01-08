@@ -1,4 +1,5 @@
 ﻿namespace Phase03Discarding.Services.Worksites;
+
 public class WorksiteManager(
     InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
@@ -332,7 +333,16 @@ public class WorksiteManager(
         {
             foreach (var temp in item.BaselineBenefits)
             {
-                itemRegistry.Register(new(temp.Item, EnumInventoryStorageCategory.Barn, EnumInventoryItemCategory.Worksites));
+                EnumInventoryStorageCategory category;
+                if (temp.Optional)
+                {
+                    category = EnumInventoryStorageCategory.None;
+                }
+                else
+                {
+                    category = EnumInventoryStorageCategory.Barn;
+                }
+                itemRegistry.Register(new(temp.Item, category, EnumInventoryItemCategory.Worksites));
             }
         }
         _worksiteProgressPolicy = worksiteContext.WorksiteProgressPolicy;

@@ -1,0 +1,64 @@
+﻿@inherits TimedOnlyComponent
+
+<BasicProgressModal @bind-Visible="_showpopup">
+    <TreeProgressModal Tree="Tree" />
+</BasicProgressModal>
+
+
+<div style="position: relative; width: 200px;"
+    @onclick="ProcessAsync"
+>
+    <!-- Base tree -->
+    <img src="/Tree.png" width="200" />
+
+    @if (_ready > 0)
+    {
+        <img src="@GetFruitImage"
+             style="
+                position: absolute;
+                top: 60px;
+                left: 20px;
+                width: 30px;
+                height: 30px;
+             " />
+        @if (_ready > 1)
+        {
+            <img src="@GetFruitImage"
+                 style="
+                    position: absolute;
+                    top: 60px;
+                    left: 60px;
+                    width: 30px;
+                    height: 30px;
+                 " />
+        }
+        @if (_ready > 2)
+        {
+            <img src="@GetFruitImage"
+                 style="
+                    position: absolute;
+                    top: 60px;
+                    left: 100px;
+                    width: 30px;
+                    height: 30px;
+                 " />
+        }
+        @if (_ready > 3)
+        {
+            <img src="@GetFruitImage"
+                 style="
+                    position: absolute;
+                    top: 60px;
+                    left: 140px;
+                    width: 30px;
+                    height: 30px;
+                 " />
+        }
+    }
+
+    <!-- Overlay image -->
+    
+    
+    
+    
+</div>

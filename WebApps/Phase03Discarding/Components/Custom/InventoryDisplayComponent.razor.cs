@@ -7,6 +7,27 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
 
     private BasicList<ItemAmount> _list = [];
     private string _errorMessage = "";
+
+    private bool _showDiscard;
+    private string _item = "";
+
+    private void DiscardInventoryItem(ItemAmount item)
+    {
+        if (item.Item != _item)
+        {
+            return; //can't do anyways.
+        }
+        //for now, just a toast to prove everything works.
+        toast.ShowInfoToast($"So far, discarding {item.Item} with the amount of {item.Amount}");
+        _showDiscard = false;
+    }
+
+    private void CancelDiscard()
+    {
+        _showDiscard = false;
+        _item = "";
+    }
+
     private string GetStatus
     {
         get
@@ -51,6 +72,12 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
     private void DisplayInventoryItem(string itemName)
     {
         toast.ShowInfoToast(itemName.GetWords);
+    }
+    private void OpenDiscard(string name)
+    {
+        _item = name;
+        _showDiscard = true;
+        //toast.ShowSuccessToast($"Attempting to open discard for {name}");
     }
     protected override async Task OnInventoryChangedAsync()
     {

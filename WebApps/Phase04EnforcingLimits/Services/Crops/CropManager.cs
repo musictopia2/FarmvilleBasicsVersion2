@@ -166,6 +166,14 @@ public class CropManager(InventoryManager inventory,
             // and CanPlant allowed due to no growing fields, permit the plant without deduction.
         }
     }
+    public bool CanHarvest(Guid id)
+    {
+        lock (_lock)
+        {
+            CropInstance crop = GetCrop(id);
+            return inventory.CanAdd(crop.Crop!, 2);
+        }
+    }
     public void Harvest(Guid id)
     {
         lock (_lock)

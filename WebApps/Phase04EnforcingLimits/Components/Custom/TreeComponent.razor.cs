@@ -1,5 +1,5 @@
 namespace Phase04EnforcingLimits.Components.Custom;
-public partial class TreeComponent
+public partial class TreeComponent(IToast toast)
 {
     [Parameter]
     [EditorRequired]
@@ -20,11 +20,16 @@ public partial class TreeComponent
         _ready = TreeManager.TreesReady(Tree);
         return base.OnTickAsync();
     }
-    private async void ProcessAsync()
+    private void Process()
     {
         if (_ready > 0)
         {
-            await TreeManager.CollectFromTreeAsync(Tree);
+            if (TreeManager.CanCollectFromTree(Tree) == false)
+            {
+                toast.ShowUserErrorToast("Unable to collect from trees because not enough room in your silo.  Try discarding some items, craft something, or fulfill orders");
+                return;
+            }
+            TreeManager.CollectFromTree(Tree);
             _ready = TreeManager.TreesReady(Tree);
             return;
         }

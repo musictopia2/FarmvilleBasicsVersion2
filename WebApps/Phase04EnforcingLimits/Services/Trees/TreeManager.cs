@@ -5,7 +5,6 @@ public class TreeManager(InventoryManager inventory,
     )
 {
     private ITreesCollecting? _treeCollecting;
-    private ITreeGatheringPolicy? _treeGatheringPolicy;
     private ITreeProgressionPolicy? _treeProgressionPolicy;
     private ITreePersistence _treePersistence = null!;
     private BasicList<TreeRecipe> _recipes = [];
@@ -14,6 +13,7 @@ public class TreeManager(InventoryManager inventory,
     private DateTime _lastSave = DateTime.MinValue;
     private readonly BasicList<TreeInstance> _trees = [];
     public event Action? OnTreesUpdated;
+    private bool _collectAll;
     // Public read-only summaries for the UI
     public BasicList<TreeView> GetUnlockedTrees
     {
@@ -116,19 +116,31 @@ public class TreeManager(InventoryManager inventory,
     public string TimeLeftForResult(TreeView id) => GetTreeById(id).ReadyTime!.Value!.GetTimeString;
     public EnumTreeState GetTreeState(TreeView id) => GetTreeById(id).State;
     //this is when you collect only one item.
-    public async Task CollectFromTreeAsync(TreeView id)
-    {
-        int maxs;
-        TreeInstance instance = GetTreeById(id);
-        if (await _treeGatheringPolicy!.CollectAllAsync())
-        {
-            maxs = instance.TreesReady;
-        }
-        else
-        {
-            maxs = 1;
-        }
 
+
+    public bool CanCollectFromTree(TreeView id)
+    {
+        TreeInstance instance = GetTreeById(id);
+        int amount = GetCollectAmount(instance);
+        return inventory.CanAdd(instance.Name, amount);
+    }
+    private int GetCollectAmount(TreeInstance instance)
+    {
+        //int maxs;
+        if (_collectAll)
+        {
+            return instance.TreesReady;
+        }
+        return 1;
+    }
+    public void CollectFromTree(TreeView id)
+    {
+        if (CanCollectFromTree(id) == false)
+        {
+            throw new CustomBasicException("Unable to collect from tree.  Should had used CanCollectFromTree");
+        }
+        TreeInstance instance = GetTreeById(id);
+        int maxs = GetCollectAmount(instance);
         maxs.Times(x =>
         {
             instance.CollectTree();
@@ -140,7 +152,9 @@ public class TreeManager(InventoryManager inventory,
     public async Task SetStyleContextAsync(TreeServicesContext context, FarmKey farm)
     {
         _treeProgressionPolicy = context.TreeProgressionPolicy;
-        _treeGatheringPolicy = context.TreeGatheringPolicy;
+        //_treeGatheringPolicy = context.TreeGatheringPolicy;
+        _collectAll = await context.TreeGatheringPolicy.CollectAllAsync();
+        //if this changes, rethink later.
         if (_treePersistence != null)
         {
             throw new InvalidOperationException("Persistance Already set");

@@ -1,5 +1,5 @@
 namespace Phase04EnforcingLimits.Components.Custom;
-public partial class CropsComponent
+public partial class CropsComponent(IToast toast)
 {
     private string? _selectedItem;
     private BasicList<string> _crops = [];
@@ -64,6 +64,11 @@ public partial class CropsComponent
             {
                 continue;
             }
+            if (CropManager.CanHarvest(item) == false)
+            {
+                toast.ShowUserErrorToast("Unable to harvest the crop because you are maxed out in the silo.  Try to discard, fulfill orders, plant more crops, or craft something");
+                return;
+            }
             HarvestSingle(item); //for now, go ahead and harvest.  once i start getting into limits, then rethink.
         }
     }
@@ -93,6 +98,11 @@ public partial class CropsComponent
 
         if (state == EnumCropState.Ready)
         {
+            if (CropManager.CanHarvest(id) == false)
+            {
+                toast.ShowUserErrorToast("Unable to harvest the crop because you are maxed out in the silo.  Try to discard, fulfill orders or craft something");
+                return;
+            }
             HarvestSingle(id);
             return;
         }

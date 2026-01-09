@@ -1,5 +1,5 @@
 namespace Phase04EnforcingLimits.Components.Custom;
-public partial class WorkshopsComponent(OverlayService overlay) : IDisposable
+public partial class WorkshopsComponent(OverlayService overlay, IToast toast) : IDisposable
 {
 
     [Parameter]
@@ -184,7 +184,11 @@ public partial class WorkshopsComponent(OverlayService overlay) : IDisposable
             //try to collect.  if it fails, then rethink here.
             if (WorkshopManager.CanPickupManually(workshop) == false)
             {
-                // TODO: show "Barn full" / discard UI when storage limits are enabled
+                return;
+            }
+            if (WorkshopManager.CanAddToInventory(workshop) == false)
+            {
+                toast.ShowUserErrorToast("Unable to pick up crafted item because the barn is full.  Try discarding or consuming the items");
                 return;
             }
             WorkshopManager.PickupManually(workshop);

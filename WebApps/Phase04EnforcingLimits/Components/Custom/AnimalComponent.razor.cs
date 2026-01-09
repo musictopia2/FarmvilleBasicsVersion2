@@ -53,11 +53,17 @@ public partial class AnimalComponent(IToast toast)
         }
     }
 
-    private async void CardClickedAsync()
+    private void CardClicked()
     {
         if (CanCollect)
         {
-            await AnimalManager.CollectAsync(Animal);
+            //may need a toast for animals.
+            if (AnimalManager.CanCollect(Animal) == false)
+            {
+                toast.ShowUserErrorToast("Cannot collect from animal because barn is full.  Try crafting something, fulfilling orders, or discarding");
+                return;
+            }
+            AnimalManager.Collect(Animal);
             return;
         }
         if (State == EnumAnimalState.Producing)

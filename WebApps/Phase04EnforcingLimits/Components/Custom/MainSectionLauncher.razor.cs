@@ -36,6 +36,7 @@ public partial class MainSectionLauncher(ReadyStatusService readyService,
     {
         if (ReadyCategory == EnumMainSection.Workshops)
         {
+
             _show = true;
             return;
         }

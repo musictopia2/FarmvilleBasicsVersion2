@@ -9,7 +9,9 @@ public class AnimalManager(InventoryManager inventory,
     public event Action? OnAnimalsUpdated;
     private IAnimalPersistence _animalPersistence = null!;
     private IAnimalProgressionPolicy? _animalProgressionPolicy;
-    private IAnimalCollectionPolicy? _animalCollectionPolicy;
+
+
+    //private IAnimalCollectionPolicy? _animalCollectionPolicy;
     private EnumAnimalCollectionMode _animalCollectionMode;
     private bool _needsSaving;
     private DateTime _lastSave = DateTime.MinValue;
@@ -192,14 +194,9 @@ public class AnimalManager(InventoryManager inventory,
         _needsSaving = true;
     }
     //public EnumAnimalCollectionMode GetCollectionMode => _animalCollectionMode;
-    public async Task CollectAsync(AnimalView animal)
+
+    private int GetAmount(AnimalInstance instance)
     {
-        _animalCollectionMode = await _animalCollectionPolicy!.GetCollectionModeAsync();
-        if (_animalCollectionMode == EnumAnimalCollectionMode.Automated)
-        {
-            throw new CustomBasicException("Should had been automated");
-        }
-        AnimalInstance instance = GetAnimalById(animal);
         int maxs;
         if (_animalCollectionMode == EnumAnimalCollectionMode.OneAtTime)
         {
@@ -209,6 +206,34 @@ public class AnimalManager(InventoryManager inventory,
         {
             maxs = instance.OutputReady;
         }
+        return maxs;
+    }
+    private bool CanCollect(AnimalInstance instance)
+    {
+        int maxs = GetAmount(instance);
+        return inventory.CanAdd(instance.ReceivedName, maxs);
+    }
+    public bool CanCollect(AnimalView animal)
+    {
+        if (_animalCollectionMode == EnumAnimalCollectionMode.Automated)
+        {
+            throw new CustomBasicException("Should had been automated");
+        }
+        AnimalInstance instance = GetAnimalById(animal);
+        return CanCollect(instance);
+        
+    }
+    public void Collect(AnimalView animal)
+    {
+        //if there is a change in collection mode, requires rethinking.
+        //cannot be here because has to have validation that is not async now.
+
+        if (_animalCollectionMode == EnumAnimalCollectionMode.Automated)
+        {
+            throw new CustomBasicException("Should had been automated");
+        }
+        AnimalInstance instance = GetAnimalById(animal);
+        int maxs = GetAmount(instance);
         Collect(instance, maxs);
     }
     private void Collect(AnimalInstance animal, int maxs)
@@ -246,8 +271,7 @@ public class AnimalManager(InventoryManager inventory,
         }
         _animalPersistence = context.AnimalPersistence;
         _animalProgressionPolicy = context.AnimalProgressionPolicy;
-        _animalCollectionPolicy = context.AnimalCollectionPolicy;
-        _animalCollectionMode = await _animalCollectionPolicy.GetCollectionModeAsync();
+        _animalCollectionMode = await context.AnimalCollectionPolicy.GetCollectionModeAsync();
         _recipes = await context.AnimalRegistry.GetAnimalsAsync();
         foreach (var item in _recipes)
         {
@@ -255,7 +279,6 @@ public class AnimalManager(InventoryManager inventory,
             {
                 itemRegistry.Register(new(temp.Output.Item, EnumInventoryStorageCategory.Barn, EnumInventoryItemCategory.Animals));
             }
-            //itemRegistry.Register(new(item.))
         }
         var ours = await context.AnimalInstances.GetAnimalInstancesAsync();
         _animals.Clear();
@@ -271,10 +294,13 @@ public class AnimalManager(InventoryManager inventory,
         }
     }
     //this can be called on demand.
-    public async Task CheckCollectionModeAsync()
-    {
-        _animalCollectionMode = await _animalCollectionPolicy!.GetCollectionModeAsync();
-    }
+
+    //
+
+    //public async Task CheckCollectionModeAsync()
+    //{
+    //    _animalCollectionMode = await _animalCollectionPolicy!.GetCollectionModeAsync();
+    //}
     public async Task UpdateTickAsync()
     {
         _animals.ForConditionalItems(x => x.Unlocked && x.State != EnumAnimalState.None, animal =>
@@ -282,7 +308,10 @@ public class AnimalManager(InventoryManager inventory,
             animal.UpdateTick();
             if (animal.State == EnumAnimalState.Collecting && _animalCollectionMode == EnumAnimalCollectionMode.Automated)
             {
-                Collect(animal, animal.OutputReady); //hopefully this works.
+                if (CanCollect(animal))
+                {
+                    Collect(animal, animal.OutputReady); //if you cannot collect, then still can't do.
+                }
             }
             if (animal.NeedsToSave)
             {

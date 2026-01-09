@@ -13,24 +13,25 @@
 <div style="height: 30px;">
 
 </div>
+@{
+    var visibleQueue = GetVisibleQueue();
+}
 <StackLayout ItemSpacing="5px">
     <SimpleRepeater HowMany="_capacity" Context="slotIndex">
         @{
-            CraftingSummary? current = WorkshopManager.GetSingleCraftedItem(Workshop, slotIndex);
-            bool stopBubble;
-            if (current is not null && slotIndex == 1)
+            // slotIndex is the DISPLAY slot (1..capacity), not the real slot anymore
+            CraftingSummary? current = null;
+            int i = slotIndex - 1;
+            if (i >= 0 && i < visibleQueue.Count)
             {
-                stopBubble = true;
+                current = visibleQueue[i];
             }
-            else
-            {
-                stopBubble = false;
-            }
-        }
-        <StackItem StopClickPropagation="stopBubble">
-           
 
-            <div class="queue-slot @(slotIndex == 1 ? "queue-slot-active" : "queue-slot-inactive")">
+            bool stopBubble = current is not null && slotIndex == 1;
+        }
+
+        <StackItem StopClickPropagation="stopBubble">
+            <div class="queue-slot @SlotClass(slotIndex)">
                 @if (current is not null)
                 {
                     @if (current.State == EnumWorkshopState.Active)

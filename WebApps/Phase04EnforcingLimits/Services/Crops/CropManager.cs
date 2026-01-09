@@ -241,7 +241,6 @@ public class CropManager(InventoryManager inventory,
         {
             await ChangePolicyAsync();
         }
-
         _crops.ForConditionalItems(x => x.Unlocked && x.Crop is not null,
             (crop) =>
         {
@@ -249,7 +248,10 @@ public class CropManager(InventoryManager inventory,
             if (_canAutomateCropHarvest && crop.State == EnumCropState.Ready)
             {
                 //for now, can always do.  later will change.
-                Harvest(crop);
+                if (inventory.CanAdd(crop.Crop!, 2))
+                {
+                    Harvest(crop);
+                }
             }
         });
         if (_needsSaving)

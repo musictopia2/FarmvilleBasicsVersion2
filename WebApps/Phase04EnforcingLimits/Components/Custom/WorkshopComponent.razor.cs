@@ -1,6 +1,5 @@
-
 namespace Phase04EnforcingLimits.Components.Custom;
-public partial class WorkshopComponent
+public partial class WorkshopComponent(IToast toast)
 {
     [Parameter]
     [EditorRequired]
@@ -17,14 +16,12 @@ public partial class WorkshopComponent
 
     [Parameter]
     public EventCallback<string> NavigateTo { get; set; }
-
-
     private int _capacity;
-
-
+    private bool _showToast = true;
 
     protected override void OnParametersSet()
     {
+        _showToast = true;
         _recipes = WorkshopManager.GetRecipesForWorkshop(Workshop);
         if (_recipes.Count > 0)
         {
@@ -32,7 +29,7 @@ public partial class WorkshopComponent
                 Workshop.SelectedRecipeIndex, 0, _recipes.Count - 1
             );
         }
-       
+
         _capacity = WorkshopManager.GetCapcity(Workshop);
         base.OnParametersSet();
     }
@@ -43,7 +40,7 @@ public partial class WorkshopComponent
     {
         if (CanCraft == false)
         {
-            return; 
+            return;
         }
         WorkshopManager.StartCraftingJob(Workshop, ChosenItem);
     }
@@ -74,11 +71,24 @@ public partial class WorkshopComponent
 
         if (WorkshopManager.CanPickupManually(Workshop))
         {
-            WorkshopManager.PickupManually(Workshop);
+            if (WorkshopManager.CanAddToInventory(Workshop))
+            {
+                WorkshopManager.PickupManually(Workshop);
+                _showToast = true;
+            }
+            else if (_showToast)
+            {
+                toast.ShowUserErrorToast("Unable to pick up crafted item because the barn is full.  Try discarding or consuming the items");
+                _showToast = false;
+            }
+        }
+        else
+        {
+            _showToast = true;
         }
         return base.OnTickAsync();
     }
-    
+
     private Dictionary<string, int> FullRequirements
     {
         get
@@ -86,25 +96,39 @@ public partial class WorkshopComponent
             return CurrentRecipe.Inputs;
         }
     }
+    private List<CraftingSummary> GetVisibleQueue()
+    {
+        var list = new List<CraftingSummary>(_capacity);
 
-    private string GetRequirementClass(string item, int required)
-    {
-        if (Inventory.Has(item, required))
+        // your slots appear to be 1-based
+        for (int slot = 1; slot <= _capacity; slot++)
         {
-            return css1.TextSuccess;
+            var s = WorkshopManager.GetSingleCraftedItem(Workshop, slot);
+            if (s is null)
+            {
+                continue;
+            }
+
+            // Hide ready-to-pickup items completely from the queue UI
+            if (s.State == EnumWorkshopState.ReadyToPickUpManually)
+            {
+                continue;
+            }
+
+            list.Add(s);
         }
-        return css1.TextDanger;
+
+        return list;
     }
-    private string GetRequirementDetails(string item, int required)
-    {
-        int count = Inventory.GetInventoryCount(item);
-        return $"{count}/{required}";
-    }
-    
+
+    private static string SlotClass(int displaySlot) =>
+        displaySlot == 1 ? "queue-slot-active" : "queue-slot-inactive";
+
+    //private bool CanShowStack()
+
     private static string Image(CraftingSummary craft) => $"/{craft.Name}.png";
-    private static string GetItemImageSrc(string item) => $"/{item}.png";
     private static string GetTimeText(CraftingSummary craft) => craft.ReadyTime;
     private string WorkshopImage => $"/{Workshop.Name}.png";
-    
+
 
 }

@@ -5,7 +5,7 @@ public class WorkshopManager(InventoryManager inventory,
     )
 {
     private IWorkshopProgressionPolicy? _workshopProgressionPolicy;
-    private IWorkshopCollectionPolicy? _workshopCollectionPolicy;
+    //private IWorkshopCollectionPolicy? _workshopCollectionPolicy;
     private IWorkshopPersistence _workshopPersistence = null!;
     private bool _automateCollection;
     private readonly BasicList<WorkshopInstance> _workshops = [];
@@ -81,6 +81,7 @@ public class WorkshopManager(InventoryManager inventory,
             }
         }
     }
+
     public void StartCraftingJob(WorkshopView summary, string item)
     {
         lock (_lock)
@@ -90,11 +91,11 @@ public class WorkshopManager(InventoryManager inventory,
                 throw new CustomBasicException("Unable to craft.  Should had ran the CanCraft first");
             }
             WorkshopRecipe recipe = _recipes.Single(x => x.Item == item);
-
             inventory.Consume(recipe.Inputs);
             CraftingJobInstance job = new(recipe, _multiplier);
             WorkshopInstance workshop = GetWorkshopById(summary);
             workshop.Queue.Add(job);
+            _needsSaving = true;
         }
     }
     public WorkshopView? SearchForWorkshop(string searchFor)
@@ -285,23 +286,7 @@ public class WorkshopManager(InventoryManager inventory,
             return inventory.Has(recipe.Inputs);
         }
     }
-    public async Task StartCraftingJobAsync(WorkshopView summary, string item)
-    {
-        _automateCollection = await _workshopCollectionPolicy!.IsAutomaticAsync(); //has to do this before the lock.
-        lock (_lock)
-        {
-            if (CanCraft(summary, item) == false)
-            {
-                throw new CustomBasicException("Unable to craft.  Should had ran the CanCraft first");
-            }
-            WorkshopRecipe recipe = _recipes.Single(x => x.Item == item);
-            inventory.Consume(recipe.Inputs);
-            CraftingJobInstance job = new(recipe, _multiplier);
-            WorkshopInstance workshop = GetWorkshopById(summary);
-            workshop.Queue.Add(job);
-            _needsSaving = true;
-        }
-    }
+    
     //public int GetCompletedCount(WorkshopView workshop)
     //{
     //    var instance = GetWorkshopById(workshop); // or however you map view->instance
@@ -315,11 +300,26 @@ public class WorkshopManager(InventoryManager inventory,
             return workshop.Queue.Any(x => x.State == EnumWorkshopState.ReadyToPickUpManually);
         }
     }
+    public bool CanAddToInventory(WorkshopView summary)
+    {
+        WorkshopInstance workshop = GetWorkshopById(summary);
+        return CanAddToInventory(workshop);
+    }
+    private bool CanAddToInventory(WorkshopInstance workshop)
+    {
+        CraftingJobInstance active = workshop.Queue.First(x => x.State == EnumWorkshopState.ReadyToPickUpManually);
+        return inventory.CanAdd(active.Recipe.Output);
+    }
+    private bool CanAddToInventory(CraftingJobInstance active) => inventory.CanAdd(active.Recipe.Output);
     public void PickupManually(WorkshopView summary)
     {
         lock (_lock)
         {
             WorkshopInstance workshop = GetWorkshopById(summary);
+            if (CanAddToInventory(workshop) == false)
+            {
+                throw new CustomBasicException("Should had used the CanAddToInventory because you were over the barn limits");
+            }
             CraftingJobInstance active = workshop.Queue.First(x => x.State == EnumWorkshopState.ReadyToPickUpManually);
             //active.Complete();
 
@@ -343,8 +343,7 @@ public class WorkshopManager(InventoryManager inventory,
         _multiplier = profile.WorkshopTimeMultiplier;
         _workshopPersistence = context.WorkshopPersistence;
         _workshopProgressionPolicy = context.WorkshopProgressionPolicy;
-        _workshopCollectionPolicy = context.WorkshopCollectionPolicy;
-        _automateCollection = await _workshopCollectionPolicy.IsAutomaticAsync();
+        _automateCollection = await context.WorkshopCollectionPolicy.IsAutomaticAsync();
         _recipes = await context.WorkshopRegistry.GetWorkshopRecipesAsync();
         foreach (var item in _recipes)
         {
@@ -367,12 +366,6 @@ public class WorkshopManager(InventoryManager inventory,
         _workshops.ForConditionalItems(x => x.Unlocked, ProcessBuilding);
         await SaveWorkshopsAsync();
     }
-    public async Task<bool> CanAutomateCollectionAsync()
-    {
-        _automateCollection = await _workshopCollectionPolicy!.IsAutomaticAsync();
-        return _automateCollection;
-    }
-
     private void ProcessBuilding(WorkshopInstance workshop)
     {
         if (workshop.Unlocked == false)
@@ -408,10 +401,14 @@ public class WorkshopManager(InventoryManager inventory,
 
             if (_automateCollection)
             {
-                inventory.Add(active.Recipe.Output.Item, active.Recipe.Output.Amount);
-                active.Complete();
-                workshop.Queue.RemoveSpecificItem(active);
-                _needsSaving = true;
+                if (CanAddToInventory(active))
+                {
+                    inventory.Add(active.Recipe.Output.Item, active.Recipe.Output.Amount);
+                    active.Complete();
+                    workshop.Queue.RemoveSpecificItem(active);
+                    _needsSaving = true;
+                }
+                
             }
             else
             {

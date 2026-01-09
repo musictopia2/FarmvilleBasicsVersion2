@@ -1,0 +1,97 @@
+﻿@inherits TimedOnlyComponent
+<div class="mb-1">Select Crop to Plant:</div>
+
+<div class="crop-selected-line" aria-live="polite">
+    <span class="crop-selected-label">Selected:</span>
+    <span class="crop-selected-value">
+        @(_selectedItem is null ? "None" : _selectedItem.GetWords)
+    </span>
+</div>
+
+<div class="crop-picker">
+    @foreach (var item in _crops)
+    {
+        var isSelected = _selectedItem == item;
+
+        <div class="crop-pick-tile @(isSelected ? "selected" : "")"
+             role="button"
+             tabindex="0"
+             title="@item"
+             @onclick="() => SelectCrop(item)">
+            <div class="inv-badge">@InventoryAmount(item)</div>
+
+            <img class="crop-pick-img"
+                 src="@GetCropImageSrc(item)"
+                 alt="@item" />
+        </div>
+    }
+</div>
+
+
+<div class="farm-grid">
+    @foreach (var id in CropManager.GetUnlockedCrops)
+    {
+        EnumCropState state = GetState(id);
+
+        <div class="farm-tile">
+            <div class="card text-center crop-card"
+                 role="button"
+                 style="background-color: @GetBackground(state);"
+                 tabindex="0"
+                 @onclick="() => OnCardClick(id)">
+                <div class="card-body p-1 position-relative d-flex flex-column">
+
+                    <!-- Top-right badge tells what clicking does -->
+                    <div class="crop-badge" title="@GetBadgeTitle(state)">
+                        @BadgeSvg(state)
+                    </div>
+
+                    <!-- Main slot content -->
+                    <div class="crop-slot flex-grow-1 d-flex align-items-center justify-content-center">
+                        @if (state == EnumCropState.Empty)
+                        {
+                            <div class="empty-plot" aria-label="Empty plot"></div>
+                        }
+                        else
+                        {
+                            <img class="crop-img"
+                                 src="@GetCropImageSrc(id)"
+                                 alt="@CropManager.GetCropName(id)" />
+                        }
+                    </div>
+
+                    @* OPTIONAL footer (remove if you want maximum space) *@
+                    @* 
+                    <div class="small mt-1">
+                        @if (state == EnumCropState.Empty)
+                        {
+                            <span class="text-muted">Empty</span>
+                        }
+                        else if (state == EnumCropState.Growing)
+                        {
+                            <span class="text-primary">Growing</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">Ready</span>
+                        }
+                    </div>
+                    *@
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<div>
+    <PrimaryButton OnClick="PlantMax">
+        Plant Maximum Crops
+    </PrimaryButton>
+    <PrimaryButton OnClick="HarvestMax">
+        Harvest All
+    </PrimaryButton>
+</div>
+
+<BasicProgressModal @bind-Visible="_showProgressModal">
+    <CropProgress Id="_progressCropId" />
+</BasicProgressModal>

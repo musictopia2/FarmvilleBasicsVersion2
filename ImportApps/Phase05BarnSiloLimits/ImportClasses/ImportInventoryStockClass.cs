@@ -42,7 +42,8 @@ public static class ImportInventoryStockClass
             [CountryItemList.HoneyComb] = amount,
             [CountryItemList.Tomato] = amount,
             [CountryItemList.Strawberry] = amount,
-            [CountryItemList.Carrot] = amount
+            [CountryItemList.Carrot] = amount,
+            [CurrencyKeys.Coin] = 20
 
         };
     }
@@ -54,7 +55,8 @@ public static class ImportInventoryStockClass
         {
             [TropicalItemList.Pineapple] = amount,
             [TropicalItemList.Rice] = amount,
-            [TropicalItemList.Tapioca] = amount
+            [TropicalItemList.Tapioca] = amount,
+            [CurrencyKeys.Coin] = 20
         };
     }
 

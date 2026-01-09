@@ -1,0 +1,141 @@
+﻿.queue-slot {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #666;
+    border-radius: 8px;
+    background: white;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* allow badge to sit outside border */
+}
+
+.queue-slot-active {
+    width: 70px;
+    height: 70px;
+}
+
+    .queue-slot-active .queue-img {
+        width: 60px;
+        height: 60px;
+    }
+
+.queue-slot-inactive {
+    margin-top: 10px; /* centers 50px slot next to 70px slot */
+}
+
+.queue-img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.queue-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 6px;
+    height: 18px;
+    line-height: 18px;
+    border: 1px solid #666;
+    border-radius: 10px;
+    background: white;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+.req-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 300px;
+}
+
+.req-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid #666;
+    border-radius: 10px;
+    background: white;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+.req-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.req-text {
+    min-width: 0;
+}
+
+.req-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.req-detail {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.workshop-header {
+    box-sizing: border-box;
+    user-select: none;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden; /* prevents tiny horizontal scrollbars */
+    display: grid;
+    grid-template-columns: 52px 1fr 52px; /* smaller = less likely to overflow */
+    align-items: center;
+    column-gap: 10px;
+    padding: 0 6px; /* small, safe padding */
+}
+
+/* arrow "button" wrapper */
+.workshop-nav {
+    box-sizing: border-box;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    min-width: 0; /* don't force grid wider */
+}
+
+    /* Move left arrow right (toward title) */
+    .workshop-nav.left {
+        justify-content: flex-end;
+    }
+
+    /* Move right arrow left (toward title) */
+    .workshop-nav.right {
+        justify-content: flex-start;
+    }
+
+.workshop-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    min-width: 0; /* critical in grid to avoid overflow */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

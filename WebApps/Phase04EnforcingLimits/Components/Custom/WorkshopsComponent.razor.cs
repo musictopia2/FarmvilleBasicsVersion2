@@ -5,11 +5,7 @@ public partial class WorkshopsComponent(OverlayService overlay, IToast toast) : 
     [Parameter]
     public WorkshopView? SpecificWorkshop { get; set; }
 
-    //private bool _showAnimals;
-    //private bool _showCrops;
-    //private bool _showTrees;
-    //private bool _showWorksites;
-    //private string? _worksiteLocation;
+    
     
     private BasicList<WorkshopView> _workshops = [];
     private WorkshopView? _currentWorkshop;
@@ -27,26 +23,40 @@ public partial class WorkshopsComponent(OverlayService overlay, IToast toast) : 
     {
         if (SpecificWorkshop is not null)
         {
+
+
+
+            var existing = _workshops.SingleOrDefault(x => x.Id == SpecificWorkshop.Id);
+            var target = existing ?? SpecificWorkshop;
+
             bool changed =
                 _lastSpecificId != SpecificWorkshop.Id ||
-                _lastSpecificIndex != SpecificWorkshop.SelectedRecipeIndex;
+                _lastSpecificIndex != SpecificWorkshop.SelectedRecipeIndex ||
+                // NEW: if user changed the recipe locally, re-apply quest selection even if the quest params are the same
+                (target.SelectedRecipeIndex != SpecificWorkshop.SelectedRecipeIndex);
 
             if (changed)
             {
+                if (WorkshopManager.CanPickupManually(SpecificWorkshop))
+                {
+                    //try to collect.  if it fails, then rethink here.
+                    
+                    if (WorkshopManager.CanAddToInventory(SpecificWorkshop) == false)
+                    {
+                        toast.ShowUserErrorToast("Unable to pick up crafted item because the barn is full.  Try discarding or consuming the items");
+                        _currentWorkshop = null;  //means will show the entire list instead.
+                        _lastSpecificId = null;
+                        return;
+                    }
+                }
+
+
                 _lastSpecificId = SpecificWorkshop.Id;
                 _lastSpecificIndex = SpecificWorkshop.SelectedRecipeIndex;
 
-                // IMPORTANT: set current workshop/selection ONCE for this request
-                var existing = _workshops.SingleOrDefault(x => x.Id == SpecificWorkshop.Id);
-                if (existing is not null)
-                {
-                    existing.SelectedRecipeIndex = SpecificWorkshop.SelectedRecipeIndex;
-                    _currentWorkshop = existing;
-                }
-                else
-                {
-                    _currentWorkshop = SpecificWorkshop;
-                }
+                // Force the selection into the instance the UI is using
+                target.SelectedRecipeIndex = SpecificWorkshop.SelectedRecipeIndex;
+                _currentWorkshop = target;
             }
         }
 
@@ -175,6 +185,7 @@ public partial class WorkshopsComponent(OverlayService overlay, IToast toast) : 
         UpdateWorkshops();
         InvokeAsync(StateHasChanged);
     }
+    
     
 
     private void SelectWorkshop(WorkshopView workshop)

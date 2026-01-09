@@ -18,10 +18,10 @@ public partial class WorkshopComponent(IToast toast)
     public EventCallback<string> NavigateTo { get; set; }
     private int _capacity;
     private bool _showToast = true;
-
     protected override void OnParametersSet()
     {
-        _showToast = true;
+        _showToast = true; //good news is when the readycount increases since something is ready from the parent calls this so i actually get desired behavior.
+
         _recipes = WorkshopManager.GetRecipesForWorkshop(Workshop);
         if (_recipes.Count > 0)
         {
@@ -68,7 +68,6 @@ public partial class WorkshopComponent(IToast toast)
     }
     protected override Task OnTickAsync()
     {
-
         if (WorkshopManager.CanPickupManually(Workshop))
         {
             if (WorkshopManager.CanAddToInventory(Workshop))
@@ -82,7 +81,7 @@ public partial class WorkshopComponent(IToast toast)
                 _showToast = false;
             }
         }
-        else
+        else if (_showToast == false)
         {
             _showToast = true;
         }

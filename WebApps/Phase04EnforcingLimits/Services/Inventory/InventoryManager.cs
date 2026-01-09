@@ -28,6 +28,49 @@ public class InventoryManager(FarmKey farm, IInventoryRepository persist,
     public bool Has(Dictionary<string, int> requirements)
         => requirements.All(r => Has(r.Key, r.Value));
 
+    public bool CanAcceptRewards(IEnumerable<ItemAmount> rewards)
+    {
+        // consolidate duplicates first (optional but safer)
+        var consolidated = rewards
+            .Where(x => x.Amount > 0)
+            .GroupBy(x => x.Item)
+            .Select(g => new ItemAmount(g.Key, g.Sum(x => x.Amount)))
+            .ToList();
+
+        int barnAdd = 0;
+        int siloAdd = 0;
+
+        foreach (var r in consolidated)
+        {
+            var cat = itemRegistry.Get(r.Item).Storage;
+
+            if (cat == EnumInventoryStorageCategory.None)
+            {
+                continue; // unlimited / not counted
+            }
+            else if (cat == EnumInventoryStorageCategory.Barn)
+            {
+                barnAdd += r.Amount;
+            }
+            else if (cat == EnumInventoryStorageCategory.Silo)
+            {
+                siloAdd += r.Amount;
+            }
+            else
+            {
+                throw new CustomBasicException($"Unsupported storage category for {r.Item}");
+            }
+        }
+
+        // compute current sizes once
+        int barnCurrent = GetAllBarnInventoryItems().Sum(x => x.Amount);
+        int siloCurrent = GetAllSiloInventoryItems().Sum(x => x.Amount);
+
+        return (barnCurrent + barnAdd) <= BarnSize
+            && (siloCurrent + siloAdd) <= SiloSize;
+    }
+
+
     public bool CanAdd(ItemAmount item) => CanAdd(item.Item, item.Amount);
     public bool CanAdd(string item, int amount)
     {

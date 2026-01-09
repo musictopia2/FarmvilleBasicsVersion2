@@ -53,6 +53,11 @@ public class OverlayService(PopupRegistry popup, FarmContext farm)
             return;
         }
         await CloseAllAsync();
+        if (farm.Current!.WorksiteManager.CanCollectRewards(location) && farm.Current.WorksiteManager.CanCollectRewardsWithLimits(location) == false)
+        {
+            Toast!.ShowUserErrorToast("Unable to open the worksite because your barn or silo is full");
+            return;
+        }
         CurrentWorksite = location;
         Changed?.Invoke();
     }

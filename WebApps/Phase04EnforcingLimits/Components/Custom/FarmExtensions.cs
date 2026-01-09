@@ -32,6 +32,10 @@ public static class FarmExtensions
             }
             if (manager.CanCollectRewards(location))
             {
+                if (manager.CanCollectRewardsWithLimits(location) == false)
+                {
+                    return true; //because you have limits
+                }
                 return false;
             }
             return true;

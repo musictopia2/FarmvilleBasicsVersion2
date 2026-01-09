@@ -39,12 +39,18 @@ public partial class WorkshopsComponent(OverlayService overlay, IToast toast) : 
             {
                 if (WorkshopManager.CanPickupManually(SpecificWorkshop))
                 {
-                    //try to collect.  if it fails, then rethink here.
                     
                     if (WorkshopManager.CanAddToInventory(SpecificWorkshop) == false)
                     {
                         toast.ShowUserErrorToast("Unable to pick up crafted item because the barn is full.  Try discarding or consuming the items");
                         _currentWorkshop = null;  //means will show the entire list instead.
+                        _lastSpecificId = null;
+                        return;
+                    }
+                    else
+                    {
+                        toast.ShowInfoToast("Should pick up whatever is in the workshop before opening the workshop");
+                        _currentWorkshop = null;
                         _lastSpecificId = null;
                         return;
                     }

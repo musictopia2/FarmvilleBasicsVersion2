@@ -177,11 +177,20 @@ public class WorksiteManager(
         //later can have other reasons you cannot collect rewards (later).
         return instance.CanCollectRewards;
     }
+    public bool CanCollectRewardsWithLimits(string location)
+    {
+        var list = GetRewards(location);
+        return inventory.CanAcceptRewards(list);
+    }
     public BasicList<ItemAmount> GetRewards(string location)
     {
         WorksiteInstance instance = GetWorksiteByLocation(location);
         return instance.GetRewards();
     }
+    //public bool CanCollectRewards(string location)
+    //{
+
+    //}
     public void CollectAllRewards(string location, BasicList<ItemAmount> rewards)
     {
         WorksiteInstance instance = GetWorksiteByLocation(location);
@@ -392,7 +401,10 @@ public class WorksiteManager(
             if (worksite.Status == EnumWorksiteState.Collecting && _canAutomateCollection == true)
             {
                 var rewards = worksite.GetRewards();
-                CollectAllRewards(worksite, rewards);
+                if (inventory.CanAcceptRewards(rewards))
+                {
+                    CollectAllRewards(worksite, rewards);
+                }
             }
         });
         await SaveWorksitesAsync();

@@ -56,13 +56,18 @@ public partial class WorksiteComponent(IToast toast, OverlayService overlay)
         _currentWorker = _workers.FirstOrDefault();
         _totalPossibleWorkers = WorksiteManager.TotalWorkersAllowed(Location);
         _shownList = GetOrderedWorkers();
-        RunProcess();
+        base.OnInitialized();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RunProcessAsync();
         int realHeight = Query1!.BrowserInfo!.Height;
         int taken = Insets!.TopPx + Insets!.BottomPx;
         int available = realHeight - taken;
         _height = $"{available}px";
-        base.OnInitialized();
     }
+
     private EnumWorksiteState Status
     {
         get
@@ -84,18 +89,26 @@ public partial class WorksiteComponent(IToast toast, OverlayService overlay)
         _workerIndex++;
         _currentWorker = _workers[_workerIndex];
     }
-    protected override Task OnTickAsync()
+    protected override async Task OnTickAsync()
     {
-        RunProcess();
-        return base.OnTickAsync();
+        await RunProcessAsync();
+        await base.OnTickAsync();
     }
-    private void RunProcess()
+    private async Task RunProcessAsync()
     {
-
         if (WorksiteManager.GetStatus(Location) == EnumWorksiteState.Collecting && _rewards.Count == 0)
         {
             _rewards = WorksiteManager.GetRewards(Location);
+
             WorksiteManager.StoreRewards(Location, _rewards);
+            //even if you cannot collect. needs to store it.
+            if (WorksiteManager.CanCollectRewardsWithLimits(Location) == false)
+            {
+                toast.ShowUserErrorToast("Unable to collect rewards because your barn or silo is full.");
+                //overlay.SetWorksiteVisible(false);
+                await overlay.CloseAllAsync();
+                return;
+            }
         }
         if (WorksiteManager.GetStatus(Location) != EnumWorksiteState.Collecting)
         {

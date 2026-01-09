@@ -52,7 +52,7 @@ public static class ImportInventoryStockClass
         int amount = 10;
         return new()
         {
-            [TropicalItemList.Pineapple] = 30,
+            [TropicalItemList.Pineapple] = amount,
             [TropicalItemList.Rice] = amount,
             [TropicalItemList.Tapioca] = amount
         };

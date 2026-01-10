@@ -33,6 +33,19 @@ public partial class WorkshopComponent(IToast toast)
         _capacity = WorkshopManager.GetCapcity(Workshop);
         base.OnParametersSet();
     }
+
+    private bool CanShowPossibleNewCapacity => UpgradeManager.IsWorkshopAtMaximumCapacity(Workshop) == false;
+
+    private void UpgradeWorkshopCapacity()
+    {
+        if (UpgradeManager.CanUpgradeWorkshopCapacity(Workshop) == false)
+        {
+            toast.ShowUserErrorToast("Unable to upgrade the workshop capacity because you don't have enough coin");
+            return;
+        }
+        UpgradeManager.UpgradeWorkshopCapacity(Workshop);
+    }
+
     private WorkshopRecipeSummary CurrentRecipe => _recipes[Workshop.SelectedRecipeIndex];
     private string ChosenItem => CurrentRecipe.Item;
     private bool CanCraft => WorkshopManager.CanCraft(Workshop, ChosenItem);
@@ -68,6 +81,7 @@ public partial class WorkshopComponent(IToast toast)
     }
     protected override Task OnTickAsync()
     {
+        _capacity = WorkshopManager.GetCapcity(Workshop);
         if (WorkshopManager.CanPickupManually(Workshop))
         {
             if (WorkshopManager.CanAddToInventory(Workshop))

@@ -46,6 +46,24 @@
             </div>
         </StackItem>
     </SimpleRepeater>
+
+    @* NEW: upgrade button shown only if NOT maxed *@
+    @if (CanShowPossibleNewCapacity)
+    {
+        <StackItem>
+
+
+
+
+            <div class="upgrade-slot upgrade-cost-btn" @onclick="UpgradeWorkshopCapacity">
+                <img src="/coin.png" alt="Coin" class="coin-img" />
+                <span class="upgrade-cost-text">@UpgradeManager.NextWorkshopCapacityCoinCost(Workshop)</span>
+                
+            </div>
+        </StackItem>
+       
+    }
+
 </StackLayout>
 <div class="workshop-header" @onclick:stopPropagation="true">
     <button type="button" class="workshop-nav" @onclick="PreviousClicked" aria-label="Previous workshop">

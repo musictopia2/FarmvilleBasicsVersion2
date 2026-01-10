@@ -1,4 +1,20 @@
-﻿.queue-slot {
+﻿
+
+.upgrade-slot {
+    height: 50px;
+    width: 100px;
+    margin-top: 10px;
+    border: 2px solid #666;
+    border-radius: 8px;
+    background: white;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* allow badge to sit outside border */
+}
+.queue-slot {
     width: 50px;
     height: 50px;
     border: 2px solid #666;
@@ -138,4 +154,33 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+
+.upgrade-cost-btn {
+    background-color: lime;
+}
+
+
+    .upgrade-cost-btn:active {
+        transform: translateY(1px);
+    }
+
+    .upgrade-cost-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.coin-img {
+    display: block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.upgrade-cost-text {
+    font-size: 1.1rem;
+    line-height: 1;
+    font-weight: 900;
 }

@@ -1,4 +1,4 @@
-﻿namespace Phase07EarnCoinFromQuests.DataAccess.Core;
+﻿namespace Phase07EarnCoinFromQuests.DataAccess;
 public static class MainDatabase
 {
     public static string DatabasePath =>

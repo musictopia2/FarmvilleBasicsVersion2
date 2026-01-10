@@ -3,6 +3,7 @@ using Phase09LevelProgression.DataAccess.Animals;
 using Phase09LevelProgression.DataAccess.Balance;
 using Phase09LevelProgression.DataAccess.Core;
 using Phase09LevelProgression.DataAccess.Crops;
+using Phase09LevelProgression.DataAccess.Progression;
 using Phase09LevelProgression.DataAccess.Quests; //not common enough.
 using Phase09LevelProgression.DataAccess.Trees;
 using Phase09LevelProgression.DataAccess.Upgrades;
@@ -32,6 +33,7 @@ public static class ServiceExtensions
                 .AddSingleton<IWorkerFactory, WorkerFactory>()
                 .AddSingleton<IQuestFactory, QuestFactory>()
                 .AddSingleton<IUpgradeFactory, UpgradeFactory>()
+                .AddSingleton<IProgressionFactory, ProgressionFactory>()
                 .AddScoped<ReadyStatusService>()
                 .AddScoped<OverlayService>()
                 .AddScoped<FarmContext>()

@@ -22,7 +22,8 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             IWorksiteFactory worksiteFactory = sp.GetRequiredService<IWorksiteFactory>();
             IWorkerFactory workerFactory = sp.GetRequiredService<IWorkerFactory>();
             IQuestFactory questFactory = sp.GetRequiredService<IQuestFactory>();
-            IUpgradeFactory upgradeFactory = sp.GetRequiredService<IUpgradeFactory>();  
+            IUpgradeFactory upgradeFactory = sp.GetRequiredService<IUpgradeFactory>();
+            IProgressionFactory progressionFactory = sp.GetRequiredService<IProgressionFactory>();
             CropManager cropManager = new(inventory, baseBalanceProvider, itemRegistry);
             TreeManager treeManager = new(inventory, baseBalanceProvider, itemRegistry);
             AnimalManager animalManager = new(inventory, baseBalanceProvider, itemRegistry);
@@ -30,13 +31,16 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             WorksiteManager worksiteManager = new(inventory, baseBalanceProvider, itemRegistry);
             var profile = starts.GetInventoryProfile(farm);
             UpgradeManager upgradeManager = new(inventory, profile, workshopManager);
+            ProgressionManager progressionManager = new(inventory);
             QuestManager questManager = new(inventory);
             IGameTimer timer = new BasicGameState(
                 inventory, starts,
                 cropFactory, treeFactory, animalFactory, workshopFactory,
-                worksiteFactory, workerFactory, questFactory, upgradeFactory,
+                worksiteFactory, workerFactory, questFactory,
+                upgradeFactory, progressionFactory,
                 cropManager, treeManager, animalManager,
-                workshopManager, worksiteManager, questManager, upgradeManager
+                workshopManager, worksiteManager, questManager,
+                upgradeManager, progressionManager
                 );
             await gameRegistry.InitializeFarmAsync(timer, farm);
         }

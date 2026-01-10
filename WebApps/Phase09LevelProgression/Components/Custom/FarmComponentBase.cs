@@ -10,4 +10,5 @@ public abstract class FarmComponentBase : ComponentBase
     public WorksiteManager WorksiteManager => Farm!.WorksiteManager;
     protected InventoryManager InventoryManager => Farm!.InventoryManager;
     protected UpgradeManager UpgradeManager => Farm!.UpgradeManager;
+    protected ProgressionManager ProgressionManager => Farm!.ProgressionManager;
 }

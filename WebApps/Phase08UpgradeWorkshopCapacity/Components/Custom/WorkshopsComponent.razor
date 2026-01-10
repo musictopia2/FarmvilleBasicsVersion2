@@ -1,0 +1,47 @@
+﻿@inherits FarmComponentBase
+
+@* <PopupViewport
+    TapToClose=true
+    @bind-Visible="_showAnimals"    
+>
+    <AnimalsComponent />
+</PopupViewport>
+<PopupViewport
+    TapToClose="true"
+    @bind-Visible="_showCrops"
+>
+    <CropsComponent />
+</PopupViewport>
+<PopupViewport TapToClose="true"
+               @bind-Visible="_showTrees">
+    <TreesComponent />
+</PopupViewport>
+<ShowWorksiteModal @bind-Visible="@_showWorksites" 
+    @bind-Location="_worksiteLocation" /> *@
+
+
+@if (_currentWorkshop is not null)
+{
+    <WorkshopComponent Workshop="_currentWorkshop"
+        NextClicked="Next"
+        PreviousClicked="Previous"
+        NavigateTo="NavigateToAsync"
+        />
+    return; 
+}
+<WrapLayout RenderList="_workshops" ColumnWidth="100px" Context="workshop">
+   
+    <StopClickPropagation>
+        <div class="workshop-tile" @onclick="() => SelectWorkshop(workshop)">
+            <img class="workshop-img"
+                 src="@Image(workshop)"
+                 draggable="false" />
+
+            @if (workshop.ReadyCount > 0)
+            {
+                <div class="workshop-badge">@workshop.ReadyCount</div>
+            }
+        </div>
+    </StopClickPropagation>
+    
+</WrapLayout>

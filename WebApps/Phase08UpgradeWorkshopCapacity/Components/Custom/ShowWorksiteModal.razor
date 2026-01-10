@@ -1,0 +1,9 @@
+﻿@inherits FarmComponentBase
+<PopupViewport CloseButtonClick="CloseWorksite"
+               ShowHeaders="false"
+               TapToClose=true
+               CanCloseAutomatically="CanCloseWorksiteAutomatically"
+               @bind-Visible="Visible">
+    <WorksiteComponent Location="@Location"
+                       OnCloseManually="CloseWorksite" />
+</PopupViewport>

@@ -5,23 +5,23 @@ public static class ImportInventoryStorageProfileClass
     {
         //for this version, do the same for both players.
         var farms = FarmHelperClass.GetAllFarms();
-
+        InventoryStorageUpgradePlanDatabase others = new();
+        
         InventoryStorageProfileDatabase db = new();
         BasicList<InventoryStorageProfileDocument> list = [];
         foreach (var farm in farms)
         {
+            var upgrades = await others.GetUpgradesAsync(farm);
             InventoryStorageProfileDocument document = new()
             {
                 Farm = farm,
-                BarnSize = 2,
-                SiloSize = 20
+                BarnLevel = 0,
+                SiloLevel = 0,
+                BarnSize = upgrades.BarnUpgrades.First().Size,
+                SiloSize = upgrades.SiloUpgrades.First().Size
             };
             list.Add(document);
         }
-        //just to prove it shows limits and you will quickly exceed them.
         await db.ImportAsync(list);
-
-
-
     }
 }

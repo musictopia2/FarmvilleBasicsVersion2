@@ -1,0 +1,91 @@
+﻿@inherits FarmComponentBase
+<CascadingValue IsFixed=true Value="_overlays">
+
+    
+    <IntegerInputModal Visible="quantityPickerService.Visible"
+        MaxValue="quantityPickerService.MaxValue"
+        StartBlank="true"
+        ValueChanged="OnValueChanged"
+                       VisibleChanged="VisibleChanged">
+        @quantityPickerService.MaxValue
+    </IntegerInputModal>
+
+
+    <PopupViewport GapLeftPx="10"
+                   GapRightPx="10"
+                   GapTopPx="10"
+                   GapBottomPx="10"
+                   ShowHeaders="true"
+                   HeaderTitle="Barn"
+                   CloseButtonClick="CloseBarn"
+                   @bind-Visible="_showBarn">
+        <InventoryDisplayComponent InventoryStorageCategory="EnumInventoryStorageCategory.Barn" />
+    </PopupViewport>
+
+    <PopupViewport GapLeftPx="10"
+                   GapRightPx="10"
+                   GapTopPx="10"
+                   GapBottomPx="10"
+                   ShowHeaders="true"
+                   HeaderTitle="Silo"
+                   @bind-Visible="_showSilo">
+        <InventoryDisplayComponent InventoryStorageCategory="EnumInventoryStorageCategory.Silo" />
+    </PopupViewport>
+
+    <IntegerInputModal>
+
+    </IntegerInputModal>
+    
+
+    <NavigationBarContainer @ref="_nav"
+                            AlwaysShowBar=true
+                            ShowBack="false"
+                            Title="@Title">
+        <IndicatorContent>
+
+            <div class="indicator-row">
+                <div class="indicator-left">
+                    <CoinIndicator />
+                </div>
+
+                <div class="indicator-right">
+                    <CompletionBell />
+                </div>
+            </div>
+
+        </IndicatorContent>
+        <BarContent>
+            
+            <PrimaryButton Style="color: white; background-color: black;" OnClick="CloseAllPopupsAsync">
+                Close All Popups
+            </PrimaryButton>
+            <PrimaryButton Style="color: white; background-color: black;" OnClick="ChooseAnotherTheme">
+                Choose Another Theme
+            </PrimaryButton>
+        </BarContent>
+        <HeaderContent>
+            <QuestTrackerComponent />
+        </HeaderContent>
+        <MainContent>
+            
+            <OverlayHost />
+            <MainSectionLauncher ReadyCategory="EnumMainSection.Crops" />
+            <MainSectionLauncher ReadyCategory="EnumMainSection.Trees" />
+            <MainSectionLauncher ReadyCategory="EnumMainSection.Animals" />
+            <MainSectionLauncher ReadyCategory="EnumMainSection.Workshops" />
+            <div>
+                <WorksitesComponent />
+            </div>
+            <div>
+                <PrimaryButton OnClick="AddCoin">
+                    Add 15 Coin
+                </PrimaryButton>
+            </div>
+            <ImageButtonComponent Name="Barn" Width="100" OnClick="ShowBarn" />
+            <ImageButtonComponent Name="Silo" Width="100" OnClick="ShowSilo" />
+
+
+
+        </MainContent>
+    </NavigationBarContainer>
+</CascadingValue>

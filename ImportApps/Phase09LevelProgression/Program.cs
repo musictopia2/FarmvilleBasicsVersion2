@@ -16,5 +16,9 @@ await ii1.ImportWorksiteRecipeClass.ImportWorksitesAsync();
 await ii1.ImportWorksiteInstancesClass.ImportWorksitesAsync(); //done
 await ii1.ImportWorkerRecipeClass.ImportWorkersAsync(); //done
 await ii1.ImportBalanceMultiplierClass.ImportBalanceMultiplierAsync(); //done
+//should do the plan first.
+await ii1.ImportLevelProgressionClass.ImportProgressionAsync();
+await ii1.ImportProgressionProfileClass.ImportProgressionAsync();
+
 await ii1.ImportQuestInstancesClass.ImportQuestsAsync(); //iffy
 Console.WriteLine("Completed");

@@ -1,0 +1,34 @@
+﻿@if (IsClickable)
+{
+    <StopClickPropagation>
+        <div class="@RootClass" @onclick="Process" style="@ComputedStyle">
+            @Body
+        </div>
+    </StopClickPropagation>
+}
+else
+{
+    <div class="@RootClass" style="@ComputedStyle">
+        @Body
+    </div>
+}
+
+@code {
+    private RenderFragment Body => @<text>
+    <img class="@ImgClass" src="@ImagePath" alt="@AltText" />
+
+@if (ShowName)
+    {
+    <div class="ird-text">
+        <div class="@NameCss">@Name.GetWords</div>
+        <div class="@AmountCss">@Have/@Required</div>
+    </div>
+    }
+    else
+{
+        <div class="@AmountCss">@Have/@Required</div>
+}
+</text>;
+
+
+}

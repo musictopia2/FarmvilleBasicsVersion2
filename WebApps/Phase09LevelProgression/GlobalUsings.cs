@@ -1,0 +1,34 @@
+﻿global using BasicBlazorLibrary.Components.BaseClasses;
+global using BasicBlazorLibrary.Components.Basic;
+global using BasicBlazorLibrary.Helpers;
+global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.BasicExtensions;
+global using CommonBasicLibraries.BasicDataSettingsAndProcesses; //so i can have access to the exceptions when needed.
+global using CommonBasicLibraries.CollectionClasses;
+global using Microsoft.AspNetCore.Components;
+global using Microsoft.Extensions.DependencyInjection;
+global using Phase09LevelProgression.Components;
+global using bb1 = CommonBasicLibraries.BasicDataSettingsAndProcesses.BasicDataFunctions;
+global using cc1 = CommonBasicLibraries.BasicDataSettingsAndProcesses.SColorString;
+global using css1 = BasicBlazorLibrary.CssHelpers.AllCssClasses; //so i can have intellisense completely from c# if i want.
+global using ff1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.FileFunctions.FileFunctions;
+global using Phase09LevelProgression.Services.Crops;
+global using Phase09LevelProgression.Services.Trees;
+global using Phase09LevelProgression.Services.Animals;
+global using Phase09LevelProgression.Services.Workshops;
+global using Phase09LevelProgression.Services.Workers;
+global using Phase09LevelProgression.Services.Worksites;
+global using Phase09LevelProgression;
+global using CommonBasicLibraries.BasicUIProcesses;
+global using DocumentDbLibrary;
+global using CommonBasicLibraries.DatabaseHelpers.AbstractStaticInterfaces;
+global using dd1 = CommonBasicLibraries.DatabaseHelpers.MiscClasses.GlobalClass;
+global using SQLiteHelperLibraries;
+global using mm1 = Phase09LevelProgression.DataAccess.Core.MainDatabase;
+global using Phase09LevelProgression.Quests;
+global using Phase09LevelProgression.Services.Core;
+global using Phase09LevelProgression.Services.Balance;
+global using Phase09LevelProgression.Services.Inventory;
+global using Phase09LevelProgression.DataAccess.Inventory;
+global using Phase09LevelProgression.Utilities;
+global using Phase09LevelProgression.Services.Upgrades;
+global using Phase09LevelProgression.Services.Progression;

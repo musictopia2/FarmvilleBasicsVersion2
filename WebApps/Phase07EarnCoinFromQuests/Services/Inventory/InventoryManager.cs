@@ -127,6 +127,15 @@ public class InventoryManager(FarmKey farm, IInventoryRepository persist,
         _items[item] = Get(item) + amount;
         UpdateInventory();
     }
+    public void Add(ItemAmount item) => Add(item.Item, item.Amount);
+    public void Add(Dictionary<string, int> rewards)
+    {
+        foreach (var item in rewards)
+        {
+            _items[item.Key] += item.Value;
+        }
+        UpdateInventory();
+    }
     private async void UpdateInventory()
     {
         await persist.SaveAsync(farm, _items);

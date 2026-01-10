@@ -1,6 +1,4 @@
-﻿using Phase07EarnCoinFromQuests.Services.Inventory;
-
-namespace Phase07EarnCoinFromQuests.Quests;
+﻿namespace Phase07EarnCoinFromQuests.Quests;
 public class QuestManager(InventoryManager inventory)
 {
     private IQuestPersistence _questPersistence = null!;
@@ -100,7 +98,7 @@ public class QuestManager(InventoryManager inventory)
     public BasicList<QuestRecipe> GetAllIncompleteQuests()
         => _quests.Where(x => x.Completed == false).ToBasicList();
 
-    
+
     public bool CanCompleteQuest(QuestRecipe recipe) => inventory.Has(recipe.Item, recipe.Required);
     public async Task CompleteQuestAsync(QuestRecipe recipe)
     {
@@ -112,6 +110,7 @@ public class QuestManager(InventoryManager inventory)
         recipe.Completed = true;
         recipe.Tracked = false;
         recipe.Order = 0;
+        inventory.Add(recipe.Rewards);
         await _questPersistence.SaveQuestsAsync(_quests);
     }
 }

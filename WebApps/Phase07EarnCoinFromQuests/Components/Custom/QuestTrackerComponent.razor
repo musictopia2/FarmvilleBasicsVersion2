@@ -23,28 +23,30 @@
         <StackItem Length="260px">
             <div class="quest-card" @onclick="() => CompleteQuestAsync(quest)">
 
-                <!-- Requirement row (like workshop requirements) -->
+                <StackLayout>
+                    <StackItem>
+                        @if (quest.Rewards is not null && quest.Rewards.Count > 0)
+                        {
+                            @foreach (var reward in quest.Rewards)
+                            {
+                                <div class="reward-pill">
+                                    <img class="reward-icon" src="@GetRewardImage(reward.Key)" alt="@reward.Key" />
+                                    <span class="reward-amt">@reward.Value</span>
+                                </div>
+                            }
+                        }
+                    </StackItem>
+                    <StackItem>
+                        <ItemRequirementDisplay Name="@itemKey"
+                                                Have="@have"
+                                                Required="@need" />
+                    </StackItem>
+                </StackLayout>
 
-                <ItemRequirementDisplay 
-                    Name="@itemKey"
-                    Have="@have"
-                    Required="@need"
-                    />
+                
 
 
-                @* <div class="req-row">
-                    <img class="req-img"
-                         src="@GetItemImageSrc(itemKey)"
-                         alt="@itemKey" />
-
-                    <div class="req-text">
-                        <div class="req-name">@itemKey.GetWords</div>
-
-                        <div class="req-detail @(canComplete ? "req-ok" : "req-bad")">
-                            Have @have / Need @need
-                        </div>
-                    </div>
-                </div> *@
+                
 
 
             </div>

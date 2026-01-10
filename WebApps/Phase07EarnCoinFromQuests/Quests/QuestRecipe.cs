@@ -6,4 +6,5 @@ public class QuestRecipe
     public bool Completed { get; set; }
     public bool Tracked { get; set; }
     public int Order { get; set; }
+    public Dictionary<string, int> Rewards { get; set; } = [];
 }

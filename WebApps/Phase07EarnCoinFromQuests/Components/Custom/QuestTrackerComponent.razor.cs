@@ -7,7 +7,13 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
     
 
     private const string _worksiteLockMessage = "Must collect from current worksite first";
-
+    private static string GetRewardImage(string key)
+    {
+        return $"{key}.png";
+        //key = (key ?? "").Trim();
+        //if (key.Length == 0) return "/missing.png";
+        //return "/" + Uri.EscapeDataString(key) + ".png";
+    }
     protected override Task OnInitializedAsync()
     {
         questService.Changed += Refresh;

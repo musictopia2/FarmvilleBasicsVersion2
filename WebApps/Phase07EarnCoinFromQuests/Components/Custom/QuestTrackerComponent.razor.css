@@ -6,3 +6,43 @@
     box-sizing: border-box;
     user-select: none;
 }
+.quest-grid {
+    display: grid;
+    grid-template-columns: 90px 1fr; /* left rewards, right content */
+    gap: 10px;
+    align-items: stretch; /* both columns same height */
+}
+
+/* Left column pinned to bottom-left */
+.quest-rewards {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* bottom */
+    align-items: flex-start; /* left */
+    gap: 6px;
+    min-height: 100%; /* important when right side grows */
+}
+
+.reward-pill {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.reward-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.reward-amt {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Right column: your existing layout */
+.quest-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}

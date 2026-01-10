@@ -37,7 +37,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
 
         var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
 
-        var temp = item.Upgrades[capacity + 2];
+        var temp = item.Upgrades[capacity];
         return GetCoinCost(temp);
     }
     public bool CanUpgradeWorkshopCapacity(WorkshopView workshop)
@@ -48,7 +48,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
         }
         int capacity = workshopManager.GetCapcity(workshop);
         var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
-        var temp = item.Upgrades[capacity + 2];
+        var temp = item.Upgrades[capacity];
         return CanAfford(temp);
     }
     public void UpgradeWorkshopCapacity(WorkshopView workshop)
@@ -59,7 +59,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
         }
         int capacity = workshopManager.GetCapcity(workshop);
         var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
-        var temp = item.Upgrades[capacity + 2];
+        var temp = item.Upgrades[capacity];
         capacity++;
         workshopManager.UpdateCapacity(workshop, capacity);
         inventoryManager.Consume(temp.Cost);

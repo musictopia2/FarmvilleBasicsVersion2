@@ -38,7 +38,7 @@ internal static class ImportInventoryStorageUpgradesClass
         int currentCost = 2;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -47,7 +47,7 @@ internal static class ImportInventoryStorageUpgradesClass
         currentValue += increment;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -55,7 +55,7 @@ internal static class ImportInventoryStorageUpgradesClass
         currentValue += increment;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -78,7 +78,7 @@ internal static class ImportInventoryStorageUpgradesClass
         int currentCost = 5;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -87,7 +87,7 @@ internal static class ImportInventoryStorageUpgradesClass
         currentValue += increment;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -95,7 +95,7 @@ internal static class ImportInventoryStorageUpgradesClass
         currentValue += increment;
         tier = new()
         {
-            Cost = GetCoinOnlyCost(currentCost),
+            Cost = FarmHelperClass.GetCoinOnlyDictionary(currentCost),
             Size = currentValue
         };
         output.Add(tier);
@@ -103,12 +103,7 @@ internal static class ImportInventoryStorageUpgradesClass
     }
 
     private static Dictionary<string, int> GetFreeCosts => [];
-    private static Dictionary<string, int> GetCoinOnlyCost(int value)
-    {
-        Dictionary<string, int> output = [];
-        output[CurrencyKeys.Coin] = value;
-        return output;
-    }
+    
 
     private static void ValidateTiers(
         BasicList<UpgradeTier> tiers,

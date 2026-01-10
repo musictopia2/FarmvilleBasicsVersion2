@@ -1,4 +1,6 @@
-﻿namespace Phase07EarnCoinFromQuests.QuestHelpers;
+﻿using Phase07EarnCoinFromQuests.ImportClasses;
+
+namespace Phase07EarnCoinFromQuests.QuestHelpers;
 internal static class CompleteQuestClass
 {
 
@@ -90,13 +92,14 @@ internal static class CompleteQuestClass
 
         QuestPackGenerator gen = new();
         BasicList<QuestRecipe> quests = gen.Generate(container, settings);
-        //foreach (var item in quests)
-        //{
-        //    Console.WriteLine($"{item.Item} needs {item.Required}");
-            
-        
-        //}
-        //Console.ReadLine();
+
+        foreach (QuestRecipe recipe in quests)
+        {
+            recipe.Rewards = FarmHelperClass.GetCoinOnlyDictionary(1); //pretend like every quest gives one coin.
+            //obviously can do any advanced stuff as you want eventually for balance.
+            //for now, needs to get it working.
+        }
+
         return quests;
         
 

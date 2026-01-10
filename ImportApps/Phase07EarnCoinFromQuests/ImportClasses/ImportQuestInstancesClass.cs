@@ -14,7 +14,7 @@ public static class ImportQuestInstancesClass
             {
                 FarmKey farm = GetFarm(player, theme);
 
-                BasicList<QuestRecipe> quests = await QuestHelpers.CompleteQuestClass.GetQuestsAsync(farm);
+                BasicList<QuestRecipe> quests = await CompleteQuestClass.GetQuestsAsync(farm);
                 QuestDocument document = new()
                 {
                     Farm = farm,

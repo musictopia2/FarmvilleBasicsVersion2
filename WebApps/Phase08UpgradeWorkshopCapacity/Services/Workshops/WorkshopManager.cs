@@ -49,6 +49,12 @@ public class WorkshopManager(InventoryManager inventory,
         WorkshopInstance workshop = GetWorkshopById(summary);
         return workshop.Capacity;
     }
+    public void UpdateCapacity(WorkshopView summary, int capacity)
+    {
+        WorkshopInstance workshop = GetWorkshopById(summary);
+        workshop.Capacity = capacity;
+        _needsSaving = true;
+    }
     public CraftingSummary? GetSingleCraftedItem(WorkshopView summary, int index)
     {
         lock (_lock)

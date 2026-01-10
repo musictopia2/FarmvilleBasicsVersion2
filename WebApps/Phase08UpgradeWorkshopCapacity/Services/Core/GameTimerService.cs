@@ -29,7 +29,7 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             WorkshopManager workshopManager = new(inventory, baseBalanceProvider, itemRegistry);
             WorksiteManager worksiteManager = new(inventory, baseBalanceProvider, itemRegistry);
             var profile = starts.GetInventoryProfile(farm);
-            UpgradeManager upgradeManager = new(inventory, profile);
+            UpgradeManager upgradeManager = new(inventory, profile, workshopManager);
             QuestManager questManager = new(inventory);
             IGameTimer timer = new BasicGameState(
                 inventory, starts,

@@ -5,7 +5,8 @@ public class UpgradeFactory : IUpgradeFactory
     {
         return new UpgradeServicesContext()
         {
-            InventoryStorageUpgradePlanProvider = new InventoryStorageUpgradePlanDatabase()
+            InventoryStorageUpgradePlanProvider = new InventoryStorageUpgradePlanDatabase(),
+            WorkshopCapacityUpgradePlanProvider = new WorkshopCapacityUpgradePlanDatabase(),
         };
     }
 }

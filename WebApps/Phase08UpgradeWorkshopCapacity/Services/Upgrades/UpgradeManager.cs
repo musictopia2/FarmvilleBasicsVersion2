@@ -1,6 +1,7 @@
 ﻿namespace Phase08UpgradeWorkshopCapacity.Services.Upgrades;
 public class UpgradeManager(InventoryManager inventoryManager,
-    IInventoryProfile inventoryProfile
+    IInventoryProfile inventoryProfile,
+    WorkshopManager workshopManager //i think i need workshop manager for this.
     )
 {
     //this focuses on upgrades but are cross cutting.
@@ -8,6 +9,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
     //this is different because no tick.
 
     private InventoryStorageUpgradePlanModel _inventoryPlan = null!;
+    private BasicList<WorkshopCapacityUpgradePlanModel> _workshopCapacities = [];
     private InventoryStorageProfileModel _inventoryStorageProfile = null!;
     public async Task SetInventoryStyleContextAsync(UpgradeServicesContext context,
         InventoryStorageProfileModel storage
@@ -17,12 +19,51 @@ public class UpgradeManager(InventoryManager inventoryManager,
         //start out with just upgrades to the barn/silo.  later will upgrade other things.
         _inventoryPlan = await context.InventoryStorageUpgradePlanProvider.GetPlanAsync(farm);
         _inventoryStorageProfile = storage;
-
-
+        _workshopCapacities = await context.WorkshopCapacityUpgradePlanProvider.GetPlansAsync(farm);
     }
+    public bool IsWorkshopAtMaximumCapacity(WorkshopView workshop)
+    {
+        int capacity = workshopManager.GetCapcity(workshop);
+        var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
+        if (capacity >= item.Upgrades.Count)
+        {
+            return true; //you are maxed out.
+        }
+        return false;
+    }
+    public int NextWorkshopCapacityCoinCost(WorkshopView workshop)
+    {
+        int capacity = workshopManager.GetCapcity(workshop);
 
-    //private int CoinAmount => inventory.CoinCount;
+        var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
 
+        var temp = item.Upgrades[capacity + 2];
+        return GetCoinCost(temp);
+    }
+    public bool CanUpgradeWorkshopCapacity(WorkshopView workshop)
+    {
+        if (IsWorkshopAtMaximumCapacity(workshop))
+        {
+            return false;
+        }
+        int capacity = workshopManager.GetCapcity(workshop);
+        var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
+        var temp = item.Upgrades[capacity + 2];
+        return CanAfford(temp);
+    }
+    public void UpgradeWorkshopCapacity(WorkshopView workshop)
+    {
+        if (CanUpgradeWorkshopCapacity(workshop) == false)
+        {
+            throw new CustomBasicException("Unable to upgrade the workshop capacity.  Should had called CanUpgradeWorkshopCapacity");
+        }
+        int capacity = workshopManager.GetCapcity(workshop);
+        var item = _workshopCapacities.Single(x => x.WorkshopName == workshop.Name);
+        var temp = item.Upgrades[capacity + 2];
+        capacity++;
+        workshopManager.UpdateCapacity(workshop, capacity);
+        inventoryManager.Consume(temp.Cost);
+    }
     
     //if this does not work, then rethink.
     public int NextBarnCoinCost

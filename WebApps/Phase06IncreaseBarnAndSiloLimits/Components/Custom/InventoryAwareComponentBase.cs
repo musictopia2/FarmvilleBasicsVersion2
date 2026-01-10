@@ -3,7 +3,7 @@ public abstract class InventoryAwareComponentBase : FarmComponentBase, IDisposab
 {
     protected override void OnInitialized()
     {
-        Inventory.InventoryChanged += async () => await OnInventoryChangedAsync();
+        InventoryManager.InventoryChanged += async () => await OnInventoryChangedAsync();
         base.OnInitialized();
     }
     protected virtual async Task OnInventoryChangedAsync()
@@ -16,7 +16,7 @@ public abstract class InventoryAwareComponentBase : FarmComponentBase, IDisposab
     }
     public void Dispose()
     {
-        Inventory?.InventoryChanged -= async () => await OnInventoryChangedAsync();
+        InventoryManager?.InventoryChanged -= async () => await OnInventoryChangedAsync();
         DisposeCore();
         GC.SuppressFinalize(this);
     }

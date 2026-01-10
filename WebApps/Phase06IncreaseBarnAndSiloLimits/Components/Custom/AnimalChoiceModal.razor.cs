@@ -50,7 +50,7 @@ public partial class AnimalChoiceModal(OverlayService overlay)
         return AnimalManager.Duration(Animal, index); // <-- rename to your real method
     }
 
-    private int Have(string itemKey) => Inventory.Get(itemKey);
+    private int Have(string itemKey) => InventoryManager.Get(itemKey);
 
     private static string Details(int has, int required) => $"{has}/{required}";
 

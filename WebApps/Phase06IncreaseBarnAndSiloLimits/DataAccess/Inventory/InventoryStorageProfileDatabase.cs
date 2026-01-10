@@ -16,6 +16,8 @@ public class InventoryStorageProfileDatabase(FarmKey farm) : ListDataAccess<Inve
         {
             BarnSize = item.BarnSize,
             SiloSize = item.SiloSize,
+            BarnLevel = item.BarnLevel,
+            SiloLevel = item.SiloLevel
         };
     }
     async Task IInventoryProfile.SaveAsync(InventoryStorageProfileModel profile)
@@ -25,6 +27,8 @@ public class InventoryStorageProfileDatabase(FarmKey farm) : ListDataAccess<Inve
         var current = list.Single(x => x.Farm.Equals(farm));
         current.SiloSize = profile.SiloSize;
         current.BarnSize = profile.BarnSize;
+        current.BarnLevel = profile.BarnLevel;
+        current.SiloLevel = profile.SiloLevel;
         await UpsertRecordsAsync(list);
     }
 }

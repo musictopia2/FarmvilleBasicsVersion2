@@ -15,7 +15,7 @@ public partial class CropsComponent(IToast toast)
         base.OnInitialized();
         _crops = CropManager.UnlockedRecipes;
     }
-    private int InventoryAmount(string crop) => Inventory.GetInventoryCount(crop);
+    private int InventoryAmount(string crop) => InventoryManager.GetInventoryCount(crop);
     private EnumCropState GetState(Guid id) => CropManager.GetCropState(id);
 
     private bool CanPlant(Guid id)

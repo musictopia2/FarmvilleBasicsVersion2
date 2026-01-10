@@ -23,6 +23,52 @@ public class UpgradeManager(InventoryManager inventoryManager,
 
     //private int CoinAmount => inventory.CoinCount;
 
+    
+    //if this does not work, then rethink.
+    public int NextBarnCoinCost
+    {
+        get
+        {
+            var temp = _inventoryPlan.BarnUpgrades[_inventoryStorageProfile.BarnLevel + 1];
+            return GetCoinCost(temp);
+        }
+    }
+    private static int GetCoinCost(UpgradeTier tier)
+    {
+        if (tier.Cost.Count > 1)
+        {
+            throw new CustomBasicException("Not Just Coin");
+        }
+        if (tier.Cost.Single().Key != CurrencyKeys.Coin)
+        {
+            throw new CustomBasicException("This was not coin");
+        }
+        return tier.Cost.Single().Value;
+    }
+    public int NextSiloCoinCost
+    {
+        get
+        {
+            var temp = _inventoryPlan.SiloUpgrades[_inventoryStorageProfile.SiloLevel + 1];
+            return GetCoinCost(temp);
+        }
+    }
+    public int NextBarnCount
+    {
+        get
+        {
+            var temp = _inventoryPlan.BarnUpgrades[_inventoryStorageProfile.BarnLevel + 1];
+            return temp.Size;
+        }
+    }
+    public int NextSiloCount
+    {
+        get
+        {
+            var temp = _inventoryPlan.SiloUpgrades[_inventoryStorageProfile.SiloLevel + 1];
+            return temp.Size;
+        }
+    }
     public bool CanUpgradeBarn
     {
         get
@@ -31,7 +77,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
             {
                 return false;
             }
-            var temp = _inventoryPlan.BarnUpgrades[_inventoryStorageProfile.BarnLevel];
+            var temp = _inventoryPlan.BarnUpgrades[_inventoryStorageProfile.BarnLevel + 1];
 
 
             return CanAfford(temp);
@@ -77,7 +123,7 @@ public class UpgradeManager(InventoryManager inventoryManager,
             {
                 return false;
             }
-            var temp = _inventoryPlan.SiloUpgrades[_inventoryStorageProfile.SiloLevel];
+            var temp = _inventoryPlan.SiloUpgrades[_inventoryStorageProfile.SiloLevel + 1];
             return CanAfford(temp);
         }
     }

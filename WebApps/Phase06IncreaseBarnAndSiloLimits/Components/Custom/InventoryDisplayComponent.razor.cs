@@ -1,4 +1,5 @@
 namespace Phase06IncreaseBarnAndSiloLimits.Components.Custom;
+
 public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareComponentBase
 {
     [Parameter]
@@ -9,6 +10,7 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
     private string _errorMessage = "";
 
     private bool _showDiscard;
+    private bool _showUpgrade;
     private string _item = "";
     private int _currentSize;
 
@@ -22,11 +24,51 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
         //toast.ShowInfoToast($"So far, discarding {item.Item} with the amount of {item.Amount}");
         _showDiscard = false;
 
-        Inventory.Consume(item);
+        InventoryManager.Consume(item);
         //hopefully is notified naturally anyways.
 
     }
+    private void OpenUpgrade()
+    {
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
+        {
+            if (UpgradeManager.CanUpgradeBarn == false)
+            {
+                toast.ShowUserErrorToast("Unable to upgrade barn because not enough coins");
+                return;
+            }
+            
+        }
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
+        {
+            if (UpgradeManager.CanUpgradeSilo == false)
+            {
+                toast.ShowUserErrorToast("Unable to upgrade silo because not enough coins");
+                return;
+            }
+        }
+        _showUpgrade = true;
+    }
+    private async Task UpgradeAsync()
+    {
+        _showUpgrade = false;
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
+        {
+            await UpgradeManager.UpgradeBarnAsync();
+            RefreshUpgrades();
+            return;
+        }
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
+        {
+            await UpgradeManager.UpgradeSiloAsync();
+            RefreshUpgrades();
+            return;
+        }
+    }
 
+    private int _newSize;
+    private int _newCoinCost;
+    
     private void CancelDiscard()
     {
         _showDiscard = false;
@@ -41,21 +83,40 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
             return $"Have {_currentSize} Limit {_limit}"; //at least something.
         }
     }
-
+    protected override void OnParametersSet()
+    {
+        PopulateList();
+        RefreshUpgrades();
+        base.OnParametersSet();
+    }
+    private void RefreshUpgrades()
+    {
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
+        {
+            _newSize = UpgradeManager.NextBarnCount;
+            _newCoinCost = UpgradeManager.NextBarnCoinCost;
+        }
+        if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
+        {
+            _newSize = UpgradeManager.NextSiloCount;
+            _newCoinCost = UpgradeManager.NextSiloCoinCost;
+        }
+    }
     protected override void OnInitialized()
     {
         PopulateList();
+
         base.OnInitialized();
     }
     private void PopulateList()
     {
         if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
         {
-            _list = Inventory.GetAllBarnInventoryItems();
+            _list = InventoryManager.GetAllBarnInventoryItems();
         }
         else if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
         {
-            _list = Inventory.GetAllSiloInventoryItems();
+            _list = InventoryManager.GetAllSiloInventoryItems();
         }
         else
         {
@@ -64,11 +125,11 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
         //figure out how to make limit changes show up (well see).
         if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
         {
-            _limit = Inventory.BarnSize;
+            _limit = InventoryManager.BarnSize;
         }
         else if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
         {
-            _limit = Inventory.SiloSize;
+            _limit = InventoryManager.SiloSize;
         }
         else
         {
@@ -99,4 +160,40 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
     {
         return $"{itemName}.png";
     }
+
+
+    private string StorageTitle =>
+        InventoryStorageCategory ==  EnumInventoryStorageCategory.Barn ? "Items In Barn" : "Items In Silo";
+
+    // 0..1 (can be > 1 if over, we clamp for display)
+    private double FillRatio =>
+        _limit <= 0 ? 1 : Math.Min(1.0, (double)_currentSize / _limit);
+
+    private string ProgressStyle => $"width:{FillRatio * 100:0.#}%";
+
+    private string ProgressClass
+    {
+        get
+        {
+            if (_limit <= 0)
+            {
+                return "p-red"; // defensive
+            }
+
+            var ratio = (double)_currentSize / _limit;
+
+            if (ratio < 0.50)
+            {
+                return "p-green";
+            }
+
+            if (ratio < 0.80)
+            {
+                return "p-orange";
+            }
+
+            return "p-red";
+        }
+    }
+
 }

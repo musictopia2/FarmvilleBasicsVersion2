@@ -82,7 +82,7 @@ public partial class DiscardComponent(IntegerQuantityPickerService quantityPicke
 
     protected override void OnParametersSet()
     {
-        _currentAmount = Inventory.Get(ItemName);
+        _currentAmount = InventoryManager.Get(ItemName);
         base.OnParametersSet();
     }
     private void ProposeAll()

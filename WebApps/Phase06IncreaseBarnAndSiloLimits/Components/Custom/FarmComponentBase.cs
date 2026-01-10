@@ -1,6 +1,4 @@
-﻿using Phase06IncreaseBarnAndSiloLimits.Services.Inventory;
-
-namespace Phase06IncreaseBarnAndSiloLimits.Components.Custom;
+﻿namespace Phase06IncreaseBarnAndSiloLimits.Components.Custom;
 public abstract class FarmComponentBase : ComponentBase
 {
     [CascadingParameter]
@@ -10,5 +8,6 @@ public abstract class FarmComponentBase : ComponentBase
     protected WorkshopManager WorkshopManager => Farm!.WorkshopManager;
     protected AnimalManager AnimalManager => Farm!.AnimalManager;
     public WorksiteManager WorksiteManager => Farm!.WorksiteManager;
-    protected InventoryManager Inventory => Farm!.InventoryManager;
+    protected InventoryManager InventoryManager => Farm!.InventoryManager;
+    protected UpgradeManager UpgradeManager => Farm!.UpgradeManager;
 }

@@ -27,7 +27,7 @@ internal static class ImportInventoryStorageUpgradesClass
         UpgradeTier tier;
         BasicList<UpgradeTier> output = [];
         int currentValue = 50;
-        int increment = 5;
+        int increment = 4;
         tier = new()
         {
             Cost = GetFreeCosts,

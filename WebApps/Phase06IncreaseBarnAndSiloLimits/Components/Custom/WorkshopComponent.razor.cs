@@ -44,7 +44,7 @@ public partial class WorkshopComponent(IToast toast)
         }
         WorkshopManager.StartCraftingJob(Workshop, ChosenItem);
     }
-    private int CurrentAmount => Inventory.GetInventoryCount(ChosenItem);
+    private int CurrentAmount => InventoryManager.GetInventoryCount(ChosenItem);
     private string DurationText
     {
         get

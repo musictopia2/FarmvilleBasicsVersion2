@@ -36,6 +36,6 @@ public partial class QuestBookComponent
         LoadQuests();
     }
 
-    private int InventoryAmount(string itemKey) => Inventory.Get(itemKey);
+    private int InventoryAmount(string itemKey) => InventoryManager.Get(itemKey);
     private string GetItemImageSrc(string itemKey) => $"/{itemKey}.png";
 }

@@ -110,7 +110,7 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
     {
         // Whatever your inventory lookup is.
         // Example placeholder:
-        return Inventory.Get(itemKey);
+        return InventoryManager.Get(itemKey);
     }
 
 

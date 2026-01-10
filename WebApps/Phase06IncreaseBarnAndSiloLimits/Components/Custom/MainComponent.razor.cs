@@ -18,10 +18,7 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
     private NavigationBarContainer? _nav;
 
     private OverlayInsets _overlays = new();
-    private void AddCoin()
-    {
-        Inventory.AddCoin(15);
-    }
+    
     private void VisibleChanged(bool visible)
     {
         quantityPickerService.UpdateVisibleStatus(visible);

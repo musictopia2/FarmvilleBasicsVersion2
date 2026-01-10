@@ -10,5 +10,5 @@ public partial class AnimalProgressModal
 
     private string ReadyText => $"Ready In {AnimalManager.TimeLeftForResult(Animal)}";
     private string ProducingText => $"Producing {AnimalManager.InProgress(Animal)} {Option.Output.Item.GetWords}";
-    private int Have(string itemKey) => Inventory.Get(itemKey);
+    private int Have(string itemKey) => InventoryManager.Get(itemKey);
 }

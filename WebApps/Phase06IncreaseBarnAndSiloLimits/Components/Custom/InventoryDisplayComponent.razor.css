@@ -24,17 +24,165 @@
         transform: translateY(1px);
     }
 
-.inv-root {
-    height: 65vh;
+/* This is the important part: one column that fills the viewport */
+.inv-page {
+    height: 100dvh; /* better than 100vh on mobile/tablets */
     display: flex;
     flex-direction: column;
-    min-height: 0; /* required for inner scroll in flex */
+    min-height: 0;
+    overflow: hidden; /* prevents the *page* from scrolling */
+}
+/* OUTER BAR */
+.upgrade-bar {
+    display: flex;
+    width: 100%;
+    align-items: flex-start; /* important: no vertical stretching */
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+
+.upgrade-left {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Title centered like the original game */
+.storage-title {
+    text-align: center;
+    font-weight: 900;
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0;
+    color: black;
+}
+
+/* Progress block */
+.storage-progress {
+    margin-top: 6px;
+    display: grid;
+    gap: 4px;
+}
+
+/* Bar container */
+.storage-bar {
+    height: 48px;
+    border: 3px solid #666;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+/* Fill */
+.storage-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+    /* Colors */
+    .storage-fill.p-green {
+        background: limegreen;
+    }
+
+    .storage-fill.p-orange {
+        background: darkorange;
+    }
+
+    .storage-fill.p-red {
+        background: red;
+    }
+
+/* Count text under bar */
+.storage-count {
+    text-align: center;
+    font-weight: 900;
+    color: black;
+    line-height: 1.1;
+}
+
+
+/* This is the big one: GetStatus may render <p>, <h*> etc with default margins */
+.upgrade-status,
+.upgrade-status * {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 2rem;
+}
+/* RIGHT SIDE STACK */
+.upgrade-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* right aligned */
+    gap: 4px; /* small controlled vertical spacing */
+}
+
+/* TEXT LINE ABOVE BUTTON */
+.upgrade-line {
+    margin: 0;
+    padding: 0;
+    line-height: 1.1;
+    text-align: right;
+}
+
+
+.upgrade-strong {
+    font-weight: 900;
+}
+.upgrade-cost-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* Hard control height */
+    height: 80px; /* EXACT height you want */
+    padding: 0 10px; /* only horizontal padding */
+    margin: 0;
+    border: 2px solid #666;
+    border-radius: 14px;
+    background: white;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1; /* prevent line-box inflation */
+    white-space: nowrap;
+    background-color: lime;
+}
+
+    .upgrade-cost-btn:active {
+        transform: translateY(1px);
+    }
+
+.coin-img {
+    display: block;
+    width: 120px; /* a little smaller so it fits nicely in 64px tall button */
+    height: 120px;
+    object-fit: contain;
+}
+
+
+
+/* Put text back to normal sizing */
+.upgrade-cost-text {
+    font-size: 3.2rem; /* adjust */
+    line-height: 1; /* tight */
+    font-weight: 900;
+}
+/* Make sure your inv-root can sit right under header */
+.inv-root {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+
+/* The only scroller */
 .inv-scroll {
-    flex: 1;
-    min-height: 0; /* required for inner scroll in flex */
-    overflow: auto; /* scroll only here */
+    flex: 1 1 auto;
+    min-height: 0; /* REQUIRED */
+    overflow: auto;
     padding-top: 6px;
 }
 

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="AdoNetHelpersLibrary" Version="10.0.8" />
+		<PackageReference Include="AndyCristinaBasicClasses" Version="1.0.116" />
+		<PackageReference Include="CommonBasicLibraries" Version="10.0.15" />
+		<PackageReference Include="DocumentDbLibrary" Version="10.0.7" />
+		<PackageReference Include="SQLiteHelperLibraries" Version="10.0.7" />
+	</ItemGroup>
+</Project>

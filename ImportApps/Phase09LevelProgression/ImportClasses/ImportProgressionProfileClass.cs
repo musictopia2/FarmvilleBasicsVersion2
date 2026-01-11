@@ -10,7 +10,9 @@ public static class ImportProgressionProfileClass
         {
             list.Add(new()
             { 
-                Farm = farm 
+                Farm = farm,
+                PointsThisLevel = 0,
+                Level = 1
             }
             );
         }

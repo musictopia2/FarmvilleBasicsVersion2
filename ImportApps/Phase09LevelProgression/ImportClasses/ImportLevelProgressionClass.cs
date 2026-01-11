@@ -12,7 +12,7 @@ public static class ImportLevelProgressionClass
             LevelProgressionPlanDocument plan = new()
             {
                 Farm = farm,
-                IsEndless = true
+                IsEndless = false
             };
 
             20.Times(x =>

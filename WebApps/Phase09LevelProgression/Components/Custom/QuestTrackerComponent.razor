@@ -20,7 +20,7 @@
         var have = InventoryAmount(itemKey); // you likely already have something like this
         var canComplete = have >= need;
 
-        <StackItem Length="260px">
+        <StackItem Length="280px">
             <div class="quest-card" @onclick="() => CompleteQuestAsync(quest)">
 
                 <StackLayout>
@@ -38,6 +38,7 @@
                     </StackItem>
                     <StackItem>
                         <ItemRequirementDisplay Name="@itemKey"
+                                                NameStyle="@NameStyle"
                                                 Have="@have"
                                                 Required="@need" />
                     </StackItem>

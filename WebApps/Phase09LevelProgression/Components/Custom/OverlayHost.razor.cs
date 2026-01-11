@@ -1,13 +1,13 @@
 namespace Phase09LevelProgression.Components.Custom;
 
-public partial class OverlayHost(OverlayService questOverlay) : IDisposable
+public partial class OverlayHost(OverlayService overlay) : IDisposable
 {
 
     
 
     public void Dispose()
     {
-        questOverlay.Changed -= Refresh;
+        overlay.Changed -= Refresh;
         GC.SuppressFinalize(this);
     }
     private void Refresh()
@@ -16,7 +16,7 @@ public partial class OverlayHost(OverlayService questOverlay) : IDisposable
     }
     protected override void OnInitialized()
     {
-        questOverlay.Changed += Refresh;
+        overlay.Changed += Refresh;
         base.OnInitialized();
     }
 

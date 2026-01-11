@@ -25,9 +25,8 @@ public partial class ItemRequirementDisplay
     [Parameter] public string? Style { get; set; }
 
     [Parameter] public string? ImageClass { get; set; }
-    [Parameter] public string? NameClass { get; set; }
     [Parameter] public string? AmountClass { get; set; }
-
+    [Parameter] public string? NameStyle { get; set; }
     [Parameter] public int? WidthPx { get; set; }
 
     private void Process()
@@ -52,7 +51,6 @@ public partial class ItemRequirementDisplay
         .Trim();
 
     private string ImgClass => $"{(Variant == EnumRequirementVariant.Row ? "ird-img-sm" : "ird-img-lg")} {ImageClass}".Trim();
-    private string NameCss => $"ird-name {NameClass}".Trim();
     private string AmountCss => $"ird-amount {(IsComplete ? "ird-ok" : "ird-bad")} {AmountClass}".Trim();
 
 

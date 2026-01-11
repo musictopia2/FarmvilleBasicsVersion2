@@ -47,7 +47,9 @@
                 <div class="indicator-left">
                     <CoinIndicator />
                 </div>
-
+                <div>
+                    <LevelIndicator />
+                </div>
                 <div class="indicator-right">
                     <CompletionBell />
                 </div>
@@ -76,6 +78,18 @@
             <div>
                 <WorksitesComponent />
             </div>
+            @if (ProgressionManager.CompletedGame == false)
+            {
+                <div>
+                    <PrimaryButton OnClick="LevelUpAsync">
+                        Level Up
+                    </PrimaryButton>
+                    <PrimaryButton OnClick="IncrementPointsAsync">
+                        Add Single Point
+                    </PrimaryButton>
+                    
+                </div>
+            }
             
             <ImageButtonComponent Name="Barn" Width="100" OnClick="ShowBarn" />
             <ImageButtonComponent Name="Silo" Width="100" OnClick="ShowSilo" />

@@ -105,4 +105,15 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
             return $"{Player} {Theme.GetWords} {ProfileId.GetWords}";
         }
     }
+
+    private async Task LevelUpAsync()
+    {
+        await ProgressionManager.IncrementLevelAsync();
+    }
+    private async Task IncrementPointsAsync()
+    {
+        await ProgressionManager.AddPointSinglePointAsync();
+    }
+    
+
 }

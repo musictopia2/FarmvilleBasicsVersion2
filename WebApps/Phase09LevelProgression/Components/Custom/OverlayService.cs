@@ -7,6 +7,7 @@ public class OverlayService(PopupRegistry popup, FarmContext farm)
     public bool ShowAnimals { get; private set; }
     public bool ShowTrees { get; private set; }
     public bool ShowCrops { get; private set;  }
+    public bool ShowLevelDetails { get; private set; }
     public bool ShowWorkshops => CurrentWorkshop is not null;
     public bool ShowWorksites => CurrentWorksite is not null;
     public async Task OpenQuestBookAsync()
@@ -26,9 +27,23 @@ public class OverlayService(PopupRegistry popup, FarmContext farm)
         {
             CurrentWorkshop = null; //i think.
             Changed?.Invoke();
+        }    
+    }
+    public void SetLevelsVisible(bool visible)
+    {
+        ShowLevelDetails = visible;
+        Changed?.Invoke();
+    }
+    public async Task OpenLevelsAsync()
+    {
+        if (farm.CanCloseWorksiteAutomatically(CurrentWorksite) == false)
+        {
+            Toast?.ShowUserErrorToast("Must collect from worksite first before checking level progress");
+            return;
         }
-        
-            
+        await CloseAllAsync();
+        ShowLevelDetails = true;
+        Changed?.Invoke();
     }
     public void SetWorksiteVisible(bool visible)
     {

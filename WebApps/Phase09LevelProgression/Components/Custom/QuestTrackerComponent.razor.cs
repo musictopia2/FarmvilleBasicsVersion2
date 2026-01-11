@@ -49,7 +49,7 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
         await questService.OpenQuestBookAsync();
     }
 
-    
+    private string NameStyle => "font-size:0.95rem;";
 
     private void LoadQuests()
     {

@@ -1,15 +1,20 @@
-﻿.indicator-row {
+﻿/* MainComponent.razor.css */
+.indicator-row {
     display: grid;
-    grid-template-columns: auto auto; /* left + right */
+    grid-template-columns: auto 1fr auto; /* coin | level (stretch) | bell */
     align-items: center;
     column-gap: 10px;
 }
 
 .indicator-left {
-    /* Reserve stable area for coin widget */
-    min-width: 160px; /* adjust to taste */
+    min-width: 160px; /* keep your stable coin area */
 }
 
 .indicator-right {
     justify-self: end;
+}
+
+/* optional: make sure the middle cell can shrink on small screens */
+.indicator-row > :nth-child(2) {
+    min-width: 0;
 }

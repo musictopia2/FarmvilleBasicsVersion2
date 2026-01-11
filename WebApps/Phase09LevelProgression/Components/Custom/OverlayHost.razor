@@ -1,31 +1,37 @@
-﻿
-<PopupViewport
-    Visible="questOverlay.ShowWorkshops"
-    VisibleChanged="questOverlay.SetWorkshopVisible"
+﻿<PopupViewport
+    Visible="overlay.ShowLevelDetails"
+               VisibleChanged="overlay.SetLevelsVisible"
     TapToClose="true"
+    ShowHeaders="false"
 >
+    <LevelDetailsModal />
+</PopupViewport>
+
+<PopupViewport Visible="overlay.ShowWorkshops"
+               VisibleChanged="overlay.SetWorkshopVisible"
+               TapToClose="true">
     <StopClickPropagation>
-        <WorkshopsComponent SpecificWorkshop="@questOverlay.CurrentWorkshop" />
+        <WorkshopsComponent SpecificWorkshop="@overlay.CurrentWorkshop" />
     </StopClickPropagation>
 </PopupViewport>
 
-<ShowWorksiteModal LocationChanged="questOverlay.OpenPossibleWorksiteAsync"
-    Location="@questOverlay.CurrentWorksite"
-    Visible="questOverlay.ShowWorksites"
-    VisibleChanged="questOverlay.SetWorksiteVisible"
- />
 
-<PopupViewport Visible="questOverlay.ShowQuestBook"
+<ShowWorksiteModal LocationChanged="overlay.OpenPossibleWorksiteAsync"
+                   Location="@overlay.CurrentWorksite"
+                   Visible="overlay.ShowWorksites"
+                   VisibleChanged="overlay.SetWorksiteVisible" />
+
+<PopupViewport Visible="overlay.ShowQuestBook"
                HeaderTitle="Orders"
-               CloseButtonClick="questOverlay.CloseQuestBook">
+               CloseButtonClick="overlay.CloseQuestBook">
     <StopClickPropagation>
         <QuestBookComponent />
     </StopClickPropagation>
     
 </PopupViewport>
 
-<PopupViewport Visible="questOverlay.ShowAnimals"
-                     VisibleChanged="questOverlay.SetAnimalsVisible"
+<PopupViewport Visible="overlay.ShowAnimals"
+               VisibleChanged="overlay.SetAnimalsVisible"
                      TapToClose="true">
     <StopClickPropagation>
         <AnimalsComponent />
@@ -33,8 +39,8 @@
     
 </PopupViewport>
 
-<PopupViewport Visible="questOverlay.ShowCrops"
-                     VisibleChanged="questOverlay.SetCropsVisible"
+<PopupViewport Visible="overlay.ShowCrops"
+               VisibleChanged="overlay.SetCropsVisible"
                      TapToClose="true">
     <StopClickPropagation>
         <CropsComponent />
@@ -42,8 +48,8 @@
     
 </PopupViewport>
 
-<PopupViewport Visible="questOverlay.ShowTrees"
-               VisibleChanged="questOverlay.SetTreesVisible"
+<PopupViewport Visible="overlay.ShowTrees"
+               VisibleChanged="overlay.SetTreesVisible"
                TapToClose="true">
     <StopClickPropagation>
         <TreesComponent />

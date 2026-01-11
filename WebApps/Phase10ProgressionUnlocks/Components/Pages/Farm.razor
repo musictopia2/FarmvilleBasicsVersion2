@@ -1,0 +1,13 @@
+﻿@page "/farm/{Theme}/{Player}/{ProfileId}"
+@if (_farmContainer is null)
+{
+    return;
+}
+
+<CascadingValue Value="_farmContainer">
+    <MainComponent
+        Theme="@Theme"
+        Player="@Player"
+        ProfileId="@ProfileId"
+        />
+</CascadingValue>

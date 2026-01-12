@@ -2,66 +2,36 @@
 public static class ImportWorksiteInstancesClass
 {
     private static BasicList<WorksiteRecipeDocument> _recipes = [];
-
+    private static WorksiteProgressionPlanDatabase _worksiteProgression = null!;
+    private static ProgressionProfileDatabase _levelProfile = null!;
     public static async Task ImportWorksitesAsync()
     {
-        WorksiteRecipeDatabase recipeDb = new();
-        _recipes = await recipeDb.GetRecipesAsync();
-
-        if (_recipes.Count == 0)
-        {
-            throw new CustomBasicException("No worksite recipes were imported.");
-        }
-
+        _worksiteProgression = new();
+        _levelProfile = new();
         BasicList<WorksiteInstanceDocument> list = [];
-
-        // MVP1 Production farms
-        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Country));
-        list.Add(CreateProduction(PlayerList.Player1, FarmThemeList.Tropical));
-        list.Add(CreateProduction(PlayerList.Player2, FarmThemeList.Tropical));
-
-        // Future:
-        // list.Add(CreateFarm(PlayerList.Andy, FarmThemeList.Country, ProfileIdList.Test));
-
+        var farms = FarmHelperClass.GetAllFarms();
+        foreach (var farm in farms)
+        {
+            list.Add(await CreateInstanceAsync(farm));
+        }
         WorksiteInstanceDatabase db = new();
         await db.ImportAsync(list);
     }
-
-    private static WorksiteInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Test);
-
-    private static WorksiteInstanceDocument CreateFarm(string playerName, string theme, string profileId)
-    {
-        var farm = new FarmKey(playerName, theme, profileId);
-        return CreateInstance(farm);
-    }
-
-    private static WorksiteInstanceDocument CreateInstance(FarmKey farm)
+    private static async Task<WorksiteInstanceDocument> CreateInstanceAsync(FarmKey farm)
     {
         BasicList<WorksiteAutoResumeModel> worksites = [];
-
-        // One instance per distinct location for this Theme/Profile
-        var locations = _recipes
-            .Where(r => r.Theme == farm.Theme)
-            .Select(r => r.Location)
-            .Distinct()
-            .ToBasicList();
-
-        if (locations.Count == 0)
+        var worksitePlan = await _worksiteProgression.GetPlanAsync(farm);
+        var profile = await _levelProfile.GetProfileAsync(farm);
+        int level = profile.Level;
+        foreach (var item in worksitePlan.UnlockRules)
         {
-            throw new CustomBasicException(
-                $"No worksite locations found for Theme='{farm.Theme}' ProfileId='{farm.ProfileId}'.");
-        }
-
-        foreach (var location in locations)
-        {
-            worksites.Add(new WorksiteAutoResumeModel
+            bool unlocked = level >= item.LevelRequired;
+            worksites.Add(new()
             {
-                Name = location
+                Name = item.ItemName,
+                Unlocked = unlocked
             });
         }
-
         return new WorksiteInstanceDocument
         {
             Farm = farm,

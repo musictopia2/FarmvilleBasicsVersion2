@@ -1,23 +1,24 @@
-﻿using Phase10ProgressionUnlocks.Services.Core;
+﻿namespace Phase10ProgressionUnlocks.DataAccess.Worksites;
 
-namespace Phase10ProgressionUnlocks.DataAccess.Worksites;
 public class WorksiteInstanceDatabase(FarmKey farm) : ListDataAccess<WorksiteInstanceDocument>
     (DatabaseName, CollectionName, mm1.DatabasePath),
-    ISqlDocumentConfiguration, IWorksiteInstances, IWorksitePersistence
+    ISqlDocumentConfiguration, IWorksiteRepository
 {
     public static string DatabaseName => mm1.DatabaseName;
     public static string CollectionName => "WorksiteInstances";
-    async Task<BasicList<WorksiteAutoResumeModel>> IWorksiteInstances.GetWorksiteInstancesAsync()
+    async Task<BasicList<WorksiteAutoResumeModel>> IWorksiteRepository.LoadAsync()
     {
         var firsts = await GetDocumentsAsync();
-        BasicList<WorksiteAutoResumeModel> output = firsts.Single(x => x.Farm.Equals(farm)).Worksites;
+        BasicList<WorksiteAutoResumeModel> output = firsts.GetSingleDocument(farm).Worksites;
         return output;
     }
-    async Task IWorksitePersistence.SaveWorksitesAsync(BasicList<WorksiteAutoResumeModel> worksites)
+
+    async Task IWorksiteRepository.SaveAsync(BasicList<WorksiteAutoResumeModel> worksites)
     {
         var list = await GetDocumentsAsync();
-        var item = list.Single(x => x.Farm.Equals(farm));
+        var item = list.GetSingleDocument(farm);
         item.Worksites = worksites;
         await UpsertRecordsAsync(list);
     }
+
 }

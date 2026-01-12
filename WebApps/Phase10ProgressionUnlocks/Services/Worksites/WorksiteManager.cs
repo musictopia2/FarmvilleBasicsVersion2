@@ -1,21 +1,18 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Worksites;
-
 public class WorksiteManager(
     InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
     ItemRegistry itemRegistry
     )
 {
-    private IWorksiteProgressPolicy? _worksiteProgressPolicy;
     private bool _canAutomateCollection;
     //private EnumWorksiteCollectionMode _worksiteCollectionMode;
     private IWorksiteCollectionPolicy? _worksiteCollectionPolicy;
-    private IWorksitePersistence _worksitePersistence = null!;
+    private IWorksiteRepository _worksiteRepository = null!;
     private IWorkerPolicy? _workerPolicy;
     private readonly BasicList<WorksiteInstance> _worksites = [];
     private BasicList<WorkerDataModel> _workerStates = [];
     private BasicList<WorkerRecipe> _allWorkers = [];
-    public event Action? OnWorksitesUpdated;
     public event Action? OnWorkersUpdated; //not sure if i need (but may need it).
     private bool _needsSaving;
     private DateTime _lastSave = DateTime.MinValue;
@@ -44,21 +41,26 @@ public class WorksiteManager(
         }
         return output;
 
-        //get
-        //{
-        //    var unlockedNames = _workerStates.Where(x => x.Unlocked).Select(x => x.Name).ToBasicList();
-        //    return _allWorkers.Where(x => unlockedNames.Contains(x.WorkerName)).ToBasicList();
-        //}
     }
     public int TotalWorkersAllowed(string location)
     {
         var site = GetWorksiteByLocation(location);
         return site.MaximumWorkers;
     }
-
     public string? GetPossibleWorksiteForItem(string name) => _worksites.SingleOrDefault(x => x.HasRecipe(name))?.Location;
+    public void ApplyWorksiteProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    {
+        //only unlock current level.
+        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        if (item is null)
+        {
+            return;
+        }
+        var instance = _worksites.Single(x => x.Location == item.ItemName);
+        instance.Unlocked = true;
+        _needsSaving = true;
+    }
 
-    //public bool HasWorksite(string item) => _worksites.Exists(x => x.HasRecipe(item));
 
     private WorksiteInstance GetWorksiteByLocation(string location)
     {
@@ -283,45 +285,7 @@ public class WorksiteManager(
             return output;
         }
     }
-    public async Task<bool> CanUnlockWorksiteAsync(string name)
-    {
-        if (_worksiteProgressPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllWorksites;
-        var policy = await _worksiteProgressPolicy.CanUnlockWorksiteAsync(list, name);
-        return policy;
-    }
-    public async Task UnlockWorksiteAsync(string name)
-    {
-        var list = GetAllWorksites;
-        var policy = await _worksiteProgressPolicy!.UnlockWorksiteAsync(list, name);
-        UpdateWorksiteInstance(policy);
-    }
-    public async Task<bool> CanLockWorksiteAsync(string name)
-    {
-        if (_worksiteProgressPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllWorksites;
-        var policy = await _worksiteProgressPolicy.CanLockWorksiteAsync(list, name);
-        return policy;
-    }
-    public async Task LockWorksiteAsync(string name)
-    {
-        var list = GetAllWorksites;
-        var policy = await _worksiteProgressPolicy!.LockWorksiteAsync(list, name);
-        UpdateWorksiteInstance(policy);
-    }
-    private void UpdateWorksiteInstance(WorksiteState summary)
-    {
-        var worksite = _worksites.Single(x => x.Location == summary.Name);
-        worksite.Unlocked = summary.Unlocked;
-        OnWorksitesUpdated?.Invoke();
-        _needsSaving = true;
-    }
+    
     public async Task<bool> CanAutomateCollectionAsync()
     {
         _canAutomateCollection = await _worksiteCollectionPolicy!.CollectAllAsync();
@@ -332,11 +296,11 @@ public class WorksiteManager(
         FarmKey farm
         )
     {
-        if (_worksitePersistence != null)
+        if (_worksiteRepository != null)
         {
             throw new InvalidOperationException("Persistance Already set");
         }
-        _worksitePersistence = worksiteContext.WorksitePersistence;
+        _worksiteRepository = worksiteContext.WorksiteRepository;
         BasicList<WorksiteRecipe> recipes = await worksiteContext.WorksiteRegistry.GetWorksitesAsync();
         foreach (var item in recipes)
         {
@@ -354,13 +318,12 @@ public class WorksiteManager(
                 itemRegistry.Register(new(temp.Item, category, EnumInventoryItemCategory.Worksites));
             }
         }
-        _worksiteProgressPolicy = worksiteContext.WorksiteProgressPolicy;
         _worksiteCollectionPolicy = worksiteContext.WorksiteCollectionPolicy;
         _canAutomateCollection = await _worksiteCollectionPolicy!.CollectAllAsync();
         _workerPolicy = workerContext.WorkerPolicy;
         _worksites.Clear();
         _workerStates = await workerContext.WorkerInstances.GetWorkerInstancesAsync();
-        var ours = await worksiteContext.WorksiteInstances.GetWorksiteInstancesAsync();
+        var ours = await worksiteContext.WorksiteRepository.LoadAsync();
         _allWorkers = await workerContext.WorkerRegistry.GetWorkersAsync();
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);
         double offset = profile.WorksiteTimeMultiplier;
@@ -427,7 +390,7 @@ public class WorksiteManager(
             BasicList<WorksiteAutoResumeModel> list = _worksites
              .Select(worksite => worksite.GetWorksiteForSaving)
              .ToBasicList();
-            await _worksitePersistence.SaveWorksitesAsync(list);
+            await _worksiteRepository.SaveAsync(list);
         }
     }
 }

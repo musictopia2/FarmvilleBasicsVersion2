@@ -15,10 +15,8 @@ public class WorksiteFactory : IWorksiteFactory
         WorksiteServicesContext output = new()
         {
             WorksiteCollectionPolicy = collection,
-            WorksiteProgressPolicy = new BasicWorksitePolicy(),
             WorksiteRegistry = register,
-            WorksiteInstances = instance,
-            WorksitePersistence  = instance
+            WorksiteRepository = instance
         };
         return output;
     }   

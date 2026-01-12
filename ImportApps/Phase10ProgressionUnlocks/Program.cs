@@ -11,6 +11,7 @@ await ii1.ImportCropInstanceClass.ImportCropsAsync(); //done
 await ii1.ImportTreeRecipeClass.ImportTreesAsync();
 await ii1.ImportTreeInstanceClass.ImportTreesAsync(); //done
 await ii1.ImportAnimalRecipeClass.ImportAnimalsAsync();
+await ii1.ImportAnimalProgressionClass.ImportAnimalsAsync();
 await ii1.ImportAnimalInstanceClass.ImportAnimalsAsync(); //done
 await ii1.ImportWorkshopRecipeClass.ImportWorkshopsAsync();
 await ii1.ImportWorkshopCapacityUpgradesClass.ImportWorkshopsAsync();

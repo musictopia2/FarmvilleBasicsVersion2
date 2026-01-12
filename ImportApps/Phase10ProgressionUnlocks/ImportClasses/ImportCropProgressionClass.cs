@@ -7,7 +7,7 @@ public static class ImportCropProgressionClass
         BasicList<CropProgressionPlanDocument> list = [];
         foreach (var item in firsts)
         {
-            list.Add(GenerateListForFarm(item));
+            list.Add(GeneratePlanFarm(item));
         }
         CropProgressionPlanDatabase db = new();
         await db.ImportAsync(list);
@@ -16,7 +16,7 @@ public static class ImportCropProgressionClass
     {
         count.Times(() => slots.Add(levelRequired));
     }
-    private static CropProgressionPlanDocument GenerateListForFarm(FarmKey farm)
+    private static CropProgressionPlanDocument GeneratePlanFarm(FarmKey farm)
     {
         CropProgressionPlanDocument document = new()
         {

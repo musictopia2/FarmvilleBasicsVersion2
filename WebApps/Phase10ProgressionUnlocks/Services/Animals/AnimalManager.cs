@@ -1,5 +1,4 @@
-﻿
-namespace Phase10ProgressionUnlocks.Services.Animals;
+﻿namespace Phase10ProgressionUnlocks.Services.Animals;
 public class AnimalManager(InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
     ItemRegistry itemRegistry
@@ -7,8 +6,7 @@ public class AnimalManager(InventoryManager inventory,
 {
     private readonly BasicList<AnimalInstance> _animals = [];
     public event Action? OnAnimalsUpdated;
-    private IAnimalPersistence _animalPersistence = null!;
-    private IAnimalProgressionPolicy? _animalProgressionPolicy;
+    private IAnimalRepository _animalRepository = null!;
 
 
     //private IAnimalCollectionPolicy? _animalCollectionPolicy;
@@ -56,6 +54,55 @@ public class AnimalManager(InventoryManager inventory,
         }
     }
 
+    public void ApplyAnimalProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    {
+        bool changed = false;
+
+        lock (_lock)
+        {
+            // Count how many option-unlock tokens have been earned for each animal
+            var earnedCounts = rules
+                .Where(r => r.LevelRequired <= level)
+                .GroupBy(r => r.ItemName)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var kvp in earnedCounts)
+            {
+                string animalName = kvp.Key;
+                int earnedOptions = kvp.Value; // 1..n based on duplicates in plan
+
+                // Hard invariant: animal instances are all preloaded
+                AnimalInstance animal = _animals.Single(a => a.Name == animalName);
+
+                // Unlock animal as soon as it has at least 1 earned token
+                if (earnedOptions > 0 && animal.Unlocked == false)
+                {
+                    animal.Unlocked = true;
+                    changed = true;
+                }
+
+                // Allowed production options = earned tokens (capped)
+                int desiredAllowed = Math.Min(earnedOptions, animal.TotalProductionOptions);
+
+                if (animal.ProductionOptionsAllowed < desiredAllowed)
+                {
+                    animal.ProductionOptionsAllowed = desiredAllowed;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                _needsSaving = true;
+            }
+        }
+
+        if (changed)
+        {
+            OnAnimalsUpdated?.Invoke();
+        }
+    }
+
     private AnimalInstance GetAnimalById(Guid id)
     {
         var tree = _animals.SingleOrDefault(t => t.Id == id) ?? throw new CustomBasicException($"Animal with Id {id} not found.");
@@ -78,86 +125,6 @@ public class AnimalManager(InventoryManager inventory,
         });
         return rets;
     }
-    public async Task<bool> CanUnlockAnimalAsync(string name)
-    {
-        if (_animalProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy.CanUnlockAnimalAsync(list, name);
-        return policy;
-    }
-    public async Task UnlockAnimalAsync(string name)
-    {
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy!.UnlockAnimalAsync(list, name);
-        UpdateAnimalInstance(policy);
-    }
-    public async Task<bool> CanLockAnimalAsync(string name)
-    {
-        if (_animalProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy.CanLockAnimalAsync(list, name);
-        return policy;
-    }
-    public async Task LockAnimalAsync(string name)
-    {
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy!.LockAnimalAsync(list, name);
-        UpdateAnimalInstance(policy);
-    }
-    public async Task<bool> CanIncreaseAnimalOptionsAsync(string name)
-    {
-        if (_animalProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy.CanIncreaseOptionsAsync(list, name);
-        return policy;
-    }
-    public async Task IncreaseAnimalOptionsAsync(string name)
-    {
-        var list = GetAllAnimals;
-        await _animalProgressionPolicy!.IncreaseOptionsAsync(list, name);
-        UpdateAnimalOptions(list);
-    }
-    public async Task<bool> CanDecreaseAnimalOptionsAsync(string name)
-    {
-        if (_animalProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllAnimals;
-        var policy = await _animalProgressionPolicy.CanDecreaseOptionsAsync(list, name);
-        return policy;
-    }
-    public async Task DecreaseAnimalOptionsAsync(string name)
-    {
-        var list = GetAllAnimals;
-        await _animalProgressionPolicy!.DecreaseOptionsAsync(list, name);
-        UpdateAnimalOptions(list);
-    }
-    private void UpdateAnimalOptions(BasicList<AnimalState> list)
-    {
-        foreach (var item in list)
-        {
-            var animal = GetAnimalById(item);
-            animal.ProductionOptionsAllowed = item.TotalAllowedOptions;
-        }
-        OnAnimalsUpdated?.Invoke();
-    }
-    private void UpdateAnimalInstance(AnimalState summary)
-    {
-        var animal = GetAnimalById(summary);
-        animal.Unlocked = summary.Unlocked;
-        OnAnimalsUpdated?.Invoke();
-    }
-
     public BasicList<AnimalProductionOption> GetUnlockedProductionOptions(AnimalView animal)
     {
         AnimalInstance instance = GetAnimalById(animal);
@@ -193,8 +160,6 @@ public class AnimalManager(InventoryManager inventory,
         instance.Produce(selected);
         _needsSaving = true;
     }
-    //public EnumAnimalCollectionMode GetCollectionMode => _animalCollectionMode;
-
     private int GetAmount(AnimalInstance instance)
     {
         int maxs;
@@ -265,12 +230,11 @@ public class AnimalManager(InventoryManager inventory,
     public int InProgress(AnimalView animal) => GetAnimalById(animal).AmountInProgress;
     public async Task SetStyleContextAsync(AnimalServicesContext context, FarmKey farm)
     {
-        if (_animalPersistence != null)
+        if (_animalRepository != null)
         {
             throw new InvalidOperationException("Persistance Already set");
         }
-        _animalPersistence = context.AnimalPersistence;
-        _animalProgressionPolicy = context.AnimalProgressionPolicy;
+        _animalRepository = context.AnimalRepository;
         _animalCollectionMode = await context.AnimalCollectionPolicy.GetCollectionModeAsync();
         _recipes = await context.AnimalRegistry.GetAnimalsAsync();
         foreach (var item in _recipes)
@@ -280,7 +244,7 @@ public class AnimalManager(InventoryManager inventory,
                 itemRegistry.Register(new(temp.Output.Item, EnumInventoryStorageCategory.Barn, EnumInventoryItemCategory.Animals));
             }
         }
-        var ours = await context.AnimalInstances.GetAnimalInstancesAsync();
+        var ours = await context.AnimalRepository.LoadAsync();
         _animals.Clear();
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);
         double offset = profile.AnimalTimeMultiplier;
@@ -337,7 +301,7 @@ public class AnimalManager(InventoryManager inventory,
             BasicList<AnimalAutoResumeModel> list = _animals
              .Select(animal => animal.GetAnimalForSaving)
              .ToBasicList();
-            await _animalPersistence.SaveAnimalsAsync(list);
+            await _animalRepository.SaveAsync(list);
         }
     }
 }

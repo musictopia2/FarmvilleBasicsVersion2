@@ -1,10 +1,12 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Progression;
 public class ProgressionManager(InventoryManager inventoryManager,
-    CropManager cropManager
+    CropManager cropManager,
+    AnimalManager animalManager
     )
 {
     private LevelProgressionPlanModel _levelPlan = null!;
     private CropProgressionPlanModel _cropPlan = null!;
+    private BasicList<ItemUnlockRule> _animalPlan = null!;
     private ProgressionProfileModel _currentProfile = null!;
     private IProgressionProfile _profileService = null!;
     public event Action? Changed;
@@ -16,6 +18,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _currentProfile = await context.ProgressionProfile.LoadAsync();
         _profileService = context.ProgressionProfile;
         _cropPlan = await context.CropProgressionPlanProvider.GetPlanAsync(farm);
+        _animalPlan = await context.AnimalProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int Level => _currentProfile.Level;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
@@ -58,6 +61,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private void ProcessUnlocks()
     {
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
+        animalManager.ApplyAnimalProgressionUnlocks(_animalPlan, _currentProfile.Level);
     }
 
     private LevelProgressionTier GetCurrentTier()

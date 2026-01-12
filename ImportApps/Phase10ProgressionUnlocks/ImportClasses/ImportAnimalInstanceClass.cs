@@ -1,27 +1,21 @@
 ﻿namespace Phase10ProgressionUnlocks.ImportClasses;
 public static class ImportAnimalInstanceClass
 {
-    private static BasicList<AnimalRecipeDocument> _recipes = [];
-
-    // MVP1 rule: each farm gets 1 of each animal type (per recipe) for its Theme/Profile.
-    // Future profiles/modes can use different counts.
-    private const int _productionAnimalsPerRecipe = 1;
-
+    private static AnimalProgressionPlanDatabase _animalProgression = null!;
+    private static ProgressionProfileDatabase _levelProfile = null!;
     public static async Task ImportAnimalsAsync()
     {
-        AnimalRecipeDatabase recipeDb = new();
-        _recipes = await recipeDb.GetRecipesAsync();
 
-        if (_recipes.Count == 0)
-        {
-            throw new CustomBasicException("No animal recipes were imported.");
-        }
+        _animalProgression = new();
+        _levelProfile = new();
+
+
 
         BasicList<AnimalInstanceDocument> list = [];
         var firsts = FarmHelperClass.GetAllFarms();
         foreach (var item in firsts)
         {
-            list.Add(CreateProduction(item.PlayerName, item.Theme));
+            list.Add(await CreateInstanceAsync(item));
         }
         
 
@@ -32,49 +26,53 @@ public static class ImportAnimalInstanceClass
         await db.ImportAsync(list);
     }
 
-    private static AnimalInstanceDocument CreateProduction(string playerName, string theme)
-        => CreateFarm(playerName, theme, ProfileIdList.Test, _productionAnimalsPerRecipe);
+    //this only allows 1 now (until i rethink).
 
-    private static AnimalInstanceDocument CreateFarm(string playerName, string theme, string profileId, int animalsPerRecipe)
-    {
-        var farm = new FarmKey(playerName, theme, profileId);
-        return CreateInstance(farm, animalsPerRecipe);
-    }
-
-    private static AnimalInstanceDocument CreateInstance(FarmKey farm, int animalsPerRecipe)
+    private static async Task<AnimalInstanceDocument> CreateInstanceAsync(FarmKey farm)
     {
         BasicList<AnimalAutoResumeModel> animals = [];
 
-        // IMPORTANT: filter by the farm's Theme + ProfileId so you don't mix Test/Production
-        var recipesForFarm = _recipes
-            .Where(r => r.Theme == farm.Theme)
+        var animalPlan = await _animalProgression.GetPlanAsync(farm);
+        var profile = await _levelProfile.GetProfileAsync(farm);
+        int level = profile.Level;
+
+        // 1) Unique animal list comes from the PLAN (not recipes)
+        var allAnimalNames = animalPlan.UnlockRules
+            .Select(x => x.ItemName)
+            .Distinct()
             .ToBasicList();
 
-        if (recipesForFarm.Count == 0)
-        {
-            throw new CustomBasicException(
-                $"No animal recipes found for Theme='{farm.Theme}' ProfileId='{farm.ProfileId}'.");
-        }
+        // 2) For fast counting, group all rules by animal name
+        var rulesByAnimal = animalPlan.UnlockRules
+            .GroupBy(x => x.ItemName)
+            .ToDictionary(g => g.Key, g => g.ToBasicList());
 
-        recipesForFarm.ForEach(recipe =>
+        foreach (var animalName in allAnimalNames)
         {
-            animalsPerRecipe.Times(_ =>
+            var rules = rulesByAnimal[animalName];
+
+            // duplicates = more options; eligible rules = earned options
+            int earned = rules.Count(r => r.LevelRequired <= level);
+
+            bool unlocked = earned > 0;
+
+            // If you don't want recipes involved here, keep it as "earned" and clamp later.
+            int productionOptionsAllowed = unlocked ? earned : 1; //has to be at least one anyways (even though can't use yet).
+
+            animals.Add(new AnimalAutoResumeModel
             {
-                animals.Add(new AnimalAutoResumeModel
-                {
-                    Name = recipe.Animal,
-                    ProductionOptionsAllowed = recipe.Options.Count,
-                    State = EnumAnimalState.Collecting,
-                    Selected = 0,
-                    OutputReady = recipe.Options.First().Output.Amount
-                });
+                Name = animalName,
+                Unlocked = unlocked,
+                ProductionOptionsAllowed = productionOptionsAllowed,
             });
-        });
+        }
 
         return new AnimalInstanceDocument
         {
             Farm = farm,
             Animals = animals
         };
+
+
     }
 }

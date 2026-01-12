@@ -21,6 +21,8 @@ await ii1.ImportWorksiteRecipeClass.ImportWorksitesAsync();
 await ii1.ImportWorksiteProgressionClass.ImportWorksitesAsync();
 await ii1.ImportWorksiteInstancesClass.ImportWorksitesAsync(); //done
 await ii1.ImportWorkerRecipeClass.ImportWorkersAsync(); //done
+await ii1.ImportWorkerProgressClass.ImportWorkersAsync();
+await ii1.ImportWorkerInstanceClass.ImportWorkersAsync();
 await ii1.ImportBalanceMultiplierClass.ImportBalanceMultiplierAsync(); //done
 
 await ii1.ImportQuestInstancesClass.ImportQuestsAsync(); //iffy

@@ -10,7 +10,8 @@ public class ProgressionFactory : IProgressionFactory
             CropProgressionPlanProvider = new CropProgressionPlanDatabase(),
             AnimalProgressionPlanProvider = new AnimalProgressionPlanDatabase(),
             TreeProgressionPlanProvider = new TreeProgressionPlanDatabase(),
-            WorksiteProgressionPlanProvider = new WorksiteProgressionPlanDatabase()
+            WorksiteProgressionPlanProvider = new WorksiteProgressionPlanDatabase(),
+            WorkerProgressionPlanProvider = new WorkerProgressionPlanDatabase()
         };
     }
 }

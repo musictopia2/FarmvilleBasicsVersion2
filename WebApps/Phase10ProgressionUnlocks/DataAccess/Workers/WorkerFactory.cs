@@ -10,9 +10,8 @@ public class WorkerFactory : IWorkerFactory
         register = new WorkerRecipeDatabase(farm);
         WorkerServicesContext output = new()
         {
-            WorkerPolicy = new BasicWorkerPolicy(),
             WorkerRegistry = register,
-            WorkerInstances = new BasicWorkerInstances(register)
+            WorkerRepository = new WorkerInstanceDatabase(farm)
         };
         return output;
     }

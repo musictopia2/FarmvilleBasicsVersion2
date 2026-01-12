@@ -6,14 +6,12 @@ public class WorksiteManager(
     )
 {
     private bool _canAutomateCollection;
-    //private EnumWorksiteCollectionMode _worksiteCollectionMode;
     private IWorksiteCollectionPolicy? _worksiteCollectionPolicy;
     private IWorksiteRepository _worksiteRepository = null!;
-    private IWorkerPolicy? _workerPolicy;
+    private IWorkerRepository _workerRepository = null!;
     private readonly BasicList<WorksiteInstance> _worksites = [];
     private BasicList<WorkerDataModel> _workerStates = [];
     private BasicList<WorkerRecipe> _allWorkers = [];
-    public event Action? OnWorkersUpdated; //not sure if i need (but may need it).
     private bool _needsSaving;
     private DateTime _lastSave = DateTime.MinValue;
     private readonly Lock _lock = new();
@@ -42,6 +40,22 @@ public class WorksiteManager(
         return output;
 
     }
+
+    public async Task ApplyWorkerProgressionUnlocksAsync(BasicList<ItemUnlockRule> rules, int level)
+    {
+        //only unlock current level.
+        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        if (item is null)
+        {
+            return;
+        }
+
+        var worker = _workerStates.Single(x => x.Name == item.ItemName);
+        worker.Unlocked = true;
+        await _workerRepository.SaveAsync(_workerStates);
+
+    }
+
     public int TotalWorkersAllowed(string location)
     {
         var site = GetWorksiteByLocation(location);
@@ -67,76 +81,7 @@ public class WorksiteManager(
         var worksite = _worksites.SingleOrDefault(t => t.Location == location) ?? throw new CustomBasicException($"Worksite with location {location} not found.");
         return worksite;
     }
-    private BasicList<WorkerState> GetAllWorkers
-    {
-        get
-        {
-            if (_workerStates.Count == 0)
-            {
-                return []; //for now.
-            }
-            BasicList<WorkerState> output = [];
-            _allWorkers.ForEach(w =>
-            {
-                WorkerDataModel data = _workerStates.Single(x => x.Name == w.WorkerName);
-                output.Add(new WorkerState()
-                {
-                    Name = w.WorkerName,
-                    Status = w.WorkerStatus,
-                    Unlocked = data.Unlocked
-                });
-            });
-            return output;
-        }
-    }
-    public async Task<bool> CanUnlockWorkerAsync(string name)
-    {
-        if (_workerPolicy is null)
-        {
-            return false;
-        }
-        var workers = GetAllWorkers;
-        var sites = GetAllWorksites;
-        var policy = await _workerPolicy.CanUnlockWorkerAsync(sites, workers, name);
-        return policy;
-    }
-
-    public async Task UnlockWorkerAsync(string name)
-    {
-        var workers = GetAllWorkers;
-        var sites = GetAllWorksites;
-        await _workerPolicy!.UnlockWorkerAsync(sites, workers, name);
-        UpdateWorkers(workers);
-        OnWorkersUpdated?.Invoke();
-    }
-
-    public async Task<bool> CanLockWorkerAsync(string name)
-    {
-        if (_workerPolicy is null)
-        {
-            return false;
-        }
-        var workers = GetAllWorkers;
-        var sites = GetAllWorksites;
-        var policy = await _workerPolicy.CanLockWorkerAsync(sites, workers, name);
-        return policy;
-    }
-    public async Task LockWorkerAsync(string name)
-    {
-        var workers = GetAllWorkers;
-        var sites = GetAllWorksites;
-        await _workerPolicy!.LockWorkerAsync(sites, workers, name);
-        UpdateWorkers(workers);
-        OnWorkersUpdated?.Invoke();
-    }
-    private void UpdateWorkers(BasicList<WorkerState> list)
-    {
-        foreach (var item in list)
-        {
-            WorkerDataModel worker = _workerStates.Single(x => x.Name == item.Name);
-            worker.Unlocked = item.Unlocked;
-        }
-    }
+    
     public void AddWorker(string location, WorkerRecipe worker)
     {
         WorksiteInstance instance = GetWorksiteByLocation(location);
@@ -268,23 +213,7 @@ public class WorksiteManager(
         });
         return output;
     }
-    private BasicList<WorksiteState> GetAllWorksites
-    {
-        get
-        {
-            BasicList<WorksiteState> output = [];
-            _worksites.ForEach(t =>
-            {
-                output.Add(new()
-                {
-                    Name = t.Location,
-                    Unlocked = t.Unlocked,
-                    State = t.Status
-                });
-            });
-            return output;
-        }
-    }
+    
     
     public async Task<bool> CanAutomateCollectionAsync()
     {
@@ -301,6 +230,7 @@ public class WorksiteManager(
             throw new InvalidOperationException("Persistance Already set");
         }
         _worksiteRepository = worksiteContext.WorksiteRepository;
+        _workerRepository = workerContext.WorkerRepository;
         BasicList<WorksiteRecipe> recipes = await worksiteContext.WorksiteRegistry.GetWorksitesAsync();
         foreach (var item in recipes)
         {
@@ -320,9 +250,8 @@ public class WorksiteManager(
         }
         _worksiteCollectionPolicy = worksiteContext.WorksiteCollectionPolicy;
         _canAutomateCollection = await _worksiteCollectionPolicy!.CollectAllAsync();
-        _workerPolicy = workerContext.WorkerPolicy;
         _worksites.Clear();
-        _workerStates = await workerContext.WorkerInstances.GetWorkerInstancesAsync();
+        _workerStates = await workerContext.WorkerRepository.LoadAsync();
         var ours = await worksiteContext.WorksiteRepository.LoadAsync();
         _allWorkers = await workerContext.WorkerRegistry.GetWorkersAsync();
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);

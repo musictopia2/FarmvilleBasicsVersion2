@@ -6,6 +6,7 @@ public class ProgressionServicesContext
     required public IAnimalProgressionPlanProvider AnimalProgressionPlanProvider { get; init;  }
     required public ITreeProgressionPlanProvider TreeProgressionPlanProvider { get; init; }
     required public IWorksiteProgressionPlanProvider WorksiteProgressionPlanProvider { get; init; }
+    required public IWorkerProgressionPlanProvider WorkerProgressionPlanProvider { get; init; }
     required public IProgressionProfile ProgressionProfile { get; init; }
     //all other services goes here.
 

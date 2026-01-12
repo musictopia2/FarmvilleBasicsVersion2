@@ -11,6 +11,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private BasicList<ItemUnlockRule> _animalPlan = null!;
     private BasicList<ItemUnlockRule> _treePlan = null!;
     private BasicList<ItemUnlockRule> _worksitePlan = null!;
+    private BasicList<ItemUnlockRule> _workerPlan = null!;
     private ProgressionProfileModel _currentProfile = null!;
     private IProgressionProfile _profileService = null!;
     public event Action? Changed;
@@ -25,6 +26,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _animalPlan = await context.AnimalProgressionPlanProvider.GetPlanAsync(farm);
         _treePlan = await context.TreeProgressionPlanProvider.GetPlanAsync(farm);
         _worksitePlan = await context.WorksiteProgressionPlanProvider.GetPlanAsync(farm);
+        _workerPlan = await context.WorkerProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int Level => _currentProfile.Level;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
@@ -47,7 +49,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         {
             RewardEndOfLevel();
             _currentProfile.Level++;
-            ProcessUnlocks();
+            await ProcessUnlocksAsync();
             await SaveAsync();
             return;
         }
@@ -60,16 +62,17 @@ public class ProgressionManager(InventoryManager inventoryManager,
         }
         RewardEndOfLevel();
         _currentProfile.Level++;
-        ProcessUnlocks();
+        await ProcessUnlocksAsync();
         await SaveAsync();
     }
 
-    private void ProcessUnlocks()
+    private async Task ProcessUnlocksAsync()
     {
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
         animalManager.ApplyAnimalProgressionUnlocks(_animalPlan, _currentProfile.Level);
         treeManager.ApplyTreeProgressionUnlocks(_treePlan, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocks(_worksitePlan, _currentProfile.Level);
+        await worksiteManager.ApplyWorkerProgressionUnlocksAsync(_workerPlan, _currentProfile.Level);
     }
 
     private LevelProgressionTier GetCurrentTier()

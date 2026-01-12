@@ -3,28 +3,24 @@
 namespace Phase10ProgressionUnlocks.DataAccess.Trees;
 public class TreeInstanceDatabase(FarmKey farm) : ListDataAccess<TreeInstanceDocument>
     (DatabaseName, CollectionName, mm1.DatabasePath),
-    ISqlDocumentConfiguration, ITreeInstances, ITreePersistence
+    ISqlDocumentConfiguration, ITreeRepository
 
 {
     public static string DatabaseName => mm1.DatabaseName;
     public static string CollectionName => "TreeInstances";
-    public async Task ImportAsync(BasicList<TreeInstanceDocument> list)
+    async Task<BasicList<TreeAutoResumeModel>> ITreeRepository.LoadAsync()
     {
-        await UpsertRecordsAsync(list);
-    }
-    async Task<BasicList<TreeAutoResumeModel>> ITreeInstances.GetTreeInstancesAsync()
-    {
-
         var firsts = await GetDocumentsAsync();
-        BasicList<TreeAutoResumeModel> output = firsts.Single(x => x.Farm.Equals(farm)).Trees;
+        BasicList<TreeAutoResumeModel> output = firsts.GetSingleDocument(farm).Trees;
         return output;
     }
 
-    async Task ITreePersistence.SaveTreesAsync(BasicList<TreeAutoResumeModel> trees)
+    async Task ITreeRepository.SaveAsync(BasicList<TreeAutoResumeModel> list)
     {
-        var list = await GetDocumentsAsync();
-        var item = list.Single(x => x.Farm.Equals(farm));
-        item.Trees = trees;
-        await UpsertRecordsAsync(list);
+        var firsts = await GetDocumentsAsync();
+        var item = firsts.GetSingleDocument(farm);
+        item.Trees = list;
+        await UpsertRecordsAsync(firsts);
     }
+
 }

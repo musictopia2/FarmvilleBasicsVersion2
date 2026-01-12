@@ -8,7 +8,8 @@ public class ProgressionFactory : IProgressionFactory
             LevelProgressionPlanProvider = new LevelProgressionPlanDatabase(),
             ProgressionProfile = new ProgressionProfileDatabase(farm),
             CropProgressionPlanProvider = new CropProgressionPlanDatabase(),
-            AnimalProgressionPlanProvider = new AnimalProgressionPlanDatabase()
+            AnimalProgressionPlanProvider = new AnimalProgressionPlanDatabase(),
+            TreeProgressionPlanProvider = new TreeProgressionPlanDatabase()
         };
     }
 }

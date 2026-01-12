@@ -9,6 +9,7 @@ await ii1.ImportCropRecipeClass.ImportCropsAsync();
 await ii1.ImportCropProgressionClass.ImportCropsAsync();
 await ii1.ImportCropInstanceClass.ImportCropsAsync(); //done
 await ii1.ImportTreeRecipeClass.ImportTreesAsync();
+await ii1.ImportTreeProgressionClass.ImportTreesAsync();
 await ii1.ImportTreeInstanceClass.ImportTreesAsync(); //done
 await ii1.ImportAnimalRecipeClass.ImportAnimalsAsync();
 await ii1.ImportAnimalProgressionClass.ImportAnimalsAsync();

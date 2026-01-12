@@ -5,14 +5,12 @@ public class TreeManager(InventoryManager inventory,
     )
 {
     private ITreesCollecting? _treeCollecting;
-    private ITreeProgressionPolicy? _treeProgressionPolicy;
-    private ITreePersistence _treePersistence = null!;
+    private ITreeRepository _treeRepository = null!;
     private BasicList<TreeRecipe> _recipes = [];
     private readonly Lock _lock = new();
     private bool _needsSaving;
     private DateTime _lastSave = DateTime.MinValue;
     private readonly BasicList<TreeInstance> _trees = [];
-    public event Action? OnTreesUpdated;
     private bool _collectAll;
     // Public read-only summaries for the UI
     public BasicList<TreeView> GetUnlockedTrees
@@ -32,24 +30,18 @@ public class TreeManager(InventoryManager inventory,
             return output;
         }
     }
-    private BasicList<TreeState> GetAllTrees
+    public void ApplyTreeProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
     {
-        get
+        //only unlock current level.
+        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        if (item is null)
         {
-            BasicList<TreeState> output = [];
-            _trees.ForEach(t =>
-            {
-                TreeState tree = new()
-                {
-                    Id = t.Id,
-                    Name = t.TreeName,
-                    State = t.State,
-                    Unlocked = t.Unlocked
-                };
-                output.Add(tree);
-            });
-            return output;
+            return;
         }
+        var instance = _trees.Single(x => x.TreeName == item.ItemName);
+        instance.Unlocked = true;
+        _needsSaving = true;
+
     }
     // Private helper to find tree by Id
     public int GetProduceAmount(TreeView tree)
@@ -65,48 +57,6 @@ public class TreeManager(InventoryManager inventory,
     }
     private TreeInstance GetTreeById(TreeView id) => GetTreeById(id.Id);
 
-    public async Task<bool> CanUnlockTreeAsync(string name)
-    {
-        if (_treeProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllTrees;
-        var policy = await _treeProgressionPolicy.CanUnlockTreeAsync(list, name);
-        return policy;
-    }
-
-    public async Task UnlockTreeAsync(string name)
-    {
-        var list = GetAllTrees;
-        var policy = await _treeProgressionPolicy!.UnlockTreeAsync(list, name);
-        UpdateTreeInstance(policy);
-    }
-
-    public async Task<bool> CanLockTreeAsync(string name)
-    {
-        if (_treeProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllTrees;
-        var policy = await _treeProgressionPolicy.CanLockTreeAsync(list, name);
-        return policy;
-    }
-
-    public async Task LockTreeAsync(string name)
-    {
-        var list = GetAllTrees;
-        var policy = await _treeProgressionPolicy!.LockTreeAsync(list, name);
-        UpdateTreeInstance(policy);
-    }
-
-    private void UpdateTreeInstance(TreeState summary)
-    {
-        var tree = GetTreeById(summary);
-        tree.Unlocked = summary.Unlocked;
-        OnTreesUpdated?.Invoke();
-    }
     public bool HasTrees(string name) => _recipes.Exists(x => x.Item == name);
     public TimeSpan TreeDuration(TreeView id) => GetTreeById(id).BaseTime;
 
@@ -151,21 +101,20 @@ public class TreeManager(InventoryManager inventory,
 
     public async Task SetStyleContextAsync(TreeServicesContext context, FarmKey farm)
     {
-        _treeProgressionPolicy = context.TreeProgressionPolicy;
         //_treeGatheringPolicy = context.TreeGatheringPolicy;
         _collectAll = await context.TreeGatheringPolicy.CollectAllAsync();
         //if this changes, rethink later.
-        if (_treePersistence != null)
+        if (_treeRepository != null)
         {
-            throw new InvalidOperationException("Persistance Already set");
+            throw new InvalidOperationException("Repository Already set");
         }
-        _treePersistence = context.TreePersistence;
+        _treeRepository = context.TreeRepository;
         _recipes = await context.TreeRegistry.GetTreesAsync();
         foreach (var item in _recipes)
         {
             itemRegistry.Register(new(item.Item, EnumInventoryStorageCategory.Silo, EnumInventoryItemCategory.Trees));
         }
-        var ours = await context.TreeInstances.GetTreeInstancesAsync();
+        var ours = await context.TreeRepository.LoadAsync();
         _trees.Clear();
         _treeCollecting = context.TreesCollecting;
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);
@@ -191,7 +140,6 @@ public class TreeManager(InventoryManager inventory,
         });
         await SaveTreesAsync();
     }
-
     private async Task SaveTreesAsync()
     {
         bool doSave = false;
@@ -209,8 +157,7 @@ public class TreeManager(InventoryManager inventory,
             BasicList<TreeAutoResumeModel> list = _trees
              .Select(tree => tree.GetTreeForSaving)
              .ToBasicList();
-            await _treePersistence.SaveTreesAsync(list);
+            await _treeRepository.SaveAsync(list);
         }
     }
-
 }

@@ -13,11 +13,9 @@ public class TreeFactory : ITreeFactory
         TreeServicesContext output = new()
         {
             TreeGatheringPolicy = collection,
-            TreeProgressionPolicy = new BasicTreePolicy(),
             TreeRegistry = register,
-            TreeInstances = instance,
+            TreeRepository = instance,
             TreesCollecting = new DefaultTreesCollected(),
-            TreePersistence = instance
         };
         return output;
     }   

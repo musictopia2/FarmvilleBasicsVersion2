@@ -11,7 +11,7 @@ public class AnimalInstanceDatabase(FarmKey farm
     async Task<BasicList<AnimalAutoResumeModel>> IAnimalRepository.LoadAsync()
     {
         var firsts = await GetDocumentsAsync();
-        BasicList<AnimalAutoResumeModel> output = firsts.Single(x => x.Farm.Equals(farm)).Animals;
+        BasicList<AnimalAutoResumeModel> output = firsts.GetSingleDocument(farm).Animals;
         return output;
     }
 
@@ -19,7 +19,7 @@ public class AnimalInstanceDatabase(FarmKey farm
     async Task IAnimalRepository.SaveAsync(BasicList<AnimalAutoResumeModel> animals)
     {
         var list = await GetDocumentsAsync();
-        var item = list.Single(x => x.Farm.Equals(farm));
+        var item = list.GetSingleDocument(farm);
         item.Animals = animals;
         await UpsertRecordsAsync(list);
     }

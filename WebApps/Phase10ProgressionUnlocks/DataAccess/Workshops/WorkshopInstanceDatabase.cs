@@ -1,24 +1,26 @@
-﻿using Phase10ProgressionUnlocks.Services.Core;
+﻿namespace Phase10ProgressionUnlocks.DataAccess.Workshops;
 
-namespace Phase10ProgressionUnlocks.DataAccess.Workshops;
 internal class WorkshopInstanceDatabase(FarmKey farm) : ListDataAccess<WorkshopInstanceDocument>
     (DatabaseName, CollectionName, mm1.DatabasePath),
-    ISqlDocumentConfiguration, IWorkshopInstances, IWorkshopPersistence
+    ISqlDocumentConfiguration, IWorkshopRespository
 
 {
     public static string DatabaseName => mm1.DatabaseName;
     public static string CollectionName => "WorkshopInstances";
-    async Task<BasicList<WorkshopAutoResumeModel>> IWorkshopInstances.GetWorkshopInstancesAsync()
+
+    async Task<BasicList<WorkshopAutoResumeModel>> IWorkshopRespository.LoadAsync()
     {
         var firsts = await GetDocumentsAsync();
-        BasicList<WorkshopAutoResumeModel> output = firsts.Single(x => x.Farm.Equals(farm)).Workshops;
+        BasicList<WorkshopAutoResumeModel> output = firsts.GetSingleDocument(farm).Workshops;
         return output;
     }
-    async Task IWorkshopPersistence.SaveWorkshopsAsync(BasicList<WorkshopAutoResumeModel> workshops)
+
+    async Task IWorkshopRespository.SaveAsync(BasicList<WorkshopAutoResumeModel> workshops)
     {
         var list = await GetDocumentsAsync();
-        var item = list.Single(x => x.Farm.Equals(farm));
+        var item = list.GetSingleDocument(farm);
         item.Workshops = workshops;
         await UpsertRecordsAsync(list);
     }
+
 }

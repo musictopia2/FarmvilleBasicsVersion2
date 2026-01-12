@@ -1,5 +1,6 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Workshops;
-public interface IWorkshopInstances
+public interface IWorkshopRespository
 {
-    Task<BasicList<WorkshopAutoResumeModel>> GetWorkshopInstancesAsync();
+    Task<BasicList<WorkshopAutoResumeModel>> LoadAsync();
+    Task SaveAsync(BasicList<WorkshopAutoResumeModel> workshops);
 }

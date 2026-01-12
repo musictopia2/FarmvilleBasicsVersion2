@@ -1,3 +1,5 @@
+using SQLitePCL;
+
 namespace Phase10ProgressionUnlocks.Components.Custom;
 public partial class WorkshopComponent(IToast toast)
 {
@@ -12,17 +14,24 @@ public partial class WorkshopComponent(IToast toast)
 
     [Parameter]
     public EventCallback PreviousClicked { get; set; }
-
-
     [Parameter]
     public EventCallback<string> NavigateTo { get; set; }
     private int _capacity;
     private bool _showToast = true;
+    private WorkshopRecipeSummary? _future;
     protected override void OnParametersSet()
     {
         _showToast = true; //good news is when the readycount increases since something is ready from the parent calls this so i actually get desired behavior.
 
         _recipes = WorkshopManager.GetRecipesForWorkshop(Workshop);
+
+        _future = _recipes.FirstOrDefault(x => x.Unlocked == false);
+        if (_future is not null)
+        {
+            //for now print it
+            Console.WriteLine($"{_future.Item} is future one.  for now, not sure what else i need.  figure out later.");
+        }
+        _recipes.RemoveAllAndObtain(x => x.Unlocked == false); //so only shows ones you can do.  needs next future one if any.
         if (_recipes.Count > 0)
         {
             Workshop.SelectedRecipeIndex = Math.Clamp(

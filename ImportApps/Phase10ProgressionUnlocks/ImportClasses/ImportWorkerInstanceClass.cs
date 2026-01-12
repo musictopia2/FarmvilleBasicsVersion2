@@ -18,7 +18,7 @@ public static class ImportWorkerInstanceClass
     }
     private static async Task<WorkerInstanceDocument> CreateInstanceAsync(FarmKey farm)
     {
-        BasicList<WorkerDataModel> workers = [];
+        BasicList<UnlockModel> workers = [];
         var worksitePlan = await _workerProgression.GetPlanAsync(farm);
         var profile = await _levelProfile.GetProfileAsync(farm);
         int level = profile.Level;

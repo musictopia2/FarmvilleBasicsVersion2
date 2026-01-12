@@ -1,6 +1,4 @@
-﻿using Phase10ProgressionUnlocks.Services.Core;
-
-namespace Phase10ProgressionUnlocks.DataAccess.Workshops;
+﻿namespace Phase10ProgressionUnlocks.DataAccess.Workshops;
 public class WorkshopFactory : IWorkshopFactory
 {
     WorkshopServicesContext IWorkshopFactory.GetWorkshopServices(FarmKey farm)
@@ -13,11 +11,9 @@ public class WorkshopFactory : IWorkshopFactory
         WorkshopServicesContext output = new()
         {
             WorkshopCollectionPolicy = collection,
-            WorkshopProgressionPolicy = new BasicWorkshopPolicy(),
             WorkshopRegistry = register,
-            WorkshopInstances = instance,
-            WorkshopPersistence = instance
+            WorkshopRespository = instance
         };
         return output;
-    }   
+    }
 }

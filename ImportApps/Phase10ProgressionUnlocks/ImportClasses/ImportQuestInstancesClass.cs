@@ -20,7 +20,7 @@ public static class ImportQuestInstancesClass
                     Farm = farm,
                     Quests = quests
                 };
-                list.Add(document);
+                //list.Add(document);
             }
         }
         await db.ImportAsync(list);

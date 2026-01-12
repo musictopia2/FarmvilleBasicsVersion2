@@ -8,13 +8,13 @@ public class WorkerInstanceDatabase(FarmKey farm) : ListDataAccess<WorkerInstanc
     public static string DatabaseName => mm1.DatabaseName;
     public static string CollectionName => "WorkerInstances";
 
-    async Task<BasicList<WorkerDataModel>> IWorkerRepository.LoadAsync()
+    async Task<BasicList<UnlockModel>> IWorkerRepository.LoadAsync()
     {
         var list = await GetDocumentsAsync();
         return list.GetSingleDocument(farm).Workers;
     }
 
-    async Task IWorkerRepository.SaveAsync(BasicList<WorkerDataModel> data)
+    async Task IWorkerRepository.SaveAsync(BasicList<UnlockModel> data)
     {
         var list = await GetDocumentsAsync();
         list.GetSingleDocument(farm).Workers = data;

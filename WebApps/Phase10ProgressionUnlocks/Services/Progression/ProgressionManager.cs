@@ -3,6 +3,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     CropManager cropManager,
     AnimalManager animalManager,
     TreeManager treeManager,
+    WorkshopManager workshopManager,
     WorksiteManager worksiteManager
     )
 {
@@ -10,6 +11,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private CropProgressionPlanModel _cropPlan = null!;
     private BasicList<ItemUnlockRule> _animalPlan = null!;
     private BasicList<ItemUnlockRule> _treePlan = null!;
+    private BasicList<ItemUnlockRule> _workshopPlan = null!;
     private BasicList<ItemUnlockRule> _worksitePlan = null!;
     private BasicList<ItemUnlockRule> _workerPlan = null!;
     private ProgressionProfileModel _currentProfile = null!;
@@ -27,6 +29,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _treePlan = await context.TreeProgressionPlanProvider.GetPlanAsync(farm);
         _worksitePlan = await context.WorksiteProgressionPlanProvider.GetPlanAsync(farm);
         _workerPlan = await context.WorkerProgressionPlanProvider.GetPlanAsync(farm);
+        _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int Level => _currentProfile.Level;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
@@ -71,6 +74,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
         animalManager.ApplyAnimalProgressionUnlocks(_animalPlan, _currentProfile.Level);
         treeManager.ApplyTreeProgressionUnlocks(_treePlan, _currentProfile.Level);
+        workshopManager.ApplyWorksiteProgressionUnlocks(_workshopPlan, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocks(_worksitePlan, _currentProfile.Level);
         await worksiteManager.ApplyWorkerProgressionUnlocksAsync(_workerPlan, _currentProfile.Level);
     }

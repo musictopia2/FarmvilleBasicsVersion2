@@ -1,12 +1,11 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Workshops;
+
 public class WorkshopManager(InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
     ItemRegistry itemRegistry
     )
 {
-    private IWorkshopProgressionPolicy? _workshopProgressionPolicy;
-    //private IWorkshopCollectionPolicy? _workshopCollectionPolicy;
-    private IWorkshopPersistence _workshopPersistence = null!;
+    private IWorkshopRespository _workshopRespository = null!;
     private bool _automateCollection;
     private readonly BasicList<WorkshopInstance> _workshops = [];
     private BasicList<WorkshopRecipe> _recipes = [];
@@ -28,7 +27,7 @@ public class WorkshopManager(InventoryManager inventory,
             lock (_lock)
             {
                 BasicList<WorkshopView> output = [];
-                _workshops.ForConditionalItems(x => x.Unlocked, t =>
+                _workshops.ForConditionalItems(x => x.SupportedItems.Any(x => x.Unlocked), t =>
                 {
                     WorkshopView summary = new()
                     {
@@ -44,6 +43,24 @@ public class WorkshopManager(InventoryManager inventory,
             }
         }
     }
+
+    public void ApplyWorksiteProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    {
+        //only unlock current level.
+        var modify = rules.Where(x => x.LevelRequired == level);
+        foreach (var craftedItem in modify)
+        {
+            WorkshopRecipe recipe = _recipes.Single(x => x.Item == craftedItem.ItemName);
+            var list = _workshops.Where(x => x.BuildingName == recipe.BuildingName);
+            foreach (var item in list)
+            {
+                var fins = item.SupportedItems.Single(x => x.Name == craftedItem.ItemName);
+                fins.Unlocked = true;
+            }
+        }
+        _needsSaving = true;
+    }
+
     public int GetCapcity(WorkshopView summary)
     {
         WorkshopInstance workshop = GetWorkshopById(summary);
@@ -146,74 +163,8 @@ public class WorkshopManager(InventoryManager inventory,
         //OnWorkshopsUpdated?.Invoke();
         _needsSaving = true;
     }
-    public BasicList<WorkshopAvailabilityState> GetAllWorkshops
-    {
-        get
-        {
-            lock (_lock)
-            {
-                BasicList<WorkshopAvailabilityState> output = [];
-                _workshops.ForEach(t =>
-                {
-                    bool remaining = false;
-                    if (t.Queue.Count != 0)
-                    {
-                        remaining = true;
-                    }
-                    WorkshopAvailabilityState summary = new()
-                    {
-                        Id = t.Id,
-                        Name = t.BuildingName,
-                        Unlocked = t.Unlocked,
-                        RemainingCraftingJobs = remaining
-                    };
-                    output.Add(summary);
-                });
-                return output;
-            }
 
-        }
-    }
-    public async Task<bool> CanUnlockWorkshopAsync(string name)
-    {
-        if (_workshopProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllWorkshops;
-        var policy = await _workshopProgressionPolicy.CanUnlockAsync(list, name);
-        return policy;
-    }
-    public async Task UnlockWorkshopAsync(string name)
-    {
-        var list = GetAllWorkshops;
-        var policy = await _workshopProgressionPolicy!.UnlockAsync(list, name);
-        UpdateWorkshopInstance(policy);
-    }
-    public async Task<bool> CanLockWorkshopAsync(string name)
-    {
-        if (_workshopProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetAllWorkshops;
-        var policy = await _workshopProgressionPolicy!.CanLockAsync(list, name);
-        return policy;
-    }
-    public async Task LockWorkshopAsync(string name)
-    {
 
-        var list = GetAllWorkshops;
-        var policy = await _workshopProgressionPolicy!.LockAsync(list, name);
-        UpdateWorkshopInstance(policy);
-    }
-    private void UpdateWorkshopInstance(WorkshopAvailabilityState summary)
-    {
-        var workshop = GetWorkshopById(summary.Id);
-        workshop.Unlocked = summary.Unlocked;
-        NotifyWorkshopsUpdated();
-        _needsSaving = true;
-    }
     private void NotifyWorkshopsUpdated()
     {
         OnWorkshopsUpdated?.Invoke();
@@ -224,21 +175,24 @@ public class WorkshopManager(InventoryManager inventory,
         // _multiplier should be the CURRENT workshop time multiplier (<= 1.0)
         double m = _multiplier;
 
-        return _recipes
-            .Where(r => r.BuildingName == summary.Name)
-            .Select(r => new WorkshopRecipeSummary
+        var firstList = _recipes.Where(x => x.BuildingName == summary.Name).ToBasicList();
+        BasicList<WorkshopRecipeSummary> output = [];
+        foreach (var item in firstList)
+        {
+            var workshop = _workshops.First(x => x.BuildingName == item.BuildingName);
+            var nexts = workshop.SupportedItems.Single(x => x.Name == item.Item);
+            WorkshopRecipeSummary fins = new()
             {
-                Item = r.Item,
-                Inputs = r.Inputs,
-                Output = r.Output,
+                Duration = item.Duration.Apply(m),
+                Inputs = item.Inputs,
+                Output = item.Output,
+                Item = item.Item,
+                Unlocked = nexts.Unlocked
+            };
+            output.Add(fins);
+        }
+        return output;
 
-                // Show effective duration in the UI
-                Duration = r.Duration.Apply(m),
-
-                // Optional: expose base too if you want later
-                // BaseDuration = r.Duration
-            })
-            .ToBasicList();
     }
     public bool AnyInQueue(WorkshopView summary)
     {
@@ -292,12 +246,7 @@ public class WorkshopManager(InventoryManager inventory,
             return inventory.Has(recipe.Inputs);
         }
     }
-    
-    //public int GetCompletedCount(WorkshopView workshop)
-    //{
-    //    var instance = GetWorkshopById(workshop); // or however you map view->instance
-    //    return instance.Queue.Count(x => x.State == EnumWorkshopState.ReadyToPickUpManually);
-    //}
+
     public bool CanPickupManually(WorkshopView summary)
     {
         lock (_lock)
@@ -341,21 +290,20 @@ public class WorkshopManager(InventoryManager inventory,
     }
     public async Task SetStyleContextAsync(WorkshopServicesContext context, FarmKey farm)
     {
-        if (_workshopPersistence != null)
+        if (_workshopRespository != null)
         {
-            throw new InvalidOperationException("Persistance Already set");
+            throw new InvalidOperationException("Repository Already set");
         }
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);
         _multiplier = profile.WorkshopTimeMultiplier;
-        _workshopPersistence = context.WorkshopPersistence;
-        _workshopProgressionPolicy = context.WorkshopProgressionPolicy;
+        _workshopRespository = context.WorkshopRespository;
         _automateCollection = await context.WorkshopCollectionPolicy.IsAutomaticAsync();
         _recipes = await context.WorkshopRegistry.GetWorkshopRecipesAsync();
         foreach (var item in _recipes)
         {
             itemRegistry.Register(new(item.Output.Item, EnumInventoryStorageCategory.Barn, EnumInventoryItemCategory.Workshops));
         }
-        var ours = await context.WorkshopInstances.GetWorkshopInstancesAsync();
+        var ours = await context.WorkshopRespository.LoadAsync();
         _workshops.Clear();
         foreach (var item in ours)
         {
@@ -369,15 +317,12 @@ public class WorkshopManager(InventoryManager inventory,
     }
     public async Task UpdateTickAsync()
     {
-        _workshops.ForConditionalItems(x => x.Unlocked, ProcessBuilding);
+        _workshops.ForConditionalItems(x => x.SupportedItems.Any(x => x.Unlocked), ProcessBuilding);
         await SaveWorkshopsAsync();
     }
     private void ProcessBuilding(WorkshopInstance workshop)
     {
-        if (workshop.Unlocked == false)
-        {
-            return;
-        }
+
 
         // Find active job or start one
         var active = workshop.Queue.FirstOrDefault(j => j.State == EnumWorkshopState.Active);
@@ -414,7 +359,7 @@ public class WorkshopManager(InventoryManager inventory,
                     workshop.Queue.RemoveSpecificItem(active);
                     _needsSaving = true;
                 }
-                
+
             }
             else
             {
@@ -463,7 +408,7 @@ public class WorkshopManager(InventoryManager inventory,
                 .ToBasicList();
         }
 
-        await _workshopPersistence.SaveWorkshopsAsync(models);
+        await _workshopRespository.SaveAsync(models);
     }
 
 

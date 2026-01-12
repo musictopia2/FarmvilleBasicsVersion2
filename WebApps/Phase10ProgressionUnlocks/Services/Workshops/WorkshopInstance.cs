@@ -2,8 +2,9 @@
 public class WorkshopInstance
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
-    public bool Unlocked { get; set; } = true;
+    //public bool Unlocked { get; set; } = true;
     public int SelectedRecipeIndex { get; set; } = 0;
+    public BasicList<UnlockModel> SupportedItems { get; set; } = [];
     public int Capacity { get; set; } = 2; //for now, always 2.  later will rethink.
     public BasicList<CraftingJobInstance> Queue { get; } = [];
     required
@@ -18,13 +19,8 @@ public class WorkshopInstance
         {
             return false;
         }
-        return true; //for now.
-        //return false;
-        //int count = Queue.Count(j => j.CompletedAt == null)
+        return true;
     }
-    //public bool CanAccept(WorkshopRecipe recipe) =>
-    //    recipe.BuildingName == BuildingName &&
-    //    Queue.Count(j => j.CompletedAt == null && j.State != EnumWorkshopState.ReadyToPickUpManually) < Capacity;
     public void Start()
     {
         var next = Queue.First(j => j.State == EnumWorkshopState.Waiting);
@@ -33,7 +29,11 @@ public class WorkshopInstance
     public void Load(WorkshopAutoResumeModel workshop, BasicList<WorkshopRecipe> recipes, double multiplier)
     {
         Capacity = workshop.Capacity;
-        Unlocked = workshop.Unlocked;
+        SupportedItems = workshop.SupportedItems;
+        if (SupportedItems.Count == 0)
+        {
+            throw new CustomBasicException("Must support at least one item.");
+        }
         Id = workshop.Id;
         SelectedRecipeIndex = workshop.SelectedRecipeIndex;
         Queue.Clear();
@@ -53,17 +53,9 @@ public class WorkshopInstance
             {
                 Capacity = Capacity,
                 Name = BuildingName,
-                Unlocked = Unlocked,
+                SupportedItems = SupportedItems,
                 Queue = Queue.Select(x => x.GetCraftingForSaving).ToBasicList(),
                 SelectedRecipeIndex = SelectedRecipeIndex
-                //Name = Name,
-                //Duration = Duration,
-                //StartedAt = StartedAt,
-                //Unlocked = Unlocked,
-                //OutputReady = OutputReady,
-                //ProductionOptionsAllowed = ProductionOptionsAllowed,
-                //State = State,
-                //Selected = _selected
             };
         }
     }

@@ -16,6 +16,7 @@ await ii1.ImportAnimalProgressionClass.ImportAnimalsAsync();
 await ii1.ImportAnimalInstanceClass.ImportAnimalsAsync(); //done
 await ii1.ImportWorkshopRecipeClass.ImportWorkshopsAsync();
 await ii1.ImportWorkshopCapacityUpgradesClass.ImportWorkshopsAsync();
+await ii1.ImportWorkshopProgressionClass.ImportWorkshopsAsync();
 await ii1.ImportWorkshopInstanceClass.ImportWorkshopsAsync(); //done
 await ii1.ImportWorksiteRecipeClass.ImportWorksitesAsync();
 await ii1.ImportWorksiteProgressionClass.ImportWorksitesAsync();

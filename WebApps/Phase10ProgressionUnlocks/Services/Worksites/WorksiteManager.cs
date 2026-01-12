@@ -10,7 +10,7 @@ public class WorksiteManager(
     private IWorksiteRepository _worksiteRepository = null!;
     private IWorkerRepository _workerRepository = null!;
     private readonly BasicList<WorksiteInstance> _worksites = [];
-    private BasicList<WorkerDataModel> _workerStates = [];
+    private BasicList<UnlockModel> _workerStates = [];
     private BasicList<WorkerRecipe> _allWorkers = [];
     private bool _needsSaving;
     private DateTime _lastSave = DateTime.MinValue;

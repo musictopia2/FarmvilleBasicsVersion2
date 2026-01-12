@@ -11,10 +11,8 @@ public class CropFactory : ICropFactory
         CropServicesContext output = new()
         {
             CropHarvestPolicy = collection,
-            CropProgressionPolicy = new BasicCropPolicy(),
             CropRegistry = register,
-            CropInstances = db,
-            CropPersistence = db
+            CropRepository = db,
         };
         return output;
     }

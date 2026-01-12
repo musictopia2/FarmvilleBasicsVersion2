@@ -1,12 +1,9 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Crops;
-
 public class CropManager(InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
     ItemRegistry itemRegistry
     )
 {
-    private ICropProgressionPolicy? _cropProgressionPolicy;
-    private ICropPersistence _cropPersistence = null!;
     private bool _canAutomateCropHarvest;
     private ICropHarvestPolicy? _cropHarvestPolicy;
     private readonly BasicList<CropInstance> _crops = [];
@@ -14,97 +11,14 @@ public class CropManager(InventoryManager inventory,
     private BasicList<CropRecipe> _recipes = [];
     private BasicList<CropDataModel> _allCropDefinitions = [];
     private DateTime _lastHarvestPolicyCheck;
-
+    private ICropRepository _cropRepository = null!;
     private DateTime _lastSave = DateTime.MinValue;
     private bool _needsSaving;
-
     private readonly TimeSpan _harvestPolicyCacheDuration = TimeSpan.FromMinutes(5); //so if they change it, won't be reflected for 5 minutes or if server restarts.
     public BasicList<string> UnlockedRecipes => _allCropDefinitions.Where(x => x.Unlocked).Select(x => x.Item).ToBasicList(); //so if you change the list, won't change this.
     public BasicList<Guid> GetUnlockedCrops => _crops.Where(x => x.Unlocked).Select(x => x.Id).ToBasicList();
     public bool HasUnlockedCrops => _crops.Count != 0;
-    private BasicList<CropSlotState> GetCropStates()
-    {
-        BasicList<CropSlotState> output = [];
-        foreach (var item in _crops)
-        {
-            output.Add(new CropSlotState()
-            {
-                State = item.State,
-                Unlocked = item.Unlocked,
-                Id = item.Id
-            });
-        }
-        return output;
-    }
-    public async Task<bool> CanUnlockCropAsync(string name)
-    {
-        if (_cropProgressionPolicy is null)
-        {
-            return false;
-        }
-        var policy = await _cropProgressionPolicy.CanUnlockCropAsync(_allCropDefinitions.ToBasicList(), name);
-        return policy;
-    }
-    public Task UnlockCropAsync(string name)
-    {
-        return _cropProgressionPolicy!.UnlockCropAsync(_allCropDefinitions.ToBasicList(), name);
-    }
-    public async Task<bool> CanLockCropAsync(string name)
-    {
-        if (_cropProgressionPolicy is null)
-        {
-            return false;
-        }
-        var policy = await _cropProgressionPolicy.CanLockCropAsync(_allCropDefinitions.ToBasicList(), name);
-        return policy;
-    }
-    private void UpdateInstances(BasicList<CropSlotState> list)
-    {
-        list.ForEach(i =>
-        {
-            var item = _crops.Single(x => x.Id == i.Id);
-            item.Unlocked = i.Unlocked;
-        });
-    }
-    public Task LockCropAsync(string name)
-    {
-        return _cropProgressionPolicy!.LockCropAsync(_allCropDefinitions.ToBasicList(), name);
-    }
-    public async Task<bool> CanUnlockGrowSlotsAsync(int slots)
-    {
-        if (_cropProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetCropStates();
-        var policy = await _cropProgressionPolicy!.CanUnlockGrowSlotsAsync(list, slots);
-        return policy;
-    }
-    public async Task UnlockGrowSlotsAsync(int slots)
-    {
-        var list = GetCropStates();
-        await _cropProgressionPolicy!.UnlockGrowSlotsAsync(list, slots);
-        UpdateInstances(list);
-    }
-    public async Task<bool> CanLockGrowSlotsAsync()
-    {
-        if (_cropProgressionPolicy is null)
-        {
-            return false;
-        }
-        var list = GetCropStates();
-        var policy = await _cropProgressionPolicy!.CanLockGrowSlotAsync(list);
-        return policy;
-    }
-    public async Task LockGrowSlotsAsync()
-    {
-        var list = GetCropStates();
-        await _cropProgressionPolicy!.LockGrowSlotAsync(list);
-        UpdateInstances(list);
-    }
-
-
-    //all methods related to crops are here now.
+    
 
     public EnumCropState GetCropState(Guid id) => GetCrop(id).State;
     public string GetTimeLeft(Guid id) => GetCrop(id).ReadyTime?.GetTimeString ?? "";
@@ -194,12 +108,7 @@ public class CropManager(InventoryManager inventory,
     }
     public async Task SetStyleContextAsync(CropServicesContext context, FarmKey farm)
     {
-        _cropProgressionPolicy = context.CropProgressionPolicy;
-        if (_cropPersistence != null)
-        {
-            throw new InvalidOperationException("Persistance Already set");
-        }
-        _cropPersistence = context.CropPersistence;
+        _cropRepository = context.CropRepository;
         _canAutomateCropHarvest = await context.CropHarvestPolicy.IsAutomaticAsync();
         _lastHarvestPolicyCheck = DateTime.Now;
         _cropHarvestPolicy = context.CropHarvestPolicy;
@@ -210,7 +119,7 @@ public class CropManager(InventoryManager inventory,
 
         }
 
-        CropSystemState system = await context.CropInstances.GetCropInstancesAsync();
+        CropSystemState system = await context.CropRepository.LoadAsync();
         _crops.Clear();
         BaseBalanceProfile profile = await baseBalanceProvider.GetBaseBalanceAsync(farm);
         double offset = profile.CropTimeMultiplier;
@@ -281,7 +190,13 @@ public class CropManager(InventoryManager inventory,
                 PlantedAt = crop.PlantedAt,
                 RunMultiplier = crop.GetCurrentRun
             }).ToBasicList();
-            await _cropPersistence.SaveCropsAsync(list);
+            //has to figure out the other side (since you may unlock more slots).
+            CropSystemState slate = new()
+            {
+                Slots = list,
+                Crops = _allCropDefinitions
+            };
+            await _cropRepository.SaveAsync(slate);
         }
     }
 }

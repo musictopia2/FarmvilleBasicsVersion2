@@ -1,18 +1,21 @@
 ﻿namespace Phase10ProgressionUnlocks.Services.Progression;
-public class ProgressionManager(InventoryManager inventoryManager)
+public class ProgressionManager(InventoryManager inventoryManager,
+    CropManager cropManager
+    )
 {
     private LevelProgressionPlanModel _levelPlan = null!;
+    private CropProgressionPlanModel _cropPlan = null!;
     private ProgressionProfileModel _currentProfile = null!;
     private IProgressionProfile _profileService = null!;
     public event Action? Changed;
     private void NotifyChanged() => Changed?.Invoke();
-
     public async Task SetProgressionStyleContextAsync(ProgressionServicesContext context,
         FarmKey farm)
     {
         _levelPlan = await context.LevelProgressionPlanProvider.GetPlanAsync(farm);
         _currentProfile = await context.ProgressionProfile.LoadAsync();
         _profileService = context.ProgressionProfile;
+        _cropPlan = await context.CropProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int Level => _currentProfile.Level;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
@@ -35,19 +38,26 @@ public class ProgressionManager(InventoryManager inventoryManager)
         {
             RewardEndOfLevel();
             _currentProfile.Level++;
+            ProcessUnlocks();
             await SaveAsync();
             return;
         }
         if (_currentProfile.Level >= _levelPlan.Tiers.Count)
         {
-            RewardEndOfLevel();
+            RewardEndOfLevel(); //if you ended game, no need to unlock anything.
             _currentProfile.CompletedGame = true;
             await SaveAsync();
             return;
         }
         RewardEndOfLevel();
         _currentProfile.Level++;
+        ProcessUnlocks();
         await SaveAsync();
+    }
+
+    private void ProcessUnlocks()
+    {
+        cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
     }
 
     private LevelProgressionTier GetCurrentTier()
@@ -64,12 +74,19 @@ public class ProgressionManager(InventoryManager inventoryManager)
         NotifyChanged();
     }
 
+    
+
     private void RewardEndOfLevel()
     {
         _currentProfile.PointsThisLevel = 0;
         LevelProgressionTier tier = GetCurrentTier();
-
+        
         inventoryManager.Add(tier.RewardsOnLevelComplete);
+        //has to figure out how to communicate with the crop manager to get the data.
+        //well see how this can work (?)
+        //refer to how i upgraded workshop capacity for ideas.
+
+
     }
     private static int GetThresholdPoint(int requiredPoints, int percent)
     {

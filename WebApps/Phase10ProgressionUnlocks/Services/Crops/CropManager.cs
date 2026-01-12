@@ -18,8 +18,66 @@ public class CropManager(InventoryManager inventory,
     public BasicList<string> UnlockedRecipes => _allCropDefinitions.Where(x => x.Unlocked).Select(x => x.Item).ToBasicList(); //so if you change the list, won't change this.
     public BasicList<Guid> GetUnlockedCrops => _crops.Where(x => x.Unlocked).Select(x => x.Id).ToBasicList();
     public bool HasUnlockedCrops => _crops.Count != 0;
-    
 
+    public void ApplyCropProgressionUnlocks(CropProgressionPlanModel plan, int level)
+    {
+        bool changed = false;
+
+        lock (_lock)
+        {
+            // ---------- SLOTS ----------
+            int shouldBeUnlocked = plan.SlotLevelRequired.Count(x => x <= level);
+
+            // Current unlocked (from runtime state)
+            int currentlyUnlocked = _crops.Count(x => x.Unlocked);
+
+            // Unlock only the delta, in order, by flipping the first locked ones.
+            int toUnlock = shouldBeUnlocked - currentlyUnlocked;
+            if (toUnlock > 0)
+            {
+                foreach (var slot in _crops.Where(x => x.Unlocked == false))
+                {
+                    slot.Unlocked = true;
+                    changed = true;
+
+                    toUnlock--;
+                    if (toUnlock == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            // Optional safety: if your plan expects more unlocked than you even have slots, that's a data bug.
+            if (shouldBeUnlocked > _crops.Count)
+            {
+                throw new CustomBasicException(
+                    $"Crop plan expects {shouldBeUnlocked} unlocked slots at level {level}, but only {_crops.Count} slots exist."
+                );
+            }
+
+            foreach (var rule in plan.UnlockRules.Where(r => r.LevelRequired <= level))
+            {
+                var def = _allCropDefinitions.SingleOrDefault(x => x.Item == rule.ItemName);
+                if (def is null)
+                {
+                    // You said all definitions are preloaded, so this is a bug.
+                    throw new CustomBasicException($"Crop definition '{rule.ItemName}' was not preloaded.");
+                }
+
+                if (def.Unlocked == false)
+                {
+                    def.Unlocked = true;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                _needsSaving = true;
+            }
+        }
+    }
     public EnumCropState GetCropState(Guid id) => GetCrop(id).State;
     public string GetTimeLeft(Guid id) => GetCrop(id).ReadyTime?.GetTimeString ?? "";
     public string GetCropName(Guid id) => GetCrop(id).Crop!;

@@ -6,7 +6,8 @@ public class ProgressionFactory : IProgressionFactory
         return new()
         {
             LevelProgressionPlanProvider = new LevelProgressionPlanDatabase(),
-            ProgressionProfile = new ProgressionProfileDatabase(farm)
+            ProgressionProfile = new ProgressionProfileDatabase(farm),
+            CropProgressionPlanProvider = new CropProgressionPlanDatabase()
         };
     }
 }

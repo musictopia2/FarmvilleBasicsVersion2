@@ -1,5 +1,5 @@
 ﻿namespace Phase10ProgressionUnlocks.Models;
-public class WorkshopCapacityUpgradePlanDocument
+public class WorkshopCapacityUpgradePlanDocument : IFarmDocument
 {
     required public FarmKey Farm { get; init; }
     required public string WorkshopName { get; init; }

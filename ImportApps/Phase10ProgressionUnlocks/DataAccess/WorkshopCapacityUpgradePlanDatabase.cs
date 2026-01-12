@@ -13,6 +13,6 @@ public class WorkshopCapacityUpgradePlanDatabase() : ListDataAccess<WorkshopCapa
     public async Task<BasicList<WorkshopCapacityUpgradePlanDocument>> GetUpgradesAsync(FarmKey farm)
     {
         BasicList<WorkshopCapacityUpgradePlanDocument> list = await GetDocumentsAsync();
-        return list.Where(x => x.Farm.Equals(farm)).ToBasicList();
+        return list.GetDocuments(farm);
     }
 }

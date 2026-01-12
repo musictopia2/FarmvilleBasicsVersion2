@@ -1,5 +1,5 @@
 ﻿namespace Phase10ProgressionUnlocks.Models;
-public class ProgressionProfileDocument
+public class ProgressionProfileDocument : IFarmDocument
 {
     required public FarmKey Farm { get; set; }
     // Player-facing

@@ -13,6 +13,6 @@ public class InventoryStorageUpgradePlanDatabase() : ListDataAccess<InventorySto
     public async Task<InventoryStorageUpgradePlanDocument> GetUpgradesAsync(FarmKey farm)
     {
         BasicList<InventoryStorageUpgradePlanDocument> list = await GetDocumentsAsync();
-        return list.Single(x => x.Farm.Equals(farm));
+        return list.GetSingleDocument(farm);
     }
 }

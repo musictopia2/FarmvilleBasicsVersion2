@@ -1,11 +1,11 @@
 ﻿namespace Phase11StoreWithBasicPurchases.ImportClasses;
 public static class ImportWorksiteInstancesClass
 {
-    private static WorksiteProgressionPlanDatabase _worksiteProgression = null!;
+    private static CatalogOfferDatabase _catalogOfferDatabase = null!;
     private static ProgressionProfileDatabase _levelProfile = null!;
     public static async Task ImportWorksitesAsync()
     {
-        _worksiteProgression = new();
+        _catalogOfferDatabase = new();
         _levelProfile = new();
         BasicList<WorksiteInstanceDocument> list = [];
         var farms = FarmHelperClass.GetAllFarms();
@@ -19,15 +19,15 @@ public static class ImportWorksiteInstancesClass
     private static async Task<WorksiteInstanceDocument> CreateInstanceAsync(FarmKey farm)
     {
         BasicList<WorksiteAutoResumeModel> worksites = [];
-        var worksitePlan = await _worksiteProgression.GetPlanAsync(farm);
+        var plan = await _catalogOfferDatabase.GetCatalogAsync(farm, EnumCatalogCategory.Worksite);
         var profile = await _levelProfile.GetProfileAsync(farm);
         int level = profile.Level;
-        foreach (var item in worksitePlan.UnlockRules)
+        foreach (var item in plan)
         {
             bool unlocked = level >= item.LevelRequired;
             worksites.Add(new()
             {
-                Name = item.ItemName,
+                Name = item.TargetName,
                 Unlocked = unlocked
             });
         }

@@ -62,15 +62,15 @@ public class WorksiteManager(
         return site.MaximumWorkers;
     }
     public string? GetPossibleWorksiteForItem(string name) => _worksites.SingleOrDefault(x => x.HasRecipe(name))?.Location;
-    public void ApplyWorksiteProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    public void ApplyWorksiteProgressionUnlocksFromLevels(BasicList<CatalogOfferModel> offers, int level)
     {
         //only unlock current level.
-        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        var item = offers.SingleOrDefault(x => x.LevelRequired == level);
         if (item is null)
         {
             return;
         }
-        var instance = _worksites.Single(x => x.Location == item.ItemName);
+        var instance = _worksites.Single(x => x.Location == item.TargetName);
         instance.Unlocked = true;
         _needsSaving = true;
     }

@@ -59,12 +59,12 @@ public static class ImportWorkshopProgressionClass
         output.Add(new()
         {
             ItemName = TropicalItemList.GrilledCrab,
-            LevelRequired = 6
+            LevelRequired = 5
         });
         output.Add(new()
         {
             ItemName = TropicalItemList.FriedRice,
-            LevelRequired = 7
+            LevelRequired = 6
         });
         output.Add(new()
         {

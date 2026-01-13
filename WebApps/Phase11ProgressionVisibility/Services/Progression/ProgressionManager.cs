@@ -1,4 +1,6 @@
-﻿namespace Phase11ProgressionVisibility.Services.Progression;
+﻿using System.Text;
+
+namespace Phase11ProgressionVisibility.Services.Progression;
 public class ProgressionManager(InventoryManager inventoryManager,
     CropManager cropManager,
     AnimalManager animalManager,
@@ -32,6 +34,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int Level => _currentProfile.Level;
+    public int NextLevel => _currentProfile.CompletedGame ? 0 : _currentProfile.Level + 1;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
     public int PointsRequired
     {
@@ -68,6 +71,117 @@ public class ProgressionManager(InventoryManager inventoryManager,
         await ProcessUnlocksAsync();
         await SaveAsync();
     }
+    private BasicList<ItemUnlockRule> GetFirstAnimals
+    {
+        get
+        {
+            return _animalPlan
+                .GroupBy(x => x.ItemName)
+                .Select(g =>
+                {
+                    int firstLevel = g.Min(x => x.LevelRequired);
+                    return new ItemUnlockRule
+                    {
+                        ItemName = g.Key,
+                        LevelRequired = firstLevel
+                    };
+                })
+            .ToBasicList();
+        }
+    }
+
+    public BasicList<string> GetCropPreviewOfNextLevel() //so can show up on crops page.
+    {
+        if (_currentProfile.CompletedGame)
+        {
+            return [];
+        }
+        BasicList<string> output = [];
+        int nextLevel = _currentProfile.Level + 1;
+        _cropPlan.UnlockRules.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.ItemName);
+        });
+        return output;
+    }
+    public BasicList<string> GetWorkshopPreviewOfNextLevel(string buildingName)
+    {
+        if (_currentProfile.CompletedGame)
+        {
+            return [];
+        }
+        BasicList<string> output = [];
+        int nextLevel = _currentProfile.Level + 1;
+        _workshopPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            if (workshopManager.IsInBuilding(buildingName, item.ItemName))
+            {
+                output.Add(item.ItemName);
+            }
+        });
+        return output;
+    }
+    //public
+
+    private BasicList<string> GetFullPreviewOfNextLevel()
+    {
+        if (_currentProfile.CompletedGame)
+        {
+            return [];
+        }
+        BasicList<string> output = [];
+        int nextLevel = _currentProfile.Level + 1;
+        //this only shows items that are free anyways.
+        _treePlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.ItemName);
+        });
+        BasicList<ItemUnlockRule> distinctAnimals = GetFirstAnimals;
+        distinctAnimals.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.ItemName);
+        });
+        
+
+        _workshopPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            var building = workshopManager.GetBuilding(item.ItemName);
+            if (building is not null)
+            {
+                output.Add(building);
+            }
+            output.Add(item.ItemName);
+            
+        });
+
+
+        _worksitePlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.ItemName);
+        });
+        _workerPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.ItemName);
+        });
+        
+        return output;
+    }
+
+    private int GetNewSlotsPreviewOfNextLevel
+    {
+        get
+        {
+            if (_currentProfile.CompletedGame)
+            {
+                return 0;
+            }
+            int nextLevel = _currentProfile.Level + 1;
+            return _cropPlan.SlotLevelRequired.Count(x => x == nextLevel);
+
+        }
+    }
+   
+
 
     private async Task ProcessUnlocksAsync()
     {
@@ -166,6 +280,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
             return tier.RequiredPoints - _currentProfile.PointsThisLevel;
         }
     }
+
+
     public Dictionary<string, int> GetMilestoneRewards()
     {
         //may even be 0 (if no more left).
@@ -191,8 +307,27 @@ public class ProgressionManager(InventoryManager inventoryManager,
     }
     public Dictionary<string, int> GetLevelRewards()
     {
+        Dictionary<string, int> output = [];
+        BasicList<string> unlocks = GetFullPreviewOfNextLevel();
+        foreach (var item in unlocks)
+        {
+            output.Add(item, 0);
+        }
+        int slots = GetNewSlotsPreviewOfNextLevel;
+        //not sure how to handle the part where there is a building that i cannot quite get (even though free).
+
+        if (slots > 0)
+        {
+            output.Add("Crop", slots);
+        }
         LevelProgressionTier tier = GetCurrentTier();
-        return tier.RewardsOnLevelComplete;
+        var others = tier.RewardsOnLevelComplete;
+
+        foreach (var item in others)
+        {
+            output.Add(item.Key, item.Value);
+        }
+        return output;
     }
     public BasicList<int> GetCompleteThresholds()
     {

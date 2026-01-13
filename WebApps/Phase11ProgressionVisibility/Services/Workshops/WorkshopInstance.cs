@@ -6,9 +6,9 @@ public class WorkshopInstance
     public int SelectedRecipeIndex { get; set; } = 0;
     public BasicList<UnlockModel> SupportedItems { get; set; } = [];
     public int Capacity { get; set; } = 2; //for now, always 2.  later will rethink.
+    public bool Unlocked => SupportedItems.Any(x => x.Unlocked);
     public BasicList<CraftingJobInstance> Queue { get; } = [];
-    required
-    public string BuildingName { get; init; }
+    required public string BuildingName { get; init; }
     public bool CanAccept(WorkshopRecipe recipe)
     {
         if (recipe.BuildingName != BuildingName)

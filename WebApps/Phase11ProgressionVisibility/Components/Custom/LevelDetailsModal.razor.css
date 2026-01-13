@@ -36,10 +36,7 @@
     letter-spacing: 0.2px;
 }
 
-.lvl-rewards {
-    display: grid;
-    gap: 10px;
-}
+
 
 .lvl-reward-row {
     display: grid;

@@ -43,7 +43,25 @@ public class WorkshopManager(InventoryManager inventory,
             }
         }
     }
+    public bool IsInBuilding(string buildingName, string itemToCheck)
+    {
+        var recipe = _recipes.Single(x => x.Item == itemToCheck);
+        return recipe.BuildingName == buildingName;
+    }
+    public string? GetBuilding(string itemToCheck)
+    {
+        var recipe = _recipes.Single(x => x.Item == itemToCheck);
 
+        if (_workshops.Any(x => x.BuildingName == recipe.BuildingName && x.Unlocked))
+        {
+            return null;
+        }
+
+        return recipe.BuildingName;
+
+        //if (_workshops.Any(x => x.Unlocked && x.))
+        //var workshop = _workshops.FirstOrDefault(x => x.Unlocked == false && )
+    }
     public void ApplyWorksiteProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
     {
         //only unlock current level.

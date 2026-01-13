@@ -24,24 +24,26 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             IQuestFactory questFactory = sp.GetRequiredService<IQuestFactory>();
             IUpgradeFactory upgradeFactory = sp.GetRequiredService<IUpgradeFactory>();
             IProgressionFactory progressionFactory = sp.GetRequiredService<IProgressionFactory>();
+            ICatalogFactory catalogFactory = sp.GetRequiredService<ICatalogFactory>();
             CropManager cropManager = new(inventory, baseBalanceProvider, itemRegistry);
             TreeManager treeManager = new(inventory, baseBalanceProvider, itemRegistry);
             AnimalManager animalManager = new(inventory, baseBalanceProvider, itemRegistry);
             WorkshopManager workshopManager = new(inventory, baseBalanceProvider, itemRegistry);
             WorksiteManager worksiteManager = new(inventory, baseBalanceProvider, itemRegistry);
+            CatalogManager catalogManager = new();
             var profile = starts.GetInventoryProfile(farm);
             UpgradeManager upgradeManager = new(inventory, profile, workshopManager);
             ProgressionManager progressionManager = new(inventory, cropManager,
-                animalManager, treeManager, workshopManager, worksiteManager);
+                animalManager, treeManager, workshopManager, worksiteManager, catalogManager);
             QuestManager questManager = new(inventory);
             IGameTimer timer = new BasicGameState(
                 inventory, starts,
                 cropFactory, treeFactory, animalFactory, workshopFactory,
                 worksiteFactory, workerFactory, questFactory,
-                upgradeFactory, progressionFactory,
+                upgradeFactory, progressionFactory, catalogFactory,
                 cropManager, treeManager, animalManager,
                 workshopManager, worksiteManager, questManager,
-                upgradeManager, progressionManager
+                upgradeManager, progressionManager, catalogManager
                 );
             await gameRegistry.InitializeFarmAsync(timer, farm);
         }

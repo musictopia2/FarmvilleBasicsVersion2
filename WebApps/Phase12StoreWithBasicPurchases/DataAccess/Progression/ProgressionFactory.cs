@@ -9,7 +9,6 @@ public class ProgressionFactory : IProgressionFactory
             ProgressionProfile = new ProgressionProfileDatabase(farm),
             CropProgressionPlanProvider = new CropProgressionPlanDatabase(),
             AnimalProgressionPlanProvider = new AnimalProgressionPlanDatabase(),
-            TreeProgressionPlanProvider = new TreeProgressionPlanDatabase(),
             WorkshopProgressionPlanProvider = new WorkshopProgressionPlanDatabase(),
             WorksiteProgressionPlanProvider = new WorksiteProgressionPlanDatabase(),
             WorkerProgressionPlanProvider = new WorkerProgressionPlanDatabase()           

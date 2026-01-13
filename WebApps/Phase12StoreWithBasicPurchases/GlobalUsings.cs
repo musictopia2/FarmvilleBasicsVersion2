@@ -32,3 +32,4 @@ global using Phase12StoreWithBasicPurchases.DataAccess.Inventory;
 global using Phase12StoreWithBasicPurchases.Utilities;
 global using Phase12StoreWithBasicPurchases.Services.Upgrades;
 global using Phase12StoreWithBasicPurchases.Services.Progression;
+global using Phase12StoreWithBasicPurchases.Services.Catalog;

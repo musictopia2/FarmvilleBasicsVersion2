@@ -1,18 +1,17 @@
-﻿using System.Text;
-
-namespace Phase12StoreWithBasicPurchases.Services.Progression;
+﻿namespace Phase12StoreWithBasicPurchases.Services.Progression;
 public class ProgressionManager(InventoryManager inventoryManager,
     CropManager cropManager,
     AnimalManager animalManager,
     TreeManager treeManager,
     WorkshopManager workshopManager,
-    WorksiteManager worksiteManager
+    WorksiteManager worksiteManager,
+    CatalogManager catalogManager
     )
 {
     private LevelProgressionPlanModel _levelPlan = null!;
     private CropProgressionPlanModel _cropPlan = null!;
     private BasicList<ItemUnlockRule> _animalPlan = null!;
-    private BasicList<ItemUnlockRule> _treePlan = null!;
+    private BasicList<CatalogOfferModel> _trees = null!;
     private BasicList<ItemUnlockRule> _workshopPlan = null!;
     private BasicList<ItemUnlockRule> _worksitePlan = null!;
     private BasicList<ItemUnlockRule> _workerPlan = null!;
@@ -28,7 +27,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _profileService = context.ProgressionProfile;
         _cropPlan = await context.CropProgressionPlanProvider.GetPlanAsync(farm);
         _animalPlan = await context.AnimalProgressionPlanProvider.GetPlanAsync(farm);
-        _treePlan = await context.TreeProgressionPlanProvider.GetPlanAsync(farm);
+        _trees = catalogManager.GetFreeOffers(EnumCatalogCategory.Tree);
         _worksitePlan = await context.WorksiteProgressionPlanProvider.GetPlanAsync(farm);
         _workerPlan = await context.WorkerProgressionPlanProvider.GetPlanAsync(farm);
         _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
@@ -132,16 +131,16 @@ public class ProgressionManager(InventoryManager inventoryManager,
         BasicList<string> output = [];
         int nextLevel = _currentProfile.Level + 1;
         //this only shows items that are free anyways.
-        _treePlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        _trees.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
-            output.Add(item.ItemName);
+            output.Add(item.TargetName);
         });
         BasicList<ItemUnlockRule> distinctAnimals = GetFirstAnimals;
         distinctAnimals.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
             output.Add(item.ItemName);
         });
-        
+
 
         _workshopPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
@@ -151,7 +150,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
                 output.Add(building);
             }
             output.Add(item.ItemName);
-            
+
         });
 
 
@@ -163,7 +162,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         {
             output.Add(item.ItemName);
         });
-        
+
         return output;
     }
 
@@ -180,14 +179,14 @@ public class ProgressionManager(InventoryManager inventoryManager,
 
         }
     }
-   
+
 
 
     private async Task ProcessUnlocksAsync()
     {
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
         animalManager.ApplyAnimalProgressionUnlocks(_animalPlan, _currentProfile.Level);
-        treeManager.ApplyTreeProgressionUnlocks(_treePlan, _currentProfile.Level);
+        treeManager.ApplyTreeUnlocks(_trees, _currentProfile.Level);
         workshopManager.ApplyWorksiteProgressionUnlocks(_workshopPlan, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocks(_worksitePlan, _currentProfile.Level);
         await worksiteManager.ApplyWorkerProgressionUnlocksAsync(_workerPlan, _currentProfile.Level);
@@ -225,8 +224,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
             Level = nexts.LevelRequired
         };
     }
-    
-    
+
+
     public ItemUnlockRule? NextCrop
     {
         get
@@ -242,7 +241,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     {
         _currentProfile.PointsThisLevel = 0;
         LevelProgressionTier tier = GetCurrentTier();
-        
+
         inventoryManager.Add(tier.RewardsOnLevelComplete);
         //has to figure out how to communicate with the crop manager to get the data.
         //well see how this can work (?)

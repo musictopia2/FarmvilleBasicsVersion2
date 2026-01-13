@@ -30,15 +30,15 @@ public class TreeManager(InventoryManager inventory,
             return output;
         }
     }
-    public void ApplyTreeProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    public void ApplyTreeUnlocks(BasicList<CatalogOfferModel> offers, int level) //does not care if its from purchasing or not (?)
     {
         //only unlock current level.
-        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        var item = offers.FirstOrDefault(x => x.LevelRequired == level);
         if (item is null)
         {
             return;
         }
-        var instance = _trees.Single(x => x.TreeName == item.ItemName);
+        var instance = _trees.First(x => x.TreeName == item.TargetName && x.Unlocked == false);
         instance.Unlocked = true;
         _needsSaving = true;
 

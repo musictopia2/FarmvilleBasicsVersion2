@@ -1,6 +1,7 @@
 ﻿using Phase12StoreWithBasicPurchases.Components.Custom; //for now.
 using Phase12StoreWithBasicPurchases.DataAccess.Animals;
 using Phase12StoreWithBasicPurchases.DataAccess.Balance;
+using Phase12StoreWithBasicPurchases.DataAccess.Catalog;
 using Phase12StoreWithBasicPurchases.DataAccess.Core;
 using Phase12StoreWithBasicPurchases.DataAccess.Crops;
 using Phase12StoreWithBasicPurchases.DataAccess.Progression;
@@ -34,6 +35,7 @@ public static class ServiceExtensions
                 .AddSingleton<IQuestFactory, QuestFactory>()
                 .AddSingleton<IUpgradeFactory, UpgradeFactory>()
                 .AddSingleton<IProgressionFactory, ProgressionFactory>()
+                .AddSingleton<ICatalogFactory, CatalogFactory>()
                 .AddScoped<ReadyStatusService>()
                 .AddScoped<OverlayService>()
                 .AddScoped<FarmContext>()

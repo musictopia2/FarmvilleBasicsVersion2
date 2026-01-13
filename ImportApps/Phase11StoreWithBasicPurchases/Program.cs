@@ -19,9 +19,8 @@ await ii1.ImportWorkshopCapacityUpgradesClass.ImportWorkshopsAsync();
 await ii1.ImportWorkshopProgressionClass.ImportWorkshopsAsync();
 await ii1.ImportWorkshopInstanceClass.ImportWorkshopsAsync(); //done
 await ii1.ImportWorksiteRecipeClass.ImportWorksitesAsync();
-await ii1.ImportWorksiteInstancesClass.ImportWorksitesAsync(); //done
+await ii1.ImportWorksiteInstanceClass.ImportWorksitesAsync(); //done
 await ii1.ImportWorkerRecipeClass.ImportWorkersAsync(); //done
-await ii1.ImportWorkerProgressClass.ImportWorkersAsync();
 await ii1.ImportWorkerInstanceClass.ImportWorkersAsync();
 await ii1.ImportBalanceMultiplierClass.ImportBalanceMultiplierAsync(); //done
 

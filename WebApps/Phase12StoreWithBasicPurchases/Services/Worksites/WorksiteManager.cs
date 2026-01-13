@@ -41,16 +41,16 @@ public class WorksiteManager(
 
     }
 
-    public async Task ApplyWorkerProgressionUnlocksAsync(BasicList<ItemUnlockRule> rules, int level)
+    public async Task ApplyWorkerProgressionUnlocksFromLevelsAsync(BasicList<CatalogOfferModel> offers, int level)
     {
         //only unlock current level.
-        var item = rules.SingleOrDefault(x => x.LevelRequired == level);
+        var item = offers.SingleOrDefault(x => x.LevelRequired == level);
         if (item is null)
         {
             return;
         }
 
-        var worker = _workerStates.Single(x => x.Name == item.ItemName);
+        var worker = _workerStates.Single(x => x.Name == item.TargetName);
         worker.Unlocked = true;
         await _workerRepository.SaveAsync(_workerStates);
 

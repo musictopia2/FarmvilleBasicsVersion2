@@ -5,7 +5,6 @@ public class ProgressionServicesContext
     required public ICropProgressionPlanProvider CropProgressionPlanProvider { get; init; }
     required public IAnimalProgressionPlanProvider AnimalProgressionPlanProvider { get; init;  }
     required public IWorkshopProgressionPlanProvider WorkshopProgressionPlanProvider { get; init; }
-    required public IWorkerProgressionPlanProvider WorkerProgressionPlanProvider { get; init; }
     required public IProgressionProfile ProgressionProfile { get; init; }
     //all other services goes here.
 

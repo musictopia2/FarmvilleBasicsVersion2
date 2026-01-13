@@ -19,7 +19,7 @@ public static class ImportCatalogOfferClass
         list.AddRange(ImportTreeCatalogClass.GetTreeOffers(farm));
         list.AddRange(ImportAnimalCatalogClass.GetAnimalOffers(farm));
         list.AddRange(ImportWorksiteCatalogClass.GetWorksiteOffers(farm));
-        //do for other domains.
+        list.AddRange(ImportWorkerCatalogClass.GetWorkerOffers(farm));
 
         return new()
         {

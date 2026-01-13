@@ -1,5 +1,5 @@
 ﻿namespace Phase11StoreWithBasicPurchases.ImportClasses;
-public static class ImportWorksiteInstancesClass
+public static class ImportWorksiteInstanceClass
 {
     private static CatalogOfferDatabase _catalogOfferDatabase = null!;
     private static ProgressionProfileDatabase _levelProfile = null!;

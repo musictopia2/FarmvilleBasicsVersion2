@@ -30,6 +30,18 @@ public class TreeManager(InventoryManager inventory,
             return output;
         }
     }
+
+    public void UnlockTreePaidFor(StoreItemRowModel store)
+    {
+        if (store.Category != EnumCatalogCategory.Tree)
+        {
+            throw new CustomBasicException("Only trees can be paid for");
+        }
+        var instance = _trees.First(x => x.TreeName == store.TargetName && x.Unlocked == false);
+        instance.Unlocked = true;
+        _needsSaving = true;
+    }
+
     public void ApplyTreeUnlocksOnLevels(BasicList<CatalogOfferModel> offers, int level) //actually since this is from leveling, has to apply t
     {
         //only unlock current level.

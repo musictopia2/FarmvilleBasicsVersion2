@@ -25,6 +25,7 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             IUpgradeFactory upgradeFactory = sp.GetRequiredService<IUpgradeFactory>();
             IProgressionFactory progressionFactory = sp.GetRequiredService<IProgressionFactory>();
             ICatalogFactory catalogFactory = sp.GetRequiredService<ICatalogFactory>();
+            IStoreFactory storeFactory = sp.GetRequiredService<IStoreFactory>();
             CropManager cropManager = new(inventory, baseBalanceProvider, itemRegistry);
             TreeManager treeManager = new(inventory, baseBalanceProvider, itemRegistry);
             AnimalManager animalManager = new(inventory, baseBalanceProvider, itemRegistry);
@@ -35,15 +36,19 @@ public class GameTimerService(IStartFarmRegistry farmRegistry,
             UpgradeManager upgradeManager = new(inventory, profile, workshopManager);
             ProgressionManager progressionManager = new(inventory, cropManager,
                 animalManager, treeManager, workshopManager, worksiteManager, catalogManager);
+            StoreManager storeManager = new(progressionManager, treeManager,
+                animalManager, workshopManager, worksiteManager,
+                catalogManager, inventory
+                );
             QuestManager questManager = new(inventory);
             IGameTimer timer = new BasicGameState(
                 inventory, starts,
                 cropFactory, treeFactory, animalFactory, workshopFactory,
                 worksiteFactory, workerFactory, questFactory,
-                upgradeFactory, progressionFactory, catalogFactory,
+                upgradeFactory, progressionFactory, catalogFactory, storeFactory,
                 cropManager, treeManager, animalManager,
                 workshopManager, worksiteManager, questManager,
-                upgradeManager, progressionManager, catalogManager
+                upgradeManager, progressionManager, catalogManager, storeManager
                 );
             await gameRegistry.InitializeFarmAsync(timer, farm);
         }

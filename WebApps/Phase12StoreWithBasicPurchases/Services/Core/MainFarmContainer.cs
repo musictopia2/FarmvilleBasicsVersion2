@@ -11,4 +11,5 @@ public class MainFarmContainer
     required public UpgradeManager UpgradeManager { get; set; }
     required public ProgressionManager ProgressionManager { get; set; }
     required public CatalogManager CatalogManager { get; set; }
+    required public StoreManager StoreManager { get; set; }
 }

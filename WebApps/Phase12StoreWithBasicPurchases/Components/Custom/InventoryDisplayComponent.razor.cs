@@ -1,5 +1,4 @@
 namespace Phase12StoreWithBasicPurchases.Components.Custom;
-
 public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareComponentBase
 {
     [Parameter]

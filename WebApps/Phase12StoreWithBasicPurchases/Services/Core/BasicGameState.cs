@@ -13,6 +13,7 @@ public class BasicGameState : IGameTimer
     IUpgradeFactory upgradeFactory,
     IProgressionFactory progressionFactory,
     ICatalogFactory catalogFactory,
+    IStoreFactory storeFactory,
     CropManager cropManager,
     TreeManager treeManager,
     AnimalManager animalManager,
@@ -21,7 +22,8 @@ public class BasicGameState : IGameTimer
     QuestManager questManager,
     UpgradeManager upgradeManager,
     ProgressionManager progressionManager,
-    CatalogManager catalogManager
+    CatalogManager catalogManager,
+    StoreManager storeManager
 )
     {
         _inventory = inventory;
@@ -36,6 +38,7 @@ public class BasicGameState : IGameTimer
         _upgradeFactory = upgradeFactory;
         _progressionFactory = progressionFactory;
         _catalogFactory = catalogFactory;
+        _storeFactory = storeFactory;
         _cropManager = cropManager;
         _treeManager = treeManager;
         _animalManager = animalManager;
@@ -45,6 +48,7 @@ public class BasicGameState : IGameTimer
         _upgradeManager = upgradeManager;
         _progressionManager = progressionManager;
         _catalogManager = catalogManager;
+        _storeManager = storeManager;
         _container = new MainFarmContainer
         {
             InventoryManager = inventory,
@@ -57,6 +61,7 @@ public class BasicGameState : IGameTimer
             UpgradeManager = upgradeManager,
             ProgressionManager = progressionManager,
             CatalogManager = catalogManager,
+            StoreManager = storeManager
         };
     }
     readonly MainFarmContainer _container;
@@ -72,6 +77,7 @@ public class BasicGameState : IGameTimer
     private readonly IUpgradeFactory _upgradeFactory;
     private readonly IProgressionFactory _progressionFactory;
     private readonly ICatalogFactory _catalogFactory;
+    private readonly IStoreFactory _storeFactory;
     private readonly CropManager _cropManager;
     private readonly TreeManager _treeManager;
     private readonly AnimalManager _animalManager;
@@ -81,6 +87,7 @@ public class BasicGameState : IGameTimer
     private readonly UpgradeManager _upgradeManager;
     private readonly ProgressionManager _progressionManager;
     private readonly CatalogManager _catalogManager;
+    private readonly StoreManager _storeManager;
     private FarmKey? _farm;
     FarmKey? IGameTimer.FarmKey => _farm;
     MainFarmContainer IGameTimer.FarmContainer
@@ -122,7 +129,8 @@ public class BasicGameState : IGameTimer
         await _upgradeManager.SetInventoryStyleContextAsync(upgradeContext, inventoryStorageProfileModel, farm);
         ProgressionServicesContext progressContext = _progressionFactory.GetProgressionServices(farm);
         await _progressionManager.SetProgressionStyleContextAsync(progressContext, farm);
-        
+        StoreServicesContext storeContext = _storeFactory.GetStoreServices(farm);
+        await _storeManager.SetProgressionStyleContextAsync(storeContext);
         _init = true;
     }
     async Task IGameTimer.TickAsync()

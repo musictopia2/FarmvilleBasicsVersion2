@@ -12,6 +12,7 @@ public static class ImportCatalogOfferClass
         }
         await db.ImportAsync(list);
     }
+
     private static CatalogOfferDocument GenerateCatalogFarm(FarmKey farm)
     {
         BasicList<CatalogOfferModel> list = [];

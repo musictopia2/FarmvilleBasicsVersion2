@@ -67,8 +67,17 @@ public class WorkshopManager(InventoryManager inventory,
     
     //if you purchase, must make sure all proper items are unlocked like it should had (?)
 
-
-    public void ApplyWorksiteProgressionOnLevelUnlocks(BasicList<ItemUnlockRule> rules, BasicList<CatalogOfferModel> offers, int level)
+    public void UnlockWorkshopPaidFor(StoreItemRowModel store)
+    {
+        if (store.Category != EnumCatalogCategory.Workshop)
+        {
+            throw new CustomBasicException("Only workshops can be paid for");
+        }
+        var item = _workshops.First(x => x.Unlocked == false && x.BuildingName == store.TargetName);
+        item.Unlocked = true;
+        _needsSaving = true;
+    }
+    public void ApplyWorkshopProgressionOnLevelUnlocks(BasicList<ItemUnlockRule> rules, BasicList<CatalogOfferModel> offers, int level)
     {
         //only unlock current level.
         var modify = rules.Where(x => x.LevelRequired == level);

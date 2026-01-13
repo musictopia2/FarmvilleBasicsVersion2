@@ -16,6 +16,11 @@ public class WorksiteManager(
     private DateTime _lastSave = DateTime.MinValue;
     private readonly Lock _lock = new();
 
+    public BasicList<string> GetAllUnlockedWorkers()
+    {
+        return _workerStates.Where(x => x.Unlocked).Select(x => x.Name).ToBasicList();
+    }
+
     public BasicList<WorkerRecipe> GetUnlockedWorkers(string location)
     {
         var unlockedNames = _workerStates.Where(x => x.Unlocked).Select(x => x.Name).ToBasicList();
@@ -38,7 +43,26 @@ public class WorksiteManager(
             }
         }
         return output;
-
+    }
+    public async Task UnlockWorkerPaidForAsync(StoreItemRowModel store)
+    {
+        if (store.Category != EnumCatalogCategory.Worker)
+        {
+            throw new CustomBasicException("Only workers can be paid for");
+        }
+        var item = _workerStates.First(x => x.Name == store.TargetName && x.Unlocked == false);
+        item.Unlocked = true;
+        await _workerRepository.SaveAsync(_workerStates);
+    }
+    public void UnlockWorksitePaidFor(StoreItemRowModel store)
+    {
+        if (store.Category != EnumCatalogCategory.Worksite)
+        {
+            throw new CustomBasicException("Only worksites can be paid for");
+        }
+        var item = _worksites.First(x => x.Unlocked == false && x.Location == store.TargetName);
+        item.Unlocked = true;
+        _needsSaving = true;
     }
 
     public async Task ApplyWorkerProgressionUnlocksFromLevelsAsync(BasicList<CatalogOfferModel> offers, int level)

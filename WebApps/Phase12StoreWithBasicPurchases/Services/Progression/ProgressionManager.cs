@@ -6,7 +6,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     WorkshopManager workshopManager,
     WorksiteManager worksiteManager,
     CatalogManager catalogManager
-    )
+    ) : IFarmProgressionReadOnly
 {
     private LevelProgressionPlanModel _levelPlan = null!;
     private CropProgressionPlanModel _cropPlan = null!;
@@ -160,7 +160,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
         animalManager.ApplyAnimalProgressionUnlocksFromLevels(_animalPlan, _animalOffers, _currentProfile.Level);
         treeManager.ApplyTreeUnlocksOnLevels(_treesOffers, _currentProfile.Level);
-        workshopManager.ApplyWorksiteProgressionOnLevelUnlocks(_workshopPlan, _workshopOffers, _currentProfile.Level);
+        workshopManager.ApplyWorkshopProgressionOnLevelUnlocks(_workshopPlan, _workshopOffers, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocksFromLevels(_worksiteOffers, _currentProfile.Level);
         await worksiteManager.ApplyWorkerProgressionUnlocksFromLevelsAsync(_workerOffers, _currentProfile.Level);
     }

@@ -6,6 +6,7 @@ using Phase12StoreWithBasicPurchases.DataAccess.Core;
 using Phase12StoreWithBasicPurchases.DataAccess.Crops;
 using Phase12StoreWithBasicPurchases.DataAccess.Progression;
 using Phase12StoreWithBasicPurchases.DataAccess.Quests; //not common enough.
+using Phase12StoreWithBasicPurchases.DataAccess.Store;
 using Phase12StoreWithBasicPurchases.DataAccess.Trees;
 using Phase12StoreWithBasicPurchases.DataAccess.Upgrades;
 using Phase12StoreWithBasicPurchases.DataAccess.Workers;
@@ -36,6 +37,7 @@ public static class ServiceExtensions
                 .AddSingleton<IUpgradeFactory, UpgradeFactory>()
                 .AddSingleton<IProgressionFactory, ProgressionFactory>()
                 .AddSingleton<ICatalogFactory, CatalogFactory>()
+                .AddSingleton<IStoreFactory, StoreFactory>()
                 .AddScoped<ReadyStatusService>()
                 .AddScoped<OverlayService>()
                 .AddScoped<FarmContext>()

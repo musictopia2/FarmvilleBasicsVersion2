@@ -1,4 +1,6 @@
-﻿namespace Phase12StoreWithBasicPurchases.Services.Animals;
+﻿using System.Net.Http.Headers;
+
+namespace Phase12StoreWithBasicPurchases.Services.Animals;
 public class AnimalManager(InventoryManager inventory,
     IBaseBalanceProvider baseBalanceProvider,
     ItemRegistry itemRegistry
@@ -58,6 +60,16 @@ public class AnimalManager(InventoryManager inventory,
         var instance = _animals.First(x => x.Name == animal);
         return instance.NextProductionOption;
 
+    }
+    public void UnlockAnimalPaidFor(StoreItemRowModel store)
+    {
+        if (store.Category != EnumCatalogCategory.Animal)
+        {
+            throw new CustomBasicException("Only animals can be paid for");
+        }
+        var instance = _animals.First(x => x.Name == store.TargetName && x.Unlocked == false);
+        instance.Unlocked = true; //hopefully the production options are okay (?)
+        _needsSaving = true;
     }
     public void ApplyAnimalProgressionUnlocksFromLevels(
     BasicList<ItemUnlockRule> rules,

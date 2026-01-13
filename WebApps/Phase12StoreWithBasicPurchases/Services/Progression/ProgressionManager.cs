@@ -11,7 +11,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private LevelProgressionPlanModel _levelPlan = null!;
     private CropProgressionPlanModel _cropPlan = null!;
     private BasicList<ItemUnlockRule> _animalPlan = null!;
-    private BasicList<CatalogOfferModel> _trees = null!;
+    private BasicList<CatalogOfferModel> _animalOffers = null!;
+    private BasicList<CatalogOfferModel> _treesOffers = null!;
     private BasicList<ItemUnlockRule> _workshopPlan = null!;
     private BasicList<ItemUnlockRule> _worksitePlan = null!;
     private BasicList<ItemUnlockRule> _workerPlan = null!;
@@ -27,7 +28,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _profileService = context.ProgressionProfile;
         _cropPlan = await context.CropProgressionPlanProvider.GetPlanAsync(farm);
         _animalPlan = await context.AnimalProgressionPlanProvider.GetPlanAsync(farm);
-        _trees = catalogManager.GetFreeOffers(EnumCatalogCategory.Tree);
+        _treesOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Tree);
+        _animalOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Animal);
         _worksitePlan = await context.WorksiteProgressionPlanProvider.GetPlanAsync(farm);
         _workerPlan = await context.WorkerProgressionPlanProvider.GetPlanAsync(farm);
         _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
@@ -70,24 +72,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         await ProcessUnlocksAsync();
         await SaveAsync();
     }
-    private BasicList<ItemUnlockRule> GetFirstAnimals
-    {
-        get
-        {
-            return _animalPlan
-                .GroupBy(x => x.ItemName)
-                .Select(g =>
-                {
-                    int firstLevel = g.Min(x => x.LevelRequired);
-                    return new ItemUnlockRule
-                    {
-                        ItemName = g.Key,
-                        LevelRequired = firstLevel
-                    };
-                })
-            .ToBasicList();
-        }
-    }
+    
     public int LevelForCraftedItem(string item) => _workshopPlan.Single(x => x.ItemName == item).LevelRequired;
     public BasicList<string> GetCropPreviewOfNextLevel() //so can show up on crops page.
     {
@@ -120,8 +105,6 @@ public class ProgressionManager(InventoryManager inventoryManager,
         });
         return output;
     }
-    //public
-
     private BasicList<string> GetFullPreviewOfNextLevel()
     {
         if (_currentProfile.CompletedGame)
@@ -131,17 +114,14 @@ public class ProgressionManager(InventoryManager inventoryManager,
         BasicList<string> output = [];
         int nextLevel = _currentProfile.Level + 1;
         //this only shows items that are free anyways.
-        _trees.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        _treesOffers.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
             output.Add(item.TargetName);
         });
-        BasicList<ItemUnlockRule> distinctAnimals = GetFirstAnimals;
-        distinctAnimals.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        _animalOffers.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
-            output.Add(item.ItemName);
+            output.Add(item.TargetName);
         });
-
-
         _workshopPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
             var building = workshopManager.GetBuilding(item.ItemName);
@@ -150,10 +130,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
                 output.Add(building);
             }
             output.Add(item.ItemName);
-
         });
-
-
         _worksitePlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
             output.Add(item.ItemName);
@@ -162,10 +139,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
         {
             output.Add(item.ItemName);
         });
-
         return output;
     }
-
     private int GetNewSlotsPreviewOfNextLevel
     {
         get
@@ -185,8 +160,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private async Task ProcessUnlocksAsync()
     {
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
-        animalManager.ApplyAnimalProgressionUnlocks(_animalPlan, _currentProfile.Level);
-        treeManager.ApplyTreeUnlocks(_trees, _currentProfile.Level);
+        animalManager.ApplyAnimalProgressionUnlocksFromLevels(_animalPlan, _animalOffers, _currentProfile.Level);
+        treeManager.ApplyTreeUnlocksOnLevels(_treesOffers, _currentProfile.Level);
         workshopManager.ApplyWorksiteProgressionUnlocks(_workshopPlan, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocks(_worksitePlan, _currentProfile.Level);
         await worksiteManager.ApplyWorkerProgressionUnlocksAsync(_workerPlan, _currentProfile.Level);

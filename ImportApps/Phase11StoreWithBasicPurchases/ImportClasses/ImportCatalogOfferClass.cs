@@ -17,6 +17,7 @@ public static class ImportCatalogOfferClass
 
         BasicList<CatalogOfferModel> list = [];
         list.AddRange(ImportTreeCatalogClass.GetTreeOffers(farm));
+        list.AddRange(ImportAnimalCatalogClass.GetAnimalOffers(farm));
         //do for other domains.
 
         return new()

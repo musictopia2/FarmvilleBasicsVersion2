@@ -12,15 +12,12 @@ public static class ImportAnimalProgressionClass
         AnimalProgressionPlanDatabase db = new();
         await db.ImportAsync(list);
     }
-
     private static AnimalProgressionPlanDocument GeneratePlanFarm(FarmKey farm)
     {
         AnimalProgressionPlanDocument document = new()
         {
             Farm = farm
         };
-
-        
         if (farm.Theme == FarmThemeList.Tropical)
         {
             document.UnlockRules = GetUnlockRulesForTropical();
@@ -33,17 +30,19 @@ public static class ImportAnimalProgressionClass
         {
             throw new CustomBasicException("Not supported");
         }
-        //Validate(document);
         return document;
     }
+    //still need the progression because it shows how many to unlock of the animal (for what production options you have)
     private static BasicList<ItemUnlockRule> GetUnlockRulesForTropical()
     {
         BasicList<ItemUnlockRule> output = [];
-        output.Add(new()
-        {
-            ItemName = TropicalAnimalListClass.Dolphin,
-            LevelRequired = 2
-        });
+        //the first option is not needed because it comes from the catalog.
+
+        //output.Add(new()
+        //{
+        //    ItemName = TropicalAnimalListClass.Dolphin,
+        //    LevelRequired = 2
+        //});
         output.Add(new()
         {
             ItemName = TropicalAnimalListClass.Dolphin,
@@ -54,11 +53,11 @@ public static class ImportAnimalProgressionClass
             ItemName = TropicalAnimalListClass.Dolphin,
             LevelRequired = 12
         });
-        output.Add(new()
-        {
-            ItemName = TropicalAnimalListClass.Chicken,
-            LevelRequired = 4
-        });
+        //output.Add(new()
+        //{
+        //    ItemName = TropicalAnimalListClass.Chicken,
+        //    LevelRequired = 4
+        //});
         output.Add(new()
         {
             ItemName = TropicalAnimalListClass.Chicken,
@@ -69,11 +68,11 @@ public static class ImportAnimalProgressionClass
             ItemName = TropicalAnimalListClass.Chicken,
             LevelRequired = 15
         });
-        output.Add(new()
-        {
-            ItemName = TropicalAnimalListClass.Boar,
-            LevelRequired = 11
-        });
+        //output.Add(new()
+        //{
+        //    ItemName = TropicalAnimalListClass.Boar,
+        //    LevelRequired = 11
+        //});
         output.Add(new()
         {
             ItemName = TropicalAnimalListClass.Boar,
@@ -89,11 +88,11 @@ public static class ImportAnimalProgressionClass
     private static BasicList<ItemUnlockRule> GetUnlockRulesForCountry()
     {
         BasicList<ItemUnlockRule> output = [];
-        output.Add(new()
-        {
-            ItemName = CountryAnimalListClass.Cow,
-            LevelRequired = 2
-        });
+        //output.Add(new()
+        //{
+        //    ItemName = CountryAnimalListClass.Cow,
+        //    LevelRequired = 2
+        //});
         output.Add(new()
         {
             ItemName = CountryAnimalListClass.Cow,
@@ -105,11 +104,11 @@ public static class ImportAnimalProgressionClass
             LevelRequired = 10
         });
 
-        output.Add(new()
-        {
-            ItemName = CountryAnimalListClass.Goat,
-            LevelRequired = 12
-        });
+        //output.Add(new()
+        //{
+        //    ItemName = CountryAnimalListClass.Goat,
+        //    LevelRequired = 12
+        //});
         output.Add(new()
         {
             ItemName = CountryAnimalListClass.Goat,
@@ -120,11 +119,11 @@ public static class ImportAnimalProgressionClass
             ItemName = CountryAnimalListClass.Goat,
             LevelRequired = 19
         });
-        output.Add(new()
-        {
-            ItemName = CountryAnimalListClass.Sheep,
-            LevelRequired = 14
-        });
+        //output.Add(new()
+        //{
+        //    ItemName = CountryAnimalListClass.Sheep,
+        //    LevelRequired = 14
+        //});
         output.Add(new()
         {
             ItemName = CountryAnimalListClass.Sheep,

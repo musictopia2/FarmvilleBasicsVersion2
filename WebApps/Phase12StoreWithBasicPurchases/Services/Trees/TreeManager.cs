@@ -30,7 +30,7 @@ public class TreeManager(InventoryManager inventory,
             return output;
         }
     }
-    public void ApplyTreeUnlocks(BasicList<CatalogOfferModel> offers, int level) //does not care if its from purchasing or not (?)
+    public void ApplyTreeUnlocksOnLevels(BasicList<CatalogOfferModel> offers, int level) //actually since this is from leveling, has to apply t
     {
         //only unlock current level.
         var item = offers.FirstOrDefault(x => x.LevelRequired == level);

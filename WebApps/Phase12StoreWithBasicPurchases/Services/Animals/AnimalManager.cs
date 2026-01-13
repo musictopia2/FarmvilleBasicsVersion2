@@ -59,47 +59,98 @@ public class AnimalManager(InventoryManager inventory,
         return instance.NextProductionOption;
 
     }
-    public void ApplyAnimalProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    public void ApplyAnimalProgressionUnlocksFromLevels(
+    BasicList<ItemUnlockRule> rules,
+    BasicList<CatalogOfferModel> offers,
+    int level)
     {
         bool changed = false;
 
         lock (_lock)
         {
-            // Count how many option-unlock tokens have been earned for each animal
-            var earnedCounts = rules
+            // -----------------------------
+            // 1) Type-level counts by animal
+            // -----------------------------
+
+            // First option unlocked comes from offers (per animal type).
+            // We treat "has any offer <= level" as "base option unlocked".
+            // IMPORTANT: This does NOT mean the animal itself is unlocked.
+            var hasBaseOption = offers
+                .Where(o => o.LevelRequired <= level)
+                .GroupBy(o => o.TargetName)
+                .ToDictionary(g => g.Key, g => true);
+
+            // Extra options come from rules (duplicates = extra unlock tokens)
+            var extraCounts = rules
                 .Where(r => r.LevelRequired <= level)
                 .GroupBy(r => r.ItemName)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            foreach (var kvp in earnedCounts)
+            // Union of all animal names that appear in either system
+            var animalNames = hasBaseOption.Keys
+                .Union(extraCounts.Keys)
+                .ToBasicList();
+
+            foreach (var animalName in animalNames)
             {
-                string animalName = kvp.Key;
-                int earnedOptions = kvp.Value; // 1..n based on duplicates in plan
-
-                // Hard invariant: animal instances are all preloaded
-                AnimalInstance animal = _animals.Single(a => a.Name == animalName);
-
-                // Unlock animal as soon as it has at least 1 earned token
-                if (earnedOptions > 0 && animal.Unlocked == false)
+                // All instances (could be 0, 1, or many)
+                var instances = _animals.Where(a => a.Name == animalName).ToBasicList();
+                if (instances.Count == 0)
                 {
-                    animal.Unlocked = true;
-                    changed = true;
-                    animal.State = EnumAnimalState.Collecting;
-
-                    var recipe = _recipes.Single(x => x.Animal == animalName);
-                    animal.UpdateReady(recipe.Options.First().Output.Amount);
-
+                    // Hard invariant violated: plan refers to animal not preloaded
+                    throw new CustomBasicException($"Animal instances not preloaded for '{animalName}'.");
                 }
 
-                // Allowed production options = earned tokens (capped)
-                int desiredAllowed = Math.Min(earnedOptions, animal.TotalProductionOptions);
+                int baseAllowed = hasBaseOption.ContainsKey(animalName) ? 1 : 0;
+                int extraEarned = extraCounts.TryGetValue(animalName, out int extra) ? extra : 0;
 
-                if (animal.ProductionOptionsAllowed < desiredAllowed)
+                // Determine cap (assumes all instances share same TotalProductionOptions)
+                int cap = instances[0].TotalProductionOptions;
+
+                int desiredAllowed = Math.Min(baseAllowed + extraEarned, cap);
+
+                // Apply to ALL instances, even if locked (so UI can show options)
+                foreach (var animal in instances)
                 {
-                    animal.ProductionOptionsAllowed = desiredAllowed;
-                    changed = true;
+                    if (animal.ProductionOptionsAllowed != desiredAllowed)
+                    {
+                        animal.ProductionOptionsAllowed = desiredAllowed;
+                        changed = true;
+                    }
                 }
             }
+
+            // -----------------------------------------
+            // 2) Optional: unlock ONE instance by offer
+            // -----------------------------------------
+            // If your offers also represent "free unlock at level",
+            // you can unlock a single locked instance here.
+            //
+            // If some animals are purchase-gated, you MUST gate this
+            // with your own condition (example: offer is free).
+            //
+            // If you *never* want this method to unlock animals anymore,
+            // you can delete this entire section.
+
+
+            var offer = offers.FirstOrDefault(x => x.LevelRequired == level);
+            if (offer is not null)
+            {
+                string animalName = offer.TargetName;
+
+
+                var instance = _animals.First(a => a.Name == animalName && a.Unlocked == false);
+                
+
+                instance.Unlocked = true;
+                instance.State = EnumAnimalState.Collecting;
+
+                var recipe = _recipes.Single(x => x.Animal == animalName);
+                instance.UpdateReady(recipe.Options.First().Output.Amount);
+
+                changed = true;
+            }
+
 
             if (changed)
             {

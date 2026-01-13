@@ -11,6 +11,7 @@ public class AnimalInstance(AnimalRecipe recipe, double currentMultiplier)
 
     public int ProductionOptionsAllowed { get; set; }
     public int TotalProductionOptions => recipe.Options.Count;
+    public AnimalProductionOption NextProductionOption => recipe.Options.Skip(ProductionOptionsAllowed).Take(1).Single();
     public string Name => recipe.Animal;
 
     public int OutputReady { get; private set; } = 0;

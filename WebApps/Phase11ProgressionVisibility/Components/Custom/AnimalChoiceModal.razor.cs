@@ -10,7 +10,7 @@ public partial class AnimalChoiceModal(OverlayService overlay)
 
     private BasicList<AnimalProductionOption> _productionOptions = [];
 
-    
+    private AnimalPreviewOption? _nextOption;
 
 
     private async Task ClickedCropAsync(string name)
@@ -27,6 +27,10 @@ public partial class AnimalChoiceModal(OverlayService overlay)
     protected override void OnParametersSet()
     {
         _productionOptions = AnimalManager.GetUnlockedProductionOptions(Animal);
+        _nextOption = ProgressionManager.NextAnimalOption(Animal.Name);
+        //figure out next option.
+
+
     }
 
     private void OptionSelected(AnimalProductionOption option)

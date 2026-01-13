@@ -3,6 +3,7 @@ public partial class CropsComponent(IToast toast)
 {
     private string? _selectedItem;
     private BasicList<string> _crops = [];
+    private ItemUnlockRule? _nextCrop;
 
     // modal state
     private bool _showProgressModal;
@@ -10,10 +11,17 @@ public partial class CropsComponent(IToast toast)
 
     private void SelectCrop(string id) => _selectedItem = id;
 
+    private void UpdateCrops()
+    {
+        _crops = CropManager.UnlockedRecipes; //can change.
+        _nextCrop = ProgressionManager.NextCrop;
+    }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _crops = CropManager.UnlockedRecipes;
+        
+        UpdateCrops();
     }
     private int InventoryAmount(string crop) => InventoryManager.GetInventoryCount(crop);
     private EnumCropState GetState(Guid id) => CropManager.GetCropState(id);
@@ -74,7 +82,10 @@ public partial class CropsComponent(IToast toast)
     }
 
 
-
+    private void CropLockedDetails()
+    {
+        toast.ShowInfoToast($"{_nextCrop!.ItemName} unlocks at level {_nextCrop.LevelRequired}");
+    }
     private void HarvestSingle(Guid id) => CropManager.Harvest(id);
 
     // The main UX router: card click always does the "right thing"

@@ -184,3 +184,34 @@
     line-height: 1;
     font-weight: 900;
 }
+
+
+.workshop-recipe-icon {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workshop-recipe-img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.workshop-recipe-icon.locked {
+    opacity: 0.55; /* same vibe as locked animal option */
+}
+
+.workshop-lock {
+    position: absolute;
+    left: 2px;
+    bottom: 2px;
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    pointer-events: none;
+}

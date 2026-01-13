@@ -60,5 +60,57 @@
         </div>
     </SimpleRepeater>
 
+   @if (_nextOption is not null)
+{
+        var option = _nextOption.Option;
+
+        int needReq = option.Input;
+        int haveOut = Have(option.Required);
+
+    <div class="card p-2 mb-2 opacity-50">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+
+            <!-- Requires (same as unlocked) -->
+            <div class="d-flex flex-column">
+                <ItemRequirementDisplay Name="@option.Required"
+                                        Required="@needReq"
+                                        Have="@haveOut"
+                                        WidthPx="150" />
+            </div>
+
+            <!-- Produces (same structure, but lock overlay + level text) -->
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="fw-bold">Produces @option.Output.Amount</div>
+
+                    <div style="position: relative; width: 48px; height: 48px;">
+                        <img src="@GetItemImage(option.Output.Item)"
+                             alt="@option.Output.Item"
+                             style="width: 48px; height: 48px; object-fit: contain;" />
+
+                        <img src="@GetItemImage("padlock")"
+                             alt="Locked"
+                             style="position: absolute; left: 2px; bottom: 2px; width: 18px; height: 18px; object-fit: contain; pointer-events: none;" />
+                    </div>
+                </div>
+
+                <div class="fw-bold text-muted" style="font-size: 1rem; line-height: 1.1;">
+                    Level @_nextOption.Level
+                </div>
+
+                <div class="barn-amount text-muted">
+                    <img src="/Barn.png" height="30" alt="Barn" />
+                    <span>@haveOut</span>
+                </div>
+            </div>
+
+            <!-- Button column (keep spacing consistent) -->
+            <PrimaryButton IsEnabled="false">
+                Start
+            </PrimaryButton>
+        </div>
+    </div>
+}
+
     
 </div>

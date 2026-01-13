@@ -25,6 +25,20 @@
                  alt="@item" />
         </div>
     }
+    @if (_nextCrop is not null)
+    {
+        <div class="crop-pick-tile locked" @onclick="CropLockedDetails" title="Next crop (locked)">
+            <img class="crop-pick-img"
+                 src="@GetCropImageSrc(_nextCrop.ItemName)"
+                 alt="@_nextCrop" />
+
+            <img class="crop-lock"
+                 src="@GetCropImageSrc("padlock")"
+                 alt="Locked" />
+        </div>
+    }
+
+
 </div>
 
 

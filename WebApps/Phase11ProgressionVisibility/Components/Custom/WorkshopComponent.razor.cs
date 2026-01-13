@@ -18,20 +18,17 @@ public partial class WorkshopComponent(IToast toast)
     public EventCallback<string> NavigateTo { get; set; }
     private int _capacity;
     private bool _showToast = true;
-    private WorkshopRecipeSummary? _future;
     protected override void OnParametersSet()
     {
         _showToast = true; //good news is when the readycount increases since something is ready from the parent calls this so i actually get desired behavior.
 
         _recipes = WorkshopManager.GetRecipesForWorkshop(Workshop);
-
-        _future = _recipes.FirstOrDefault(x => x.Unlocked == false);
-        if (_future is not null)
-        {
-            //for now print it
-            Console.WriteLine($"{_future.Item} is future one.  for now, not sure what else i need.  figure out later.");
-        }
+        WorkshopRecipeSummary? extra = _recipes.FirstOrDefault(x => x.Unlocked == false);
         _recipes.RemoveAllAndObtain(x => x.Unlocked == false); //so only shows ones you can do.  needs next future one if any.
+        if (extra is not null)
+        {
+            _recipes.Add(extra);
+        }
         if (_recipes.Count > 0)
         {
             Workshop.SelectedRecipeIndex = Math.Clamp(
@@ -60,6 +57,10 @@ public partial class WorkshopComponent(IToast toast)
     private bool CanCraft => WorkshopManager.CanCraft(Workshop, ChosenItem);
     private void Craft()
     {
+        if (CurrentRecipe.Unlocked == false)
+        {
+            return; //cannto craft because its locked
+        }
         if (CanCraft == false)
         {
             return;
@@ -67,11 +68,15 @@ public partial class WorkshopComponent(IToast toast)
         WorkshopManager.StartCraftingJob(Workshop, ChosenItem);
     }
     private int CurrentAmount => InventoryManager.GetInventoryCount(ChosenItem);
-    private string DurationText
+    private string DetailText
     {
         get
         {
-            return CurrentRecipe.Duration.GetTimeString;
+            if (CurrentRecipe.Unlocked)
+            {
+                return CurrentRecipe.Duration.GetTimeString;
+            }
+            return $"Level {ProgressionManager.LevelForCraftedItem(CurrentRecipe.Item)}";
         }
     }
     private bool CanGoUp => Workshop.SelectedRecipeIndex > 0;

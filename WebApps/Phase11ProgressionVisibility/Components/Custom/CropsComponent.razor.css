@@ -47,6 +47,21 @@
     overflow: hidden; /* prevents badge from spilling outside */
 }
 
+    /* Next crop (locked) overlay */
+    .crop-pick-tile.locked {
+        cursor: default; /* or not-allowed if you prefer */
+    }
+
+.crop-lock {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 25px;
+    height: 25px;
+    pointer-events: none;
+    object-fit: contain;
+}
+
 /* Inventory amount badge */
 .inv-badge {
     position: absolute;

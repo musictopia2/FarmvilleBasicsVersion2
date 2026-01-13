@@ -33,7 +33,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _workerPlan = await context.WorkerProgressionPlanProvider.GetPlanAsync(farm);
         _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
     }
-    public int Level => _currentProfile.Level;
+    public int CurrentLevel => _currentProfile.Level;
     public int NextLevel => _currentProfile.CompletedGame ? 0 : _currentProfile.Level + 1;
     public int CurrentPoints => _currentProfile.PointsThisLevel;
     public int PointsRequired
@@ -89,7 +89,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
             .ToBasicList();
         }
     }
-
+    public int LevelForCraftedItem(string item) => _workshopPlan.Single(x => x.ItemName == item).LevelRequired;
     public BasicList<string> GetCropPreviewOfNextLevel() //so can show up on crops page.
     {
         if (_currentProfile.CompletedGame)
@@ -207,8 +207,37 @@ public class ProgressionManager(InventoryManager inventoryManager,
         NotifyChanged();
     }
 
+    public AnimalPreviewOption? NextAnimalOption(string animal)
+    {
+        if (_currentProfile.CompletedGame)
+        {
+            return null;
+        }
+        var nexts = _animalPlan.FirstOrDefault(x => x.ItemName == animal && x.LevelRequired > _currentProfile.Level);
+        if (nexts is null)
+        {
+            return null;
+        }
+        var option = animalManager.NextProductionOption(animal);
+        return new()
+        {
+            Option = option,
+            Level = nexts.LevelRequired
+        };
+    }
     
-
+    
+    public ItemUnlockRule? NextCrop
+    {
+        get
+        {
+            if (_currentProfile.CompletedGame)
+            {
+                return null;
+            }
+            return _cropPlan.UnlockRules.FirstOrDefault(x => x.LevelRequired > _currentProfile.Level);
+        }
+    }
     private void RewardEndOfLevel()
     {
         _currentProfile.PointsThisLevel = 0;

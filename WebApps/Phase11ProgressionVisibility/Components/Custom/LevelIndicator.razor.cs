@@ -1,7 +1,7 @@
 namespace Phase11ProgressionVisibility.Components.Custom;
 public partial class LevelIndicator(OverlayService overlay) : IDisposable
 {
-    private string Level => ProgressionManager.Level.ToString("N0");
+    private string Level => ProgressionManager.CurrentLevel.ToString("N0");
     private int CurrentPoints => ProgressionManager.CurrentPoints;
     private int PointsRequired => ProgressionManager.PointsRequired;
     protected override void OnInitialized()

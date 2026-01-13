@@ -53,7 +53,12 @@ public class AnimalManager(InventoryManager inventory,
             return output;
         }
     }
+    public AnimalProductionOption NextProductionOption(string animal)
+    {
+        var instance = _animals.First(x => x.Name == animal);
+        return instance.NextProductionOption;
 
+    }
     public void ApplyAnimalProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
     {
         bool changed = false;

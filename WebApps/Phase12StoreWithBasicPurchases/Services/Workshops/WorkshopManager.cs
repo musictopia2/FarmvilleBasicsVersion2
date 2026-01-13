@@ -27,7 +27,8 @@ public class WorkshopManager(InventoryManager inventory,
             lock (_lock)
             {
                 BasicList<WorkshopView> output = [];
-                _workshops.ForConditionalItems(x => x.SupportedItems.Any(x => x.Unlocked), t =>
+
+                _workshops.ForConditionalItems(x => x.Unlocked, t =>
                 {
                     WorkshopView summary = new()
                     {
@@ -37,8 +38,9 @@ public class WorkshopManager(InventoryManager inventory,
                         ReadyCount = t.Queue.Count(x => x.State == EnumWorkshopState.ReadyToPickUpManually)
                     };
                     output.Add(summary);
-
                 });
+
+                
                 return output;
             }
         }
@@ -62,10 +64,15 @@ public class WorkshopManager(InventoryManager inventory,
         //if (_workshops.Any(x => x.Unlocked && x.))
         //var workshop = _workshops.FirstOrDefault(x => x.Unlocked == false && )
     }
-    public void ApplyWorksiteProgressionUnlocks(BasicList<ItemUnlockRule> rules, int level)
+    
+    //if you purchase, must make sure all proper items are unlocked like it should had (?)
+
+
+    public void ApplyWorksiteProgressionOnLevelUnlocks(BasicList<ItemUnlockRule> rules, BasicList<CatalogOfferModel> offers, int level)
     {
         //only unlock current level.
         var modify = rules.Where(x => x.LevelRequired == level);
+        bool changed = false;
         foreach (var craftedItem in modify)
         {
             WorkshopRecipe recipe = _recipes.Single(x => x.Item == craftedItem.ItemName);
@@ -74,9 +81,22 @@ public class WorkshopManager(InventoryManager inventory,
             {
                 var fins = item.SupportedItems.Single(x => x.Name == craftedItem.ItemName);
                 fins.Unlocked = true;
+                changed = true;
             }
         }
-        _needsSaving = true;
+        var offer = offers.FirstOrDefault(x => x.LevelRequired == level);
+        if (offer is not null)
+        {
+            var workshop = _workshops.First(x => x.BuildingName == offer.TargetName);
+            workshop.Unlocked = true;
+            changed = true;
+
+        }
+        if (changed)
+        {
+            _needsSaving = true;
+        }
+
     }
 
     public int GetCapcity(WorkshopView summary)

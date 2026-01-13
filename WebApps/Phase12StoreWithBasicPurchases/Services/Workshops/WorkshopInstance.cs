@@ -2,11 +2,10 @@
 public class WorkshopInstance
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
-    //public bool Unlocked { get; set; } = true;
     public int SelectedRecipeIndex { get; set; } = 0;
     public BasicList<UnlockModel> SupportedItems { get; set; } = [];
     public int Capacity { get; set; } = 2; //for now, always 2.  later will rethink.
-    public bool Unlocked => SupportedItems.Any(x => x.Unlocked);
+    public bool Unlocked { get; set; }
     public BasicList<CraftingJobInstance> Queue { get; } = [];
     required public string BuildingName { get; init; }
     public bool CanAccept(WorkshopRecipe recipe)
@@ -35,6 +34,7 @@ public class WorkshopInstance
             throw new CustomBasicException("Must support at least one item.");
         }
         Id = workshop.Id;
+        Unlocked = workshop.Unlocked;
         SelectedRecipeIndex = workshop.SelectedRecipeIndex;
         Queue.Clear();
         foreach (var item in workshop.Queue)
@@ -53,6 +53,7 @@ public class WorkshopInstance
             {
                 Capacity = Capacity,
                 Name = BuildingName,
+                Unlocked = Unlocked,
                 SupportedItems = SupportedItems,
                 Queue = Queue.Select(x => x.GetCraftingForSaving).ToBasicList(),
                 SelectedRecipeIndex = SelectedRecipeIndex

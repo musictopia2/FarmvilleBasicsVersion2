@@ -16,6 +16,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
     private BasicList<CatalogOfferModel> _worksiteOffers = null!;
     private BasicList<CatalogOfferModel> _workerOffers = null!;
     private BasicList<ItemUnlockRule> _workshopPlan = null!;
+    private BasicList<CatalogOfferModel> _workshopOffers = null!;
     
     private ProgressionProfileModel _currentProfile = null!;
     private IProgressionProfile _profileService = null!;
@@ -33,6 +34,7 @@ public class ProgressionManager(InventoryManager inventoryManager,
         _animalOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Animal);
         _worksiteOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Worksite);
         _workerOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Worker);
+        _workshopOffers = catalogManager.GetFreeOffers(EnumCatalogCategory.Workshop);
         _workshopPlan = await context.WorkshopProgressionPlanProvider.GetPlanAsync(farm);
     }
     public int CurrentLevel => _currentProfile.Level;
@@ -123,13 +125,12 @@ public class ProgressionManager(InventoryManager inventoryManager,
         {
             output.Add(item.TargetName);
         });
+        _workshopOffers.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
+        {
+            output.Add(item.TargetName);
+        });
         _workshopPlan.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
         {
-            var building = workshopManager.GetBuilding(item.ItemName);
-            if (building is not null)
-            {
-                output.Add(building);
-            }
             output.Add(item.ItemName);
         });
         _worksiteOffers.ForConditionalItems(x => x.LevelRequired == nextLevel, item =>
@@ -152,18 +153,14 @@ public class ProgressionManager(InventoryManager inventoryManager,
             }
             int nextLevel = _currentProfile.Level + 1;
             return _cropPlan.SlotLevelRequired.Count(x => x == nextLevel);
-
         }
     }
-
-
-
     private async Task ProcessUnlocksAsync()
     {
         cropManager.ApplyCropProgressionUnlocks(_cropPlan, _currentProfile.Level); //new level.
         animalManager.ApplyAnimalProgressionUnlocksFromLevels(_animalPlan, _animalOffers, _currentProfile.Level);
         treeManager.ApplyTreeUnlocksOnLevels(_treesOffers, _currentProfile.Level);
-        workshopManager.ApplyWorksiteProgressionUnlocks(_workshopPlan, _currentProfile.Level);
+        workshopManager.ApplyWorksiteProgressionOnLevelUnlocks(_workshopPlan, _workshopOffers, _currentProfile.Level);
         worksiteManager.ApplyWorksiteProgressionUnlocksFromLevels(_worksiteOffers, _currentProfile.Level);
         await worksiteManager.ApplyWorkerProgressionUnlocksFromLevelsAsync(_workerOffers, _currentProfile.Level);
     }

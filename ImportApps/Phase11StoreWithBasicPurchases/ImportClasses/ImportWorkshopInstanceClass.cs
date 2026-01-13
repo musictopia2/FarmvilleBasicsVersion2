@@ -2,10 +2,12 @@
 internal static class ImportWorkshopInstanceClass
 {
     private static WorkshopProgressionPlanDatabase _workshopProgression = null!;
+    private static CatalogOfferDatabase _catalogdb = null!;
     private static ProgressionProfileDatabase _levelProfile = null!;
-    private static BasicList<WorkshopRecipeDocument> _recipes = null!;
+    private static BasicList<WorkshopRecipeDocument> _recipes = null!; //still needs this because when you have a building, you need to know what is associated with it.
     public static async Task ImportWorkshopsAsync()
     {
+        _catalogdb = new();
         WorkshopRecipeDatabase recipeDb = new(); //this time, i need recipes.
         _recipes = await recipeDb.GetRecipesAsync();
         if (_recipes.Count == 0)
@@ -29,38 +31,30 @@ internal static class ImportWorkshopInstanceClass
         var workshopPlan = await _workshopProgression.GetPlanAsync(farm);
         var profile = await _levelProfile.GetProfileAsync(farm);
         int level = profile.Level;
-        //the workshopplan knows nothing about buildngs.
-
-
-
-        var buildings = _recipes
-            .Where(r => r.Theme == farm.Theme)
-            .Select(r => r.BuildingName)
-            .Distinct()
-            .ToBasicList();
-
-        if (buildings.Count == 0)
-        {
-            throw new CustomBasicException(
-                $"No workshop buildings found for Theme='{farm.Theme}' ProfileId='{farm.ProfileId}'.");
-        }
+        var catalogList = await _catalogdb.GetCatalogAsync(farm, EnumCatalogCategory.Workshop);
         WorkshopCapacityUpgradePlanDatabase capacityDb = new();
         BasicList<WorkshopCapacityUpgradePlanDocument> upgrades = await capacityDb.GetUpgradesAsync(farm);
-        foreach (var building in buildings)
+        foreach (var catalog in catalogList)
         {
-            WorkshopCapacityUpgradePlanDocument currentPlan = upgrades.Single(x => x.WorkshopName == building);
+            WorkshopCapacityUpgradePlanDocument currentPlan = upgrades.Single(x => x.WorkshopName == catalog.TargetName);
             //needs this for some things.
-
+            bool unlocked;
+            if (catalog.LevelRequired > level || catalog.Costs.Count > 0)
+            {
+                unlocked = false;
+            }
+            else
+            {
+                unlocked = true;
+            }
             WorkshopAutoResumeModel workshop = new()
             {
-                Name = building,
-                Capacity = GetStartingWorkshopCapacity(currentPlan)
+                Name = catalog.TargetName,
+                Capacity = GetStartingWorkshopCapacity(currentPlan),
+                Unlocked = unlocked
             };
-
             workshops.Add(workshop);
-
         }
-
         foreach (var workshop in workshops)
         {
             var temps = _recipes.Where(x => x.BuildingName == workshop.Name).ToBasicList();
@@ -81,7 +75,7 @@ internal static class ImportWorkshopInstanceClass
             Farm = farm,
             Workshops = workshops
         };
-        
+
     }
     private static int GetStartingWorkshopCapacity(
         WorkshopCapacityUpgradePlanDocument plan,

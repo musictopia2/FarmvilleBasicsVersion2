@@ -1,0 +1,61 @@
+﻿@inherits FarmComponentBase
+
+<div class="lvl-details">
+
+    <div class="lvl-summary">
+        <div class="lvl-next">
+            @ProgressionManager.GetNextRewardDetails()
+        </div>
+
+       
+    </div>
+
+    @{
+        var list1 = ProgressionManager.GetMilestoneRewards();
+
+    }
+    @if (list1.Count > 0)
+    {
+        <StopClickPropagation>
+            <div class="lvl-rewards">
+                <WrapLayout ColumnWidth="160px" RenderList="list1" Context="item">
+                    <div class="lvl-reward-card" @onclick="() => ShowText(item.Key)">
+                        <img class="lvl-reward-img"
+                             src="@ImagePath(item.Key)"
+                             alt="" />
+
+                        <div class="lvl-reward-amt">@item.Value</div>
+                    </div>
+                </WrapLayout>
+                
+            </div>
+        </StopClickPropagation>
+    }
+    
+    <div class="lvl-section-title">
+        @GetDetails
+    </div>
+
+    @{
+        var list2 = ProgressionManager.GetLevelRewards();
+    }
+    <StopClickPropagation>
+        <WrapLayout ColumnWidth="160px" RenderList="list2" Context="item">
+
+
+            <div class="lvl-reward-card" @onclick="() => ShowText(item.Key)">
+                <img class="lvl-reward-img"
+                     src="@ImagePath(item.Key)"
+                     alt="" />
+                @if (item.Value > 0)
+                {
+                    <div class="lvl-reward-amt">@item.Value</div>
+                }
+
+            </div>
+        </WrapLayout>
+    </StopClickPropagation>
+    
+
+    @* later: unlocked items/other sections *@
+</div>

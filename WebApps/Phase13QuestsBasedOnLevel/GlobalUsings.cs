@@ -1,0 +1,36 @@
+﻿global using BasicBlazorLibrary.Components.BaseClasses;
+global using BasicBlazorLibrary.Components.Basic;
+global using BasicBlazorLibrary.Helpers;
+global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.BasicExtensions;
+global using CommonBasicLibraries.BasicDataSettingsAndProcesses; //so i can have access to the exceptions when needed.
+global using CommonBasicLibraries.CollectionClasses;
+global using Microsoft.AspNetCore.Components;
+global using Microsoft.Extensions.DependencyInjection;
+global using Phase13QuestsBasedOnLevel.Components;
+global using bb1 = CommonBasicLibraries.BasicDataSettingsAndProcesses.BasicDataFunctions;
+global using cc1 = CommonBasicLibraries.BasicDataSettingsAndProcesses.SColorString;
+global using css1 = BasicBlazorLibrary.CssHelpers.AllCssClasses; //so i can have intellisense completely from c# if i want.
+global using ff1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.FileFunctions.FileFunctions;
+global using Phase13QuestsBasedOnLevel.Services.Crops;
+global using Phase13QuestsBasedOnLevel.Services.Trees;
+global using Phase13QuestsBasedOnLevel.Services.Animals;
+global using Phase13QuestsBasedOnLevel.Services.Workshops;
+global using Phase13QuestsBasedOnLevel.Services.Workers;
+global using Phase13QuestsBasedOnLevel.Services.Worksites;
+global using Phase13QuestsBasedOnLevel;
+global using CommonBasicLibraries.BasicUIProcesses;
+global using DocumentDbLibrary;
+global using CommonBasicLibraries.DatabaseHelpers.AbstractStaticInterfaces;
+global using dd1 = CommonBasicLibraries.DatabaseHelpers.MiscClasses.GlobalClass;
+global using SQLiteHelperLibraries;
+global using mm1 = Phase13QuestsBasedOnLevel.DataAccess.Core.MainDatabase;
+global using Phase13QuestsBasedOnLevel.Quests;
+global using Phase13QuestsBasedOnLevel.Services.Core;
+global using Phase13QuestsBasedOnLevel.Services.Balance;
+global using Phase13QuestsBasedOnLevel.Services.Inventory;
+global using Phase13QuestsBasedOnLevel.DataAccess.Inventory;
+global using Phase13QuestsBasedOnLevel.Utilities;
+global using Phase13QuestsBasedOnLevel.Services.Upgrades;
+global using Phase13QuestsBasedOnLevel.Services.Progression;
+global using Phase13QuestsBasedOnLevel.Services.Catalog;
+global using Phase13QuestsBasedOnLevel.Services.Store;

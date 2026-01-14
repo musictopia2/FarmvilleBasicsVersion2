@@ -68,7 +68,15 @@ public class AnimalManager(InventoryManager inventory,
             throw new CustomBasicException("Only animals can be paid for");
         }
         var instance = _animals.First(x => x.Name == store.TargetName && x.Unlocked == false);
-        instance.Unlocked = true; //hopefully the production options are okay (?)
+        instance.Unlocked = true;
+
+
+        instance.State = EnumAnimalState.Collecting;
+
+        var recipe = _recipes.Single(x => x.Animal == store.TargetName);
+        instance.UpdateReady(recipe.Options.First().Output.Amount);
+
+
         _needsSaving = true;
     }
     public void ApplyAnimalProgressionUnlocksFromLevels(

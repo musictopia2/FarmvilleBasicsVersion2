@@ -6,6 +6,16 @@
     </div>
     return;
 }
+
+<PopupViewport
+    TapToClose=true
+    @bind-Visible="_showConfirmation"
+    ShowHeaders="false"
+>
+    <AcquireConfirmation StoreItem="_currentItem"
+                         OnAcquire="ConfirmedAsync"   />
+</PopupViewport>
+
 <TabButtonContainer ActiveKey="@StoreManager.CurrentCategory.ToString()"
                     ActiveKeyChanged="OnActiveKeyChanged">
 

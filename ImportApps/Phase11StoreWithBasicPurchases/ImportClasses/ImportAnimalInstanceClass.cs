@@ -45,6 +45,7 @@ public static class ImportAnimalInstanceClass
             int ready = 0;
             if (unlocked)
             {
+                
                 state = EnumAnimalState.Collecting;
                 var recipe = _recipes.Single(x => x.Animal == item.TargetName);
                 ready = recipe.Options.First().Output.Amount;

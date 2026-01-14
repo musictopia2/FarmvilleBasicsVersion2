@@ -30,6 +30,20 @@ public partial class ShopComponent(IToast toast)
         (EnumCatalogCategory.Worksite, "Worksites"),
     ];
 
+    private StoreItemRowModel? _currentItem;
+    private bool _showConfirmation;
+    private async Task ConfirmedAsync()
+    {
+        if (_currentItem is null)
+        {
+            return;
+        }
+        _showConfirmation = false;
+        await StoreManager.AcquireAsync(_currentItem);
+        Reload();
+        toast.ShowSuccessToast($"Successfully acquired {_currentItem.TargetName.GetWords}");
+        _currentItem = null;
+    }
 
     private void OnRowClicked(StoreItemRowModel row)
     {
@@ -44,8 +58,8 @@ public partial class ShopComponent(IToast toast)
             toast.ShowUserErrorToast("Unable to purchase because not enough resources"); //not always coins.
             return;
         }
-        Console.WriteLine("Trying to purchase");
-        // TODO: StoreManager.TryPurchaseAsync(row) etc.
+        _currentItem = row;
+        _showConfirmation = true;
     }
 
     private static string CardStateClass(StoreItemRowModel row)
@@ -79,26 +93,6 @@ public partial class ShopComponent(IToast toast)
         return $"/{row.TargetName}.png";
     }
 
-    private static string CostInfo(StoreItemRowModel row)
-    {
-        if (row.IsMaxedOut)
-        {
-            return "Maxed";
-        }
-        if (row.IsLocked)
-        {
-            return $"Locked Level Required {row.LevelRequired}";
-        }
-        if (row.IsFree)
-        {
-            return "Free";
-        }
-        if (row.Costs.Count > 1)
-        {
-            return "Rethink";
-        }
-        return $"{row.Costs.Single().Key} {row.Costs.Single().Value}";
-    }
     protected override void OnInitialized()
     {
         Reload();

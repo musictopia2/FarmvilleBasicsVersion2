@@ -44,18 +44,28 @@
         </div>
         <!-- RIGHT SIDE -->
         <div class="upgrade-right">
-            <div class="upgrade-line">
-                Increase Storage To <span class="upgrade-strong">@_newSize</span>
-            </div>
+            @if (_isMaxedOut == false)
+            {
+                <div class="upgrade-line">
+                    Increase Storage To <span class="upgrade-strong">@_newSize</span>
+                </div>
 
-            <button type="button"
-                    class="upgrade-cost-btn"
-                    @onclick="OpenUpgrade">
-                <img src="/coin.png"
-                     alt="Coin"
-                     class="coin-img" />
-                <span class="upgrade-cost-text">@_newCoinCost</span>
-            </button>
+                <button type="button"
+                        class="upgrade-cost-btn"
+                        @onclick="OpenUpgrade">
+                    <img src="/coin.png"
+                         alt="Coin"
+                         class="coin-img" />
+                    <span class="upgrade-cost-text">@_newCoinCost</span>
+                </button>
+            }
+            else
+            {
+                <div style="font-size: 2rem;">
+                    Maxed out
+                </div>
+            }
+            
         </div>
     </div>
 

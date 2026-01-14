@@ -26,6 +26,7 @@ public class AnimalInstance(AnimalRecipe recipe, double currentMultiplier)
     private readonly double _currentMultiplier = GameRegistry.ValidateMultiplier(currentMultiplier);
     private double? _runMultiplier; // locked per run; null when idle
 
+
     //if i need rebalancing, rethink then.  not until then.
     public void UpdateReady(int amount)
     {

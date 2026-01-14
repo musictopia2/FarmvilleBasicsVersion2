@@ -94,6 +94,28 @@ public class UpgradeManager(InventoryManager inventoryManager,
             return GetCoinCost(temp);
         }
     }
+    public bool IsBarnMaxedOut
+    {
+        get
+        {
+            if (_inventoryStorageProfile.BarnLevel + 1 >= _inventoryPlan.BarnUpgrades.Count)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+    public bool IsSiloMaxedOut
+    {
+        get
+        {
+            if (_inventoryStorageProfile.SiloLevel + 1 >= _inventoryPlan.SiloUpgrades.Count)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
     public int NextBarnCount
     {
         get

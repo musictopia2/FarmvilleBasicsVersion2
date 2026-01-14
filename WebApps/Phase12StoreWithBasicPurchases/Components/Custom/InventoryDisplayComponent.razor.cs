@@ -67,6 +67,7 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
 
     private int _newSize;
     private int _newCoinCost;
+    private bool _isMaxedOut;
     
     private void CancelDiscard()
     {
@@ -85,13 +86,22 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
     {
         if (InventoryStorageCategory == EnumInventoryStorageCategory.Barn)
         {
-            _newSize = UpgradeManager.NextBarnCount;
-            _newCoinCost = UpgradeManager.NextBarnCoinCost;
+            _isMaxedOut = UpgradeManager.IsBarnMaxedOut;
+            if (_isMaxedOut == false)
+            {
+                _newSize = UpgradeManager.NextBarnCount;
+                _newCoinCost = UpgradeManager.NextBarnCoinCost;
+            }
         }
         if (InventoryStorageCategory == EnumInventoryStorageCategory.Silo)
         {
-            _newSize = UpgradeManager.NextSiloCount;
-            _newCoinCost = UpgradeManager.NextSiloCoinCost;
+            _isMaxedOut = UpgradeManager.IsSiloMaxedOut;
+            if (_isMaxedOut == false)
+            {
+                _newSize = UpgradeManager.NextSiloCount;
+                _newCoinCost = UpgradeManager.NextSiloCoinCost;
+            }
+            
         }
     }
     protected override void OnInitialized()

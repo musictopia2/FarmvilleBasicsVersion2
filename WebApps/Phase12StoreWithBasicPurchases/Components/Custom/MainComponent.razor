@@ -32,9 +32,14 @@
         <InventoryDisplayComponent InventoryStorageCategory="EnumInventoryStorageCategory.Silo" />
     </PopupViewport>
 
-    <IntegerInputModal>
-
-    </IntegerInputModal>
+    <PopupViewport
+        ShowHeaders="true"
+        HeaderTitle="Shop"
+        TapToClose="true"
+        @bind-Visible="_showShop"
+    >
+        <ShopComponent />
+    </PopupViewport>
     
 
     <NavigationBarContainer @ref="_nav"
@@ -71,6 +76,7 @@
         <MainContent>
             
             <OverlayHost />
+            <ImageButtonComponent OnClick="ShowShop" Name="CashRegister" Height="100" />
             <MainSectionLauncher ReadyCategory="EnumMainSection.Crops" />
             <MainSectionLauncher ReadyCategory="EnumMainSection.Trees" />
             <MainSectionLauncher ReadyCategory="EnumMainSection.Animals" />

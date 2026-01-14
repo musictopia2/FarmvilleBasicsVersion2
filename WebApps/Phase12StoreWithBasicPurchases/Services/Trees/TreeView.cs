@@ -2,5 +2,6 @@
 public class TreeView
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = "";
+    public string ItemName { get; set; } = "";
+    public string TreeName { get; set; } = "";
 }

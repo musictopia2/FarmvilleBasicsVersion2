@@ -58,9 +58,6 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
         await service.CloseAllAsync();
         await base.OnInitializedAsync();
     }
-    
-
-
     private void ChooseAnotherTheme()
     {
         service.Reset();
@@ -68,12 +65,16 @@ public partial class MainComponent(NavigationManager nav, OverlayService service
     }
     private bool _showBarn = false;
     private bool _showSilo = false;
+    private bool _showShop = false;
 
     private async Task CloseAllPopupsAsync()
     {
         await service.CloseAllAsync();
     }
-
+    private void ShowShop()
+    {
+        _showShop = true;
+    }
     private void ShowSilo()
     {
         _showSilo = true;

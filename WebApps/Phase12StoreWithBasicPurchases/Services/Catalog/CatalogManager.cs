@@ -13,10 +13,7 @@ public class CatalogManager
     }
     public BasicList<CatalogOfferModel> GetAllOffers(EnumCatalogCategory category) =>
     _offers.Where(x => x.Category == category)
-           .OrderBy(x => x.TargetName)
-           .ThenBy(x => x.LevelRequired)
-           .ThenBy(x => x.Costs.Count == 0 ? 0 : 1)
-           .ThenBy(GetCostKey)
+           
            .Select(x => x.DeepCopy())
            .ToBasicList();
 
@@ -27,25 +24,25 @@ public class CatalogManager
                .Select(x => x.DeepCopy())
                .ToBasicList();
 
-    public BasicList<CatalogOfferModel> GetTargetOffers(EnumCatalogCategory category, string targetName) =>
-        _offers.Where(x => x.Category == category && x.TargetName == targetName)
-               .OrderBy(x => x.LevelRequired)
-               .ThenBy(x => x.Costs.Count == 0 ? 0 : 1)
-               .ThenBy(GetCostKey)
-               .Select(x => x.DeepCopy())
-               .ToBasicList();
-    private static string GetCostKey(CatalogOfferModel offer)
-    {
-        if (offer.Costs == null || offer.Costs.Count == 0)
-        {
-            return ""; // free always sorts first anyway
-        }
+    //public BasicList<CatalogOfferModel> GetTargetOffers(EnumCatalogCategory category, string targetName) =>
+    //    _offers.Where(x => x.Category == category && x.TargetName == targetName)
+    //           .OrderBy(x => x.LevelRequired)
+    //           .ThenBy(x => x.Costs.Count == 0 ? 0 : 1)
+    //           .ThenBy(GetCostKey)
+    //           .Select(x => x.DeepCopy())
+    //           .ToBasicList();
+    //private static string GetCostKey(CatalogOfferModel offer)
+    //{
+    //    if (offer.Costs == null || offer.Costs.Count == 0)
+    //    {
+    //        return ""; // free always sorts first anyway
+    //    }
 
-        // Stable representation: order keys so dictionary enumeration order doesn't matter
-        return string.Join("|",
-            offer.Costs
-                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
-                .Select(kv => $"{kv.Key}:{kv.Value}"));
-    }
+    //    // Stable representation: order keys so dictionary enumeration order doesn't matter
+    //    return string.Join("|",
+    //        offer.Costs
+    //            .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+    //            .Select(kv => $"{kv.Key}:{kv.Value}"));
+    //}
 
 }

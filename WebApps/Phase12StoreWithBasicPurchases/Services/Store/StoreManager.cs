@@ -17,6 +17,7 @@ public class StoreManager(IFarmProgressionReadOnly levelProgression,
     private BasicList<CatalogOfferModel> _workshopOffers = [];
     private BasicList<CatalogOfferModel> _worksiteOffers = [];
     private BasicList<CatalogOfferModel> _workerOffers = [];
+    public EnumCatalogCategory CurrentCategory => _catalogCategory;
     public async Task SetProgressionStyleContextAsync(StoreServicesContext context)
     {
         _catalogCategory = await context.UiStateRepository.LoadAsync();
@@ -87,7 +88,7 @@ public class StoreManager(IFarmProgressionReadOnly levelProgression,
 
         // Build owned counts from the tree manager (Name matches CatalogOfferModel.TargetName)
         var ownedLookup = treeManager.GetUnlockedTrees
-            .GroupBy(t => t.Name)
+            .GroupBy(t => t.TreeName)
             .ToDictionary(g => g.Key, g => g.Count());
 
         return BuildRowsFromTieredOffers(
@@ -201,7 +202,8 @@ public class StoreManager(IFarmProgressionReadOnly levelProgression,
                     LevelRequired = 0,
                     Costs = [],
                     IsLocked = false,
-                    IsMaxedOut = true
+                    IsMaxedOut = true,
+                    Category = category
                 });
                 continue;
             }
@@ -223,6 +225,8 @@ public class StoreManager(IFarmProgressionReadOnly levelProgression,
             });
         }
         return rows;
+        //return rows.OrderBy(x => x.LevelRequired).ToBasicList();
+            
     }
     private void Refresh()
     {

@@ -74,14 +74,7 @@ public partial class InventoryDisplayComponent(IToast toast) : InventoryAwareCom
         _item = "";
     }
     private int _limit;
-    private string GetStatus
-    {
-        get
-        {
-
-            return $"Have {_currentSize} Limit {_limit}"; //at least something.
-        }
-    }
+    
     protected override void OnParametersSet()
     {
         PopulateList();

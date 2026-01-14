@@ -23,7 +23,8 @@ public class TreeManager(InventoryManager inventory,
                 TreeView summary = new()
                 {
                     Id = t.Id,
-                    Name = t.Name //this may be okay (?)
+                    ItemName = t.Name,
+                    TreeName = t.TreeName
                 };
                 output.Add(summary);
             });

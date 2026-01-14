@@ -14,7 +14,7 @@ public partial class TreeComponent(IToast toast)
         _ready = TreeManager.TreesReady(Tree);
         base.OnInitialized();
     }
-    private string GetFruitImage => $"/{Tree.Name}.png";
+    private string GetFruitImage => $"/{Tree.ItemName}.png";
     protected override Task OnTickAsync()
     {
         _ready = TreeManager.TreesReady(Tree);

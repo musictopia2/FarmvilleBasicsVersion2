@@ -19,9 +19,10 @@
         var need = quest.Required;
         var have = InventoryAmount(itemKey); // you likely already have something like this
         var canComplete = have >= need;
-
+        var levelLocked = quest.LevelRequired > ProgressionManager.CurrentLevel;
         <StackItem Length="280px">
-            <div class="quest-card" @onclick="() => CompleteQuestAsync(quest)">
+            <div class="quest-card @(levelLocked ? "level-locked" : "")"
+                 @onclick="() => CompleteQuestAsync(quest)">
 
                 <StackLayout>
                     <StackItem>
@@ -44,7 +45,13 @@
                     </StackItem>
                 </StackLayout>
 
-                
+                @if (levelLocked)
+                {
+                    <div class="quest-level-badge" title="Unlocks at level @quest.LevelRequired">
+                        <span class="quest-level-badge-lock">🔒</span>
+                        <span>Lvl @quest.LevelRequired</span>
+                    </div>
+                }
 
 
                 

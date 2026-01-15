@@ -122,6 +122,7 @@ public class QuestManager(InventoryManager inventoryManager,
         quest.Order = 0;
         inventoryManager.Consume(quest.Rewards);
         await progressionManager.AddPointSinglePointAsync();
+        _currentLevel = progressionManager.CurrentLevel; //just in case you leveled up.
         await FillQuestsAsync();
     }
 

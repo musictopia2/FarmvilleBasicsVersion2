@@ -5,6 +5,7 @@
     padding: 2px;
     box-sizing: border-box;
     user-select: none;
+    position: relative;
 }
 
 
@@ -40,4 +41,31 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+
+.quest-card.level-locked {
+    opacity: 0.80;
+    filter: grayscale(0.35);
+}
+
+.quest-level-badge {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 2px solid #666;
+    border-radius: 999px;
+    background: white;
+    font-weight: 900;
+    font-size: 0.85rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.quest-level-badge-lock {
+    font-size: 0.95rem;
 }

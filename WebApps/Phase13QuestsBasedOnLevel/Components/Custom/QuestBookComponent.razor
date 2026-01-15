@@ -8,36 +8,33 @@
             var need = quest.Required;
             var have = InventoryAmount(itemKey);
             var canComplete = have >= need;
-
+            var levelLocked = quest.LevelRequired > ProgressionManager.CurrentLevel;
             <div class="quest-grid-item">
-                <div class="card p-2 h-100">
+                <div class="card p-2 h-100 quest-card-shell @(levelLocked ? "level-locked" : "")">
                     <div class="d-flex align-items-center justify-content-between gap-2">
-
-                        <!-- Track toggle -->
                         <button class="track-btn @(quest.Tracked ? "tracked" : "")"
                                 title="Track"
                                 @onclick="() => ToggleTrackedAsync(quest)">
                             ★
                         </button>
 
-                        <!-- Requirement -->
-                        <div class="d-flex align-items-center gap-2 flex-grow-1"
-                             style="min-width: 0;">
-
-
-                             <ItemRequirementDisplay 
-                                 Name="@itemKey"
-                                 Required="@need"
-                                 Have="@have"
-                                 />
+                        <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+                            <ItemRequirementDisplay Name="@itemKey" Required="@need" Have="@have" />
                         </div>
 
-                        <!-- Complete -->
-                        <PrimaryButton IsEnabled="canComplete"
+                        <PrimaryButton IsEnabled="canComplete && levelLocked == false"
                                        OnClick="() => CompleteQuestAsync(quest)">
                             ✔
                         </PrimaryButton>
                     </div>
+
+                    @if (levelLocked)
+                    {
+                        <div class="quest-level-badge" title="Unlocks at level @quest.LevelRequired">
+                            <span class="quest-level-badge-lock">🔒</span>
+                            <span>Lvl @quest.LevelRequired</span>
+                        </div>
+                    }
                 </div>
             </div>
         }

@@ -74,7 +74,13 @@
             <QuestTrackerComponent />
         </HeaderContent>
         <MainContent>
-            
+            @if (ProgressionManager.CompletedGame)
+            {
+                <div>
+                    You completed the game
+                </div>
+                return;
+            }
             <OverlayHost />
             <ImageButtonComponent OnClick="ShowShop" Name="CashRegister" Height="100" />
             <MainSectionLauncher ReadyCategory="EnumMainSection.Crops" />
@@ -84,18 +90,7 @@
             <div>
                 <WorksitesComponent />
             </div>
-            @if (ProgressionManager.CompletedGame == false)
-            {
-                <div>
-                    <PrimaryButton OnClick="LevelUpAsync">
-                        Level Up
-                    </PrimaryButton>
-                    <PrimaryButton OnClick="IncrementPointsAsync">
-                        Add Single Point
-                    </PrimaryButton>
-                    
-                </div>
-            }
+            
             
             <ImageButtonComponent Name="Barn" Width="100" OnClick="ShowBarn" />
             <ImageButtonComponent Name="Silo" Width="100" OnClick="ShowSilo" />

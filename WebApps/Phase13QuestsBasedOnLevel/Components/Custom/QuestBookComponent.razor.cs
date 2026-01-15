@@ -1,6 +1,6 @@
 namespace Phase13QuestsBasedOnLevel.Components.Custom;
 
-public partial class QuestBookComponent
+public partial class QuestBookComponent(IToast toast)
 {
     private BasicList<QuestInstanceModel> _incompleteQuests = [];
 
@@ -30,7 +30,11 @@ public partial class QuestBookComponent
         {
             return;
         }
-
+        if (quest.LevelRequired > ProgressionManager.CurrentLevel)
+        {
+            toast.ShowUserErrorToast("Must be higher level to complete the quest");
+            return;
+        }
         await Farm!.QuestManager.CompleteQuestAsync(quest);
         LoadQuests();
     }

@@ -101,6 +101,11 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
             await AttemptNavigationAsync(quest);
             return;
         }
+        if (quest.LevelRequired > ProgressionManager.CurrentLevel)
+        {
+            toast.ShowUserErrorToast("Must be higher level to complete the quest");
+            return;
+        }
         await Farm!.QuestManager.CompleteQuestAsync(quest);
         LoadQuests();
     }

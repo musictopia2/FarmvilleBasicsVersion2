@@ -1,7 +1,4 @@
-﻿using Phase13QuestsBasedOnLevel.Services.Core;
-
-namespace Phase13QuestsBasedOnLevel.Services.Trees;
-
+﻿namespace Phase13QuestsBasedOnLevel.Services.Trees;
 public class TreeInstance(
     TreeRecipe tree,
     ITreesCollecting collecting,
@@ -36,7 +33,10 @@ public class TreeInstance(
         get
         {
             var m = _runMultiplier ?? _currentMultiplier;
-            return ProductionTimePerTree.Apply(m);
+            return ProductionTimePerTree.ApplyWithMinTotalForBatch(
+                m,
+                collecting.TreesCollectedAtTime);
+            //return ProductionTimePerTree.Apply(m);
         }
     }
     public TimeSpan BaseTime => ProductionTimePerTree;

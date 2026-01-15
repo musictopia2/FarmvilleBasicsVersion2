@@ -14,7 +14,40 @@ public static class TimeExtensions
     }
     extension (TimeSpan time)
     {
+        public TimeSpan ApplyWithMinTotalForBatch(double multiplier,
+        int batchSize)
+        {
+            if (multiplier <= 0)
+            {
+                throw new CustomBasicException("Time multiplier must be > 0");
+            }
 
+            if (batchSize <= 0)
+            {
+                throw new CustomBasicException("Batch size must be > 0");
+            }
+
+            // scaled per-unit time
+            var scaledTicks = (long)Math.Round(time.Ticks * multiplier, MidpointRounding.AwayFromZero);
+
+            // compute minimum ticks per unit so that (perUnit * batchSize) >= minTotal
+            // use CEILING so the total is guaranteed to be at least minTotal
+            //has to still be the 2 seconds for the total batch.
+            var minPerUnitTicks = (long)Math.Ceiling(TimeSpan.FromSeconds(2).Ticks / (double)batchSize);
+
+            if (scaledTicks < minPerUnitTicks)
+            {
+                scaledTicks = minPerUnitTicks;
+            }
+
+            // still guard against 0/negative ticks
+            if (scaledTicks <= 0)
+            {
+                scaledTicks = 1;
+            }
+
+            return TimeSpan.FromTicks(scaledTicks);
+        }
         public TimeSpan Apply(double multiplier)
         {
             if (multiplier <= 0)

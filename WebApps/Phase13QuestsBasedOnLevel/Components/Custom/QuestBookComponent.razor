@@ -10,7 +10,9 @@
             var canComplete = have >= need;
             var levelLocked = quest.LevelRequired > ProgressionManager.CurrentLevel;
             <div class="quest-grid-item">
-                <div class="card p-2 h-100 quest-card-shell @(levelLocked ? "level-locked" : "")">
+                <div class="card p-2 h-100 quest-card-shell
+                     @(levelLocked ? "level-locked" : "")
+                     @(!quest.Seen ? "new-quest" : "")">
                     <div class="d-flex align-items-center justify-content-between gap-2">
                         <button class="track-btn @(quest.Tracked ? "tracked" : "")"
                                 title="Track"

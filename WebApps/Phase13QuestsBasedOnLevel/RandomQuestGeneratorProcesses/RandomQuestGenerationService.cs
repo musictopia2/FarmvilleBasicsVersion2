@@ -81,7 +81,7 @@ public class RandomQuestGenerationService : IQuestGenerationService
     {
         EnumItemCategory.Worksite => NextInt(1, 2),
         EnumItemCategory.Crop => NextInt(20, 50),
-        EnumItemCategory.Tree => NextInt(14, 20),
+        EnumItemCategory.Tree => NextInt(10, 16), //no 17
         EnumItemCategory.Animal => NextInt(6, 10),
         _ => NextInt(3, 8),
     };

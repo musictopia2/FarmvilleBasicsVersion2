@@ -122,9 +122,10 @@
             <div style="display: flex; align-items: center; gap: 8px;">
 
                 <div class="workshop-recipe-icon @(CurrentRecipe.Unlocked ? "" : "locked")">
-                    <img class="workshop-recipe-img"
-                         src="@($"/{ChosenItem}.png")"
-                         alt="@ChosenItem" />
+                    <ImageButtonComponent Name="@ChosenItem"
+                                          Height="72"
+                                          OnClick="Craft" />
+                    
 
                     @if (CurrentRecipe.Unlocked == false)
                     {
@@ -134,15 +135,7 @@
                     }
                 </div>
 
-                @* <div style="width: 100px; display:flex; justify-content:center;">
-                    <ImageButtonComponent Name="@ChosenItem"
-                                          Height="125"
-                                          OnClick="Craft" />
-                    
-
-
-                    
-                </div> *@
+                
 
                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.1; align-items: flex-end; text-align: right;">
                     <div style="max-width: 100%;

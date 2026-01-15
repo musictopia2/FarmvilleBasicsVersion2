@@ -157,6 +157,8 @@ public class ProgressionManager(InventoryManager inventoryManager,
         {
             output.Add(item.TargetName);
         });
+        var fins = GetCropPreviewOfNextLevel();
+        fins.ForEach(output.Add);
         return output;
     }
     private int GetNewSlotsPreviewOfNextLevel

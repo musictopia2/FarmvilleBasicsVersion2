@@ -75,3 +75,8 @@
 .quest-level-badge-lock {
     font-size: 0.95rem;
 }
+.quest-card-shell.new-quest {
+    outline: 4px solid aqua;
+    outline-offset: -2px;
+    background: rgba(0, 255, 255, 0.10);
+}

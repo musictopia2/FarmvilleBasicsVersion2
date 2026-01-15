@@ -1,6 +1,6 @@
 ﻿namespace Phase13QuestsBasedOnLevel.Quests;
 public class QuestServicesContext
 {
-    required public IQuestRecipes QuestRecipes { get; init; }
-    required public IQuestPersistence QuestPersistence { get; set; }
+    public required IQuestProfile QuestProfile { get; init; }
+    public required IQuestGenerationService QuestGenerationService { get; init; }
 }

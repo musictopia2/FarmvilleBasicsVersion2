@@ -1,24 +1,80 @@
 ﻿namespace Phase13QuestsBasedOnLevel.Quests;
-public class QuestManager(InventoryManager inventory)
+public class QuestManager(InventoryManager inventoryManager,
+    ItemManager itemManager,
+    ProgressionManager progressionManager
+    )
 {
-    private IQuestPersistence _questPersistence = null!;
-    private BasicList<QuestRecipe> _quests = [];
+    private int _currentLevel;
+    private BasicList<QuestInstanceModel> _quests = [];
+    private IQuestProfile _questProfile = null!;
+    private IQuestGenerationService _questGenerationService = null!;
     private int _trackedSeq = 0;
     public async Task SetStyleContextAsync(QuestServicesContext context)
     {
-        if (_questPersistence != null)
-        {
-            throw new InvalidOperationException("Persistance Already set");
-        }
-        _questPersistence = context.QuestPersistence;
-        _quests = await context.QuestRecipes.GetQuestsAsync();
+        _currentLevel = progressionManager.CurrentLevel;
+        _quests = await context.QuestProfile.LoadAsync();
+        _questProfile = context.QuestProfile;
+        _questGenerationService = context.QuestGenerationService;
+        await FillQuestsAsync();
         _trackedSeq = _quests.Count == 0 ? 0 : _quests.Max(x => x.Order);
     }
-
-
-    public BasicList<QuestRecipe> ShowCurrentQuests(int max = 3)
+    private async Task FillQuestsAsync()
     {
-        var incomplete = _quests.Where(q => q.Completed == false).ToBasicList();
+        if (progressionManager.CompletedGame)
+        {
+            _quests.Clear();
+            await SaveQuestsAsync();
+            return;
+        }
+        _quests.RemoveAllAndObtain(x => x.LevelRequired < _currentLevel || x.Status == EnumQuestStatus.Completed); //since i am required to complete the quest
+        FillBoardTo20();
+        await SaveQuestsAsync(); //just in case.
+    }
+    private async Task SaveQuestsAsync()
+    {
+        await _questProfile.SaveAsync(_quests);
+    }
+    private void FillBoardTo20()
+    {
+        if (_quests.Count >= 20)
+        {
+            return; //i think okay at this point.
+        }
+        int currentLevel;
+        currentLevel = _currentLevel;
+        int pointsLeft = progressionManager.PointsRequired - progressionManager.CurrentPoints;
+        var count = _quests.Count(x => x.LevelRequired == currentLevel);
+
+        pointsLeft -= count;
+        if (pointsLeft == 0)
+        {
+            throw new CustomBasicException("Can't be next level");
+        }
+        do
+        {
+            if (_quests.Count >= 20)
+            {
+                return; //i think okay at this point.
+            }
+            var list = itemManager.GetEligibleItems(currentLevel);
+            var quest = _questGenerationService.CreateQuest(currentLevel, list, _quests);
+            quest.QuestId = Guid.NewGuid().ToString(); //i think should be here.  this should generate this id.
+            quest.Seen = false;
+            quest.Tracked = false;
+            quest.Status = EnumQuestStatus.Active; //i think (?)
+
+            _quests.Add(quest);
+            pointsLeft--;
+            if (pointsLeft == 0)
+            {
+                currentLevel++;
+                pointsLeft = progressionManager.PreviewLevelPoints(currentLevel);
+            }
+        } while (true);
+    }
+    public BasicList<QuestInstanceModel> ShowCurrentQuests(int max = 3)
+    {
+        var incomplete = _quests.Where(q => q.Status == EnumQuestStatus.Active).ToBasicList();
         var tracked = incomplete
             .Where(q => q.Tracked)
             .OrderBy(q => q.Order) // most recent tracked first
@@ -41,9 +97,9 @@ public class QuestManager(InventoryManager inventory)
         return tracked.Take(max).ToBasicList();
     }
 
-    private double Progress01(QuestRecipe q)
+    private double Progress01(QuestInstanceModel q)
     {
-        int have = inventory.Get(q.Item); // your inventory accessor
+        int have = inventoryManager.Get(q.ItemName); // your inventory accessor
         if (q.Required <= 0)
         {
             return 0;
@@ -51,20 +107,38 @@ public class QuestManager(InventoryManager inventory)
 
         return Math.Min(1.0, (double)have / q.Required);
     }
-    public async Task SetTrackedAsync(QuestRecipe q, bool tracked, int maxTracked = 3)
+    public BasicList<QuestInstanceModel> GetAllIncompleteQuests()
+        => _quests.Where(x => x.Status == EnumQuestStatus.Active).ToBasicList();
+    public bool CanCompleteQuest(QuestInstanceModel recipe) => inventoryManager.Has(recipe.ItemName, recipe.Required);
+    public async Task CompleteQuestAsync(QuestInstanceModel quest)
     {
-        if (q.Completed)
+        if (CanCompleteQuest(quest) == false)
+        {
+            throw new CustomBasicException("Unable to complete quest.   Should had called CanCompleteQuest first");
+        }
+        inventoryManager.Consume(quest.ItemName, quest.Required);
+        quest.Status = EnumQuestStatus.Completed;
+        quest.Tracked = false;
+        quest.Order = 0;
+        inventoryManager.Consume(quest.Rewards);
+        await progressionManager.AddPointSinglePointAsync();
+        await FillQuestsAsync();
+    }
+
+    public async Task SetTrackedAsync(QuestInstanceModel q, bool tracked, int maxTracked = 3)
+    {
+        if (q.Status == EnumQuestStatus.Completed)
         {
             q.Tracked = false;
             q.Order = 0;
-            await _questPersistence.SaveQuestsAsync(_quests);
+            await SaveQuestsAsync();
             return;
         }
         if (tracked == false)
         {
             q.Tracked = false;
             q.Order = 0;
-            await _questPersistence.SaveQuestsAsync(_quests); //must save this.
+            await SaveQuestsAsync();
             return;
         }
 
@@ -72,13 +146,13 @@ public class QuestManager(InventoryManager inventory)
         if (q.Tracked)
         {
             q.Order = ++_trackedSeq;
-            await _questPersistence.SaveQuestsAsync(_quests); //must save this.
+            await SaveQuestsAsync();
             return;
         }
 
         // If at cap, auto-untrack the oldest tracked quest
         var trackedList = _quests
-            .Where(x => x.Completed == false && x.Tracked)
+            .Where(x => x.Status == EnumQuestStatus.Active && x.Tracked)
             .OrderBy(x => x.Order) // oldest first
             .ToList();
 
@@ -92,25 +166,6 @@ public class QuestManager(InventoryManager inventory)
         // Track the new one as most recent
         q.Tracked = true;
         q.Order = ++_trackedSeq;
-        await _questPersistence.SaveQuestsAsync(_quests);
-    }
-
-    public BasicList<QuestRecipe> GetAllIncompleteQuests()
-        => _quests.Where(x => x.Completed == false).ToBasicList();
-
-
-    public bool CanCompleteQuest(QuestRecipe recipe) => inventory.Has(recipe.Item, recipe.Required);
-    public async Task CompleteQuestAsync(QuestRecipe recipe)
-    {
-        if (CanCompleteQuest(recipe) == false)
-        {
-            throw new CustomBasicException("Unable to complete quest.   Should had called CanCompleteQuest first");
-        }
-        inventory.Consume(recipe.Item, recipe.Required);
-        recipe.Completed = true;
-        recipe.Tracked = false;
-        recipe.Order = 0;
-        inventory.Add(recipe.Rewards);
-        await _questPersistence.SaveQuestsAsync(_quests);
+        await SaveQuestsAsync();
     }
 }

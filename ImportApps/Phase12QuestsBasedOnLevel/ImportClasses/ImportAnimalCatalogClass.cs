@@ -67,14 +67,14 @@ public static class ImportAnimalCatalogClass
         output.Add(new()
         {
             TargetName = CountryAnimalListClass.Cow,
-            LevelRequired = 2,
+            LevelRequired = 3,
             Category = _category,
             Costs = FarmHelperClass.GetFreeCosts
         });
         output.Add(new()
         {
             TargetName = CountryAnimalListClass.Cow,
-            LevelRequired = 4,
+            LevelRequired = 5,
             Category = _category,
             Costs = FarmHelperClass.GetCoinOnlyDictionary(20)
         });
@@ -83,7 +83,7 @@ public static class ImportAnimalCatalogClass
         output.Add(new()
         {
             TargetName = CountryAnimalListClass.Goat,
-            LevelRequired = 12,
+            LevelRequired = 10,
             Category = _category,
             Costs = FarmHelperClass.GetFreeCosts
         });

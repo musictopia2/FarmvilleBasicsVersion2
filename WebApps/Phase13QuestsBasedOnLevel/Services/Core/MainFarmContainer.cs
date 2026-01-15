@@ -12,4 +12,5 @@ public class MainFarmContainer
     required public ProgressionManager ProgressionManager { get; set; }
     required public CatalogManager CatalogManager { get; set; }
     required public StoreManager StoreManager { get; set; }
+    //attempt to not require itemmanager here (since only the quest manager should require it.   if i am wrong, rethink).
 }

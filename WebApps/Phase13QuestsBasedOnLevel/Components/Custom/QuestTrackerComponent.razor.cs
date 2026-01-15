@@ -1,18 +1,11 @@
 namespace Phase13QuestsBasedOnLevel.Components.Custom;
 public partial class QuestTrackerComponent(OverlayService questService, IToast toast)
 {
-
-    private BasicList<QuestRecipe> _incompleteQuests = [];
-
-    
-
+    private BasicList<QuestInstanceModel> _incompleteQuests = [];
     private const string _worksiteLockMessage = "Must collect from current worksite first";
     private static string GetRewardImage(string key)
     {
         return $"{key}.png";
-        //key = (key ?? "").Trim();
-        //if (key.Length == 0) return "/missing.png";
-        //return "/" + Uri.EscapeDataString(key) + ".png";
     }
     protected override Task OnInitializedAsync()
     {
@@ -49,7 +42,7 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
         await questService.OpenQuestBookAsync();
     }
 
-    private string NameStyle => "font-size:0.95rem;";
+    private static string NameStyle => "font-size:0.95rem;";
 
     private void LoadQuests()
     {
@@ -65,13 +58,13 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
         LoadQuests();
         return base.OnInventoryChangedAsync();
     }
-    private bool CanCompleteQuest(QuestRecipe recipe) => Farm!.QuestManager.CanCompleteQuest(recipe);
+    private bool CanCompleteQuest(QuestInstanceModel quest) => Farm!.QuestManager.CanCompleteQuest(quest);
 
 
-    private async Task AttemptNavigationAsync(QuestRecipe recipe)
+    private async Task AttemptNavigationAsync(QuestInstanceModel quest)
     {
 
-        WorkshopView? workshop = WorkshopManager.SearchForWorkshop(recipe.Item);
+        WorkshopView? workshop = WorkshopManager.SearchForWorkshop(quest.ItemName);
 
         if (workshop is not null)
         {
@@ -80,35 +73,35 @@ public partial class QuestTrackerComponent(OverlayService questService, IToast t
         }
 
         //attempt animals.
-        if (AnimalManager.HasAnimal(recipe.Item))
+        if (AnimalManager.HasAnimal(quest.ItemName))
         {
             await questService.OpenAnimalsAsync();
             return;
         }
-        if (CropManager.HasCrop(recipe.Item))
+        if (CropManager.HasCrop(quest.ItemName))
         {
             await questService.OpenCropsAsync();
             return;
         }
-        if (TreeManager.HasTrees(recipe.Item))
+        if (TreeManager.HasTrees(quest.ItemName))
         {
             await questService.OpenTreesAsync();
             return;
         }
-        await questService.OpenPossibleWorksiteAsync(WorksiteManager.GetPossibleWorksiteForItem(recipe.Item));
+        await questService.OpenPossibleWorksiteAsync(WorksiteManager.GetPossibleWorksiteForItem(quest.ItemName));
     }
-    private async Task CompleteQuestAsync(QuestRecipe recipe)
+    private async Task CompleteQuestAsync(QuestInstanceModel quest)
     {
         if (BlockIfLocked())
         {
             return;
         }
-        if (CanCompleteQuest(recipe) == false)
+        if (CanCompleteQuest(quest) == false)
         {
-            await AttemptNavigationAsync(recipe);
+            await AttemptNavigationAsync(quest);
             return;
         }
-        await Farm!.QuestManager.CompleteQuestAsync(recipe);
+        await Farm!.QuestManager.CompleteQuestAsync(quest);
         LoadQuests();
     }
     

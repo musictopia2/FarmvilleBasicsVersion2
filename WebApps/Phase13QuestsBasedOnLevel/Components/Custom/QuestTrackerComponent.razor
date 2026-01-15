@@ -15,7 +15,7 @@
     </StackItem>
     @foreach (var quest in _incompleteQuests)
     {
-        var itemKey = quest.Item;
+        var itemKey = quest.ItemName;
         var need = quest.Required;
         var have = InventoryAmount(itemKey); // you likely already have something like this
         var canComplete = have >= need;

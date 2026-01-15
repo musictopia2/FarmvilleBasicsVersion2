@@ -4,7 +4,7 @@
     <div class="quest-grid">
         @foreach (var quest in _incompleteQuests)
         {
-            var itemKey = quest.Item;
+            var itemKey = quest.ItemName;
             var need = quest.Required;
             var have = InventoryAmount(itemKey);
             var canComplete = have >= need;
@@ -30,20 +30,6 @@
                                  Required="@need"
                                  Have="@have"
                                  />
-
-
-                            @* <img src="@GetItemImageSrc(itemKey)"
-                                 alt="@itemKey"
-                                 style="width: 40px; height: 40px; object-fit: contain;" />
-
-                            <div style="min-width:0;">
-                                <div class="fw-bold quest-name">@itemKey.GetWords</div>
-
-                                <div class="fw-bold @(canComplete ? "text-success" : "text-danger")"
-                                     style="font-size: 0.95rem; line-height: 1.1;">
-                                    @have / @need
-                                </div>
-                            </div> *@
                         </div>
 
                         <!-- Complete -->

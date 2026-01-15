@@ -48,6 +48,22 @@ public class ProgressionManager(InventoryManager inventoryManager,
             return profile.RequiredPoints;
         }
     }
+
+    public int PreviewLevelPoints(int levelDesired)
+    {
+        //-1 means game is over.
+
+        if (levelDesired >= _levelPlan.Tiers.Count && _levelPlan.IsEndless == false)
+        {
+            return -1; //its over.
+        }
+        if (levelDesired >= _levelPlan.Tiers.Count)
+        {
+            return _levelPlan.Tiers.Last().RequiredPoints;
+        }
+        return _levelPlan.Tiers[levelDesired - 1].RequiredPoints;
+    }
+
     public bool CompletedGame => _currentProfile.CompletedGame;
     public async Task IncrementLevelAsync()
     {

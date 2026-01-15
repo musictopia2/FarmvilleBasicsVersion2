@@ -34,3 +34,4 @@ global using Phase13QuestsBasedOnLevel.Services.Upgrades;
 global using Phase13QuestsBasedOnLevel.Services.Progression;
 global using Phase13QuestsBasedOnLevel.Services.Catalog;
 global using Phase13QuestsBasedOnLevel.Services.Store;
+global using Phase13QuestsBasedOnLevel.Services.Items;

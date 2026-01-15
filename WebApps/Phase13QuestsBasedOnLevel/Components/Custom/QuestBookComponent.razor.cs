@@ -2,7 +2,7 @@ namespace Phase13QuestsBasedOnLevel.Components.Custom;
 
 public partial class QuestBookComponent
 {
-    private BasicList<QuestRecipe> _incompleteQuests = [];
+    private BasicList<QuestInstanceModel> _incompleteQuests = [];
 
     private void LoadQuests()
         => _incompleteQuests = Farm!.QuestManager.GetAllIncompleteQuests();
@@ -19,13 +19,12 @@ public partial class QuestBookComponent
         return base.OnInventoryChangedAsync();
     }
 
-    private async Task ToggleTrackedAsync(QuestRecipe quest)
+    private async Task ToggleTrackedAsync(QuestInstanceModel quest)
     {
         await Farm!.QuestManager.SetTrackedAsync(quest, !quest.Tracked, 4);
         LoadQuests(); // refresh star states and any ordering you choose
     }
-
-    private async Task CompleteQuestAsync(QuestRecipe quest)
+    private async Task CompleteQuestAsync(QuestInstanceModel quest)
     {
         if (Farm!.QuestManager.CanCompleteQuest(quest) == false)
         {
@@ -35,7 +34,5 @@ public partial class QuestBookComponent
         await Farm!.QuestManager.CompleteQuestAsync(quest);
         LoadQuests();
     }
-
     private int InventoryAmount(string itemKey) => InventoryManager.Get(itemKey);
-    private string GetItemImageSrc(string itemKey) => $"/{itemKey}.png";
 }

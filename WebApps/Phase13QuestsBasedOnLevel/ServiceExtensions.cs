@@ -4,6 +4,7 @@ using Phase13QuestsBasedOnLevel.DataAccess.Balance;
 using Phase13QuestsBasedOnLevel.DataAccess.Catalog;
 using Phase13QuestsBasedOnLevel.DataAccess.Core;
 using Phase13QuestsBasedOnLevel.DataAccess.Crops;
+using Phase13QuestsBasedOnLevel.DataAccess.Items;
 using Phase13QuestsBasedOnLevel.DataAccess.Progression;
 using Phase13QuestsBasedOnLevel.DataAccess.Quests; //not common enough.
 using Phase13QuestsBasedOnLevel.DataAccess.Store;
@@ -38,6 +39,7 @@ public static class ServiceExtensions
                 .AddSingleton<IProgressionFactory, ProgressionFactory>()
                 .AddSingleton<ICatalogFactory, CatalogFactory>()
                 .AddSingleton<IStoreFactory, StoreFactory>()
+                .AddSingleton<IItemFactory, ItemFactory>()
                 .AddScoped<ReadyStatusService>()
                 .AddScoped<OverlayService>()
                 .AddScoped<FarmContext>()

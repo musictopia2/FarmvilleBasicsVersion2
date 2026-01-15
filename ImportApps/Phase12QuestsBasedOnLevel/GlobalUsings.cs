@@ -15,4 +15,3 @@ global using mm1 = Phase12QuestsBasedOnLevel.DataAccess.MainDatabase;
 global using ii1 = Phase12QuestsBasedOnLevel.ImportClasses;
 global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.RandomGenerator;
 global using rs1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.RandomGenerator.RandomHelpers;
-global using Phase12QuestsBasedOnLevel.QuestHelpers;

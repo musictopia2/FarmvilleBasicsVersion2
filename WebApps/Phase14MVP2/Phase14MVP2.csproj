@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,9 +8,10 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BasicBlazorLibrary" Version="10.0.131" />
+		<PackageReference Include="BasicBlazorLibrary" Version="10.0.142" />
 		<PackageReference Include="AdoNetHelpersLibrary" Version="10.0.8" />
 		<PackageReference Include="AndyCristinaBasicClasses" Version="1.0.116" />
+		<PackageReference Include="CommonBasicLibraries" Version="10.0.16" />
 		<PackageReference Include="DocumentDbLibrary" Version="10.0.7" />
 		<PackageReference Include="SQLiteHelperLibraries" Version="10.0.7" />
 	</ItemGroup>

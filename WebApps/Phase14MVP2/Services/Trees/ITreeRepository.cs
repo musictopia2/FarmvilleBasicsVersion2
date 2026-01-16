@@ -1,0 +1,6 @@
+﻿namespace Phase14MVP2.Services.Trees;
+public interface ITreeRepository
+{
+    Task<BasicList<TreeAutoResumeModel>> LoadAsync();
+    Task SaveAsync(BasicList<TreeAutoResumeModel> list);
+}
